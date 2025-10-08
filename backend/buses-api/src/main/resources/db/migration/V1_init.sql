@@ -1,21 +1,20 @@
-@"
-create table if not exists trip(
-  id bigserial primary key,
-  origin varchar(80) not null,
-  destination varchar(80) not null,
-  departure_ts timestamp not null,
-  arrival_ts timestamp not null,
-  base_price_clp integer not null
+CREATE TABLE trip (
+  id BIGSERIAL PRIMARY KEY,
+  origin        VARCHAR(80) NOT NULL,
+  destination   VARCHAR(80) NOT NULL,
+  departure_date DATE       NOT NULL,
+  price         NUMERIC(10,2) NOT NULL,
+  created_at    TIMESTAMP NOT NULL DEFAULT now()
 );
 
-create table if not exists seat_hold(
-  id bigserial primary key,
-  trip_id bigint not null references trip(id),
-  seat varchar(8) not null,
-  user_id bigint,
-  expires_at timestamp not null,
-  unique(trip_id, seat)
+CREATE TABLE seat_hold (
+  id BIGSERIAL PRIMARY KEY,
+  trip_id     BIGINT NOT NULL REFERENCES trip(id) ON DELETE CASCADE,
+  seat_number VARCHAR(8) NOT NULL,
+  status      VARCHAR(16) NOT NULL,      -- HELD | CONFIRMED | RELEASED
+  hold_until  TIMESTAMP   NOT NULL,
+  created_at  TIMESTAMP   NOT NULL DEFAULT now()
 );
 
-create index if not exists idx_trip_od_dep on trip(origin, destination, departure_ts);
-"@ | Set-Content -Encoding UTF8 src\main\resources\db\migration\V1__init.sql
+CREATE UNIQUE INDEX ux_hold_trip_seat ON seat_hold(trip_id, seat_number);
+CREATE INDEX ix_hold_status_until ON seat_hold(status, hold_until);
