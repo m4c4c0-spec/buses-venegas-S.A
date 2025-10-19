@@ -15,13 +15,12 @@ public class HoldsController {
   private final HoldSeatsService service;
   public HoldsController(HoldSeatsService s){ this.service=s; }
 
-  @PostMapping("/holds")
-  public ResponseEntity<?> hold(@Validated @RequestBody HoldRequest req){
-    try {
-      var expires = service.handle(req.tripId(), req.seat(), req.userId());
-      return ResponseEntity.ok(Map.of("expiresAt", expires.toString()));
-    } catch (DataIntegrityViolationException e){
-      return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error","seat_taken"));
-    }
-  }
+@PostMapping("/holds")
+public ResponseEntity<?> hold(
+        @Validated @RequestBody HoldRequest req){
+    Long userId = 1L; 
+
+   var expires = service.handle(req.tripId(), req.seat(), userId);
+    return ResponseEntity.ok(Map.of("expiresAt", expires.toString()));
+}
 }
