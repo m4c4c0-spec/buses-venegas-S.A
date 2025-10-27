@@ -1,4 +1,5 @@
 package cl.venegas.buses_api.domain.port;
+import java.time.LocalDateTime;
 
 public interface SeatHoldRepository {
 
