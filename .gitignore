@@ -3,6 +3,7 @@
 /frontend/dist
 
 # Ignorar dependencias del backend
+/backend/node-modules
 /backend/build
 /backend/out
 
