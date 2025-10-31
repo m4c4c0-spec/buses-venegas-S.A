@@ -1,0 +1,13 @@
+# Ignorar dependencias del frontend
+/frontend/node_modules
+/frontend/dist
+
+# Ignorar dependencias del backend
+/backend/node-modules
+/backend/build
+/backend/out
+
+# IDE y sistema
+.idea
+.vscode
+.DS_Store
