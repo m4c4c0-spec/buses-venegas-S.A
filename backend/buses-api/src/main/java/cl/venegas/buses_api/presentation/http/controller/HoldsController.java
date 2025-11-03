@@ -2,7 +2,6 @@ package cl.venegas.buses_api.presentation.http.controller;
 
 import cl.venegas.buses_api.application.usecase.HoldSeatsService;
 import cl.venegas.buses_api.presentation.http.request.HoldRequest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
