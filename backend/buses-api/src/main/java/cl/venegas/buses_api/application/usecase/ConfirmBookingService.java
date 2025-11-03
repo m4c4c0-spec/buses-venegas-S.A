@@ -1,29 +1,44 @@
-package main.java.cl.venegas.buses_api.application.usecase;
+package cl.venegas.buses_api.application.usecase;
+
+import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import main.java.cl.venegas.buses_api.domain.model.BookingStatus;
-import main.java.cl.venegas.buses_api.domain.port.BookingRepository;
+import cl.venegas.buses_api.domain.model.Booking;
+import cl.venegas.buses_api.domain.model.BookingStatus;
+import cl.venegas.buses_api.domain.port.BookingRepository;
 
 @Service
 public class ConfirmBookingService {
-  private final BookingRepository bookings;
 
-  public ConfirmBookingService(BookingRepository bookings) {
-    this.bookings = bookings;
+  private final BookingRepository bookingRepository;
+
+  public ConfirmBookingService(BookingRepository bookingRepository) {
+    this.bookingRepository = bookingRepository;
   }
 
   @Transactional
   public void handle(Long bookingId, String paymentReference) {
-    var booking = bookings.findById(bookingId)
-        .orElseThrow(() -> new IllegalArgumentException("Viaje no encontrado"));
+    Booking booking = bookingRepository.findById(bookingId)
+            .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + bookingId));
 
-    if (booking.status() != BookingStatus.PENDIENTE) {
-      throw new IllegalStateException("El viaje ya ha sido confirmado");
+    if (booking.getStatus() != BookingStatus.PENDIENTE) {
+      throw new IllegalStateException("Booking is not in PENDING status. Current status: " + booking.getStatus());
     }
 
-    // Se actualiza estado de la reserva
-    bookings.updateStatus(bookingId, BookingStatus.CONFIRMADO);
+
+    if (booking.getExpiresAt() != null && LocalDateTime.now().isAfter(booking.getExpiresAt())) {
+      booking.setStatus(BookingStatus.EXPIRADO);
+      bookingRepository.save(booking);
+      throw new IllegalStateException("Booking has expired");
+    }
+
+
+    booking.setStatus(BookingStatus.CONFIRMADO);
+    booking.setPaymentReference(paymentReference);
+
+
+    bookingRepository.save(booking);
   }
 }
