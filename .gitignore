@@ -11,3 +11,6 @@
 .idea
 .vscode
 .DS_Store
+
+#Herramientas para los test
+backend/buses-api/tools/*.jar
