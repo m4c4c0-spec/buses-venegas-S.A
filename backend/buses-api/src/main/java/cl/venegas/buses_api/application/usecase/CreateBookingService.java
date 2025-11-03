@@ -41,10 +41,9 @@ public class CreateBookingService {
     Trip trip = tripRepository.findById(tripId)
             .orElseThrow(() -> new IllegalArgumentException("Viaje no encontrado por la id " + tripId));
 
-
-    List<SeatHold> existingHolds = seatHoldRepository.findByTripIdAndSeatNumberIn(tripId, seats);
-    if (!existingHolds.isEmpty()) {
-      throw new SeatAlreadyHeldException("Uno o mas asientos ya han sido agendados");
+        List<SeatHold> existingHolds = seatHoldRepository.findByTripIdAndSeatIn(tripId, seats);
+            if (!existingHolds.isEmpty()) {
+        throw new SeatAlreadyHeldException("Uno o mas asientos ya han sido agendados");
     }
 
 
@@ -53,13 +52,13 @@ public class CreateBookingService {
     }
 
 
-    BigDecimal totalAmount = trip.getBasePrice().multiply(BigDecimal.valueOf(seats.size()));
+    BigDecimal totalAmount = BigDecimal.valueOf(trip.basePriceClp()).multiply(BigDecimal.valueOf(seats.size()));
 
 
     LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES);
     List<SeatHold> seatHolds = new ArrayList<>();
     for (String seat : seats) {
-      SeatHold hold = new SeatHold(tripId, seat, userId, expiresAt);
+      SeatHold hold = new SeatHold(null, tripId, seat, userId, expiresAt);
       seatHolds.add(seatHoldRepository.save(hold));
     }
 
