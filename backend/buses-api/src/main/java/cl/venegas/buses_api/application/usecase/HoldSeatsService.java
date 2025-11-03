@@ -1,5 +1,6 @@
 package cl.venegas.buses_api.application.usecase;
 
+import cl.venegas.buses_api.domain.model.SeatHold;
 import cl.venegas.buses_api.domain.port.SeatHoldRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,14 @@ public class HoldSeatsService {
     this.holds = holds; 
   }
 
-  public LocalDateTime handle(Long tripId, String seat, Long userId){
-    // La lógica de negocio vive aquí, en la capa de aplicación
+  public SeatHold handle(Long tripId, String seat, Long userId){
+   
     var expiresAt = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES);
     
-    // Pasamos la fecha de expiración al repositorio
     return holds.hold(tripId, seat, userId, expiresAt);
   }
+
+  
+
+
 }
