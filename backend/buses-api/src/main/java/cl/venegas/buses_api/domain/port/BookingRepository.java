@@ -12,4 +12,5 @@ public interface BookingRepository {
     List<Booking> findByTripId(Long tripId);
     List<Booking> findByStatus(BookingStatus status);
     void updateStatus(Long bookingId, BookingStatus newStatus);
+    void delete(Booking booking);
 }
