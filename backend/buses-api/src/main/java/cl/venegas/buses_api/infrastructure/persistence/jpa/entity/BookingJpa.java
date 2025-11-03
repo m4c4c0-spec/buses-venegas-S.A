@@ -89,35 +89,6 @@ public class BookingJpa {
             throw new RuntimeException("Error busqueda de pasajeros JSON", e);
         }
     }
-
-    public static BookingJpa fromDomain(Booking booking) {
-        try {
-            BookingJpa jpa = new BookingJpa();
-            jpa.setId(booking.getId());
-            jpa.setUserId(booking.getUserId());
-            jpa.setTripId(booking.getTripId());
-
-            // Convertir List<String> a String[]
-            if (booking.getSeats() != null) {
-                jpa.setSeats(booking.getSeats().toArray(new String[0]));
-            }
-
-            // Convertir List<Passenger> a JSON
-            if (booking.getPassengers() != null) {
-                String passengersJson = objectMapper.writeValueAsString(booking.getPassengers());
-                jpa.setPassengersJson(passengersJson);
-            }
-
-            jpa.setStatus(booking.getStatus());
-            jpa.setTotalAmount(booking.getTotalAmount());
-            jpa.setPaymentReference(booking.getPaymentReference());
-            jpa.setCreatedAt(booking.getCreatedAt());
-            jpa.setExpiresAt(booking.getExpiresAt());
-
-            return jpa;
-        } catch (Exception e) {
-            throw new RuntimeException("Error convirtiendo Booking a BookingJpa", e);
-        }
-    }
-
+    
+   
 }
