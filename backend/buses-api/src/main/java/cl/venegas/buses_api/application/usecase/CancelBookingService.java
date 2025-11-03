@@ -43,7 +43,7 @@ public class CancelBookingService {
     booking.setStatus(BookingStatus.CANCELADO);
     bookingRepository.save(booking);
 
-    List<SeatHold> seatHolds = seatHoldRepository.findByTripIdAndSeatNumberIn(
+    List<SeatHold> seatHolds = seatHoldRepository.findByTripIdAndSeatIn(
             booking.getTripId(),
             booking.getSeats()
     );
