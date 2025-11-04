@@ -26,18 +26,18 @@ public class CancelBookingService {
   @Transactional
   public void handle(Long bookingId, Long userId) {
     Booking booking = bookingRepository.findById(bookingId)
-            .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + bookingId));
+            .orElseThrow(() -> new IllegalArgumentException("El viaje ha sido cancelado" + bookingId));
 
     if (!booking.getUserId().equals(userId)) {
-      throw new IllegalArgumentException("Booking does not belong to user with id: " + userId);
+      throw new IllegalArgumentException("el viaje no pertence al usuario, ya que es un id distinto" + userId);
     }
 
     if (booking.getStatus() == BookingStatus.CANCELADO) {
-      throw new IllegalStateException("Booking is already cancelled");
+      throw new IllegalStateException("el viaje ya ha sido cancelado");
     }
 
     if (booking.getStatus() == BookingStatus.EXPIRADO) {
-      throw new IllegalStateException("Cannot cancel an expired booking");
+      throw new IllegalStateException("este viaje no puede ser cancelado ya que ha expirado");
     }
 
     booking.setStatus(BookingStatus.CANCELADO);

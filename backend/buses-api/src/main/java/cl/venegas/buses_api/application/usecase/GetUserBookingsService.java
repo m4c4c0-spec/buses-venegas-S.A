@@ -17,7 +17,7 @@ public class GetUserBookingsService {
     }
 
     public List<Booking> handle(Long userId) {
-        // Buscar todas las reservas del usuario
+        //Se buscan todas las reservas del usuario
         return bookingRepository.findByUserId(userId);
     }
 }

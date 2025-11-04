@@ -23,7 +23,7 @@ public class RegisterUserService {
                        String lastName, String phone) {
 
         users.findByEmail(email).ifPresent(u -> {
-            throw new IllegalArgumentException("Email already registered");
+            throw new IllegalArgumentException("Email ya esta registrado");
         });
 
 
