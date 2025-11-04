@@ -17,7 +17,7 @@ public class Booking {
     private LocalDateTime createdAt;
     private LocalDateTime expiresAt;
     
-    // Constructor vacío
+  
     public Booking() {
     }
     
@@ -38,7 +38,7 @@ public class Booking {
         this.expiresAt = expiresAt;
     }
     
-    // Getters
+    
     public Long getId() {
         return id;
     }
@@ -79,7 +79,7 @@ public class Booking {
         return expiresAt;
     }
     
-    // Setters
+   
     public void setId(Long id) {
         this.id = id;
     }

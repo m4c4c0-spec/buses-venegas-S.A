@@ -85,7 +85,7 @@ public class BookingJpa {
                     expiresAt
             );
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error parsing passengers JSON", e);
+            throw new RuntimeException("Error al buscar los pasajeros JSON", e);
         }
     }
 
@@ -104,7 +104,7 @@ public class BookingJpa {
         jpa.setExpiresAt(booking.getExpiresAt());
         return jpa;
     } catch (JsonProcessingException e) {
-        throw new RuntimeException("Error converting passengers to JSON", e);
+        throw new RuntimeException("Error al convertir pasajeros  al JSON", e);
     }
 }
 }
