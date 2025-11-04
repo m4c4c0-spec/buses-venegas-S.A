@@ -117,3 +117,24 @@ task analisisCompleto {
 	tasks.findByName('jacocoTestReport').mustRunAfter 'test'
 	tasks.findByName('sonarqube').mustRunAfter 'jacocoTestReport'
 }
+
+// LA TAREA PARA QUE CREA EL LCOM4 PARA EL ANALISIS
+task lcom4Metrics(type: Exec) {
+    description = 'Calcular métricas LCOM4 usando ckjm'
+    group = 'verification'
+    
+    workingDir projectDir
+    
+    
+    commandLine 'java', '-jar', 
+                'tools/ckjm_ext-2.3.jar',  
+                'build/classes/java/main'
+    
+    standardOutput = new FileOutputStream('lcom4-report.txt')
+    
+    doLast {
+        println " Reporte LCOM4 generado en: lcom4-report.txt"
+    }
+}
+
+lcom4Metrics.dependsOn compileJava
