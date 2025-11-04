@@ -1,4 +1,4 @@
-package main.java.cl.venegas.buses_api.application.task;
+package cl.venegas.buses_api.application.task;
 
 import cl.venegas.buses_api.infrastructure.persistence.jpa.repo.SeatHoldJpaRepository;
 import org.slf4j.Logger;
