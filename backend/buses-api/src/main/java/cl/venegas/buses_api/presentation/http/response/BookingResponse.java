@@ -20,16 +20,17 @@ public record BookingResponse(
 ) {
     public static BookingResponse from(Booking booking) {
         return new BookingResponse(
-                booking.id(),
-                booking.userId(),
-                booking.tripId(),
-                booking.seats(),
-                booking.passengers(),
-                booking.status(),
-                booking.totalAmount(),
-                booking.paymentReference(),
-                booking.createdAt().toString(),
-                booking.expiresAt().toString()
+                booking.getId(),
+                booking.getUserId(),
+                booking.getTripId(),
+                booking.getSeats(),
+                booking.getPassengers(),
+                booking.getStatus(),
+                booking.getTotalAmount(),
+                booking.getPaymentReference(),
+                booking.getCreatedAt().toString(),
+                booking.getExpiresAt().toString()
         );
     }
 }
+
