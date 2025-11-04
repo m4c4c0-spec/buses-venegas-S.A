@@ -1,4 +1,4 @@
-package main.java.cl.venegas.buses_api.domain.model;
+package cl.venegas.buses_api.domain.model;
 
 public enum PaymentMethod {
     TARJETA_CREDITO,
