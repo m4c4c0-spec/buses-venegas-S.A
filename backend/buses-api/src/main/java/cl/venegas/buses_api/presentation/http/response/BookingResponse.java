@@ -2,7 +2,6 @@ package cl.venegas.buses_api.presentation.http.response;
 
 import java.math.BigDecimal;
 import java.util.List;
-
 import cl.venegas.buses_api.domain.model.Booking;
 import cl.venegas.buses_api.domain.model.BookingStatus;
 import cl.venegas.buses_api.domain.model.Passenger;

@@ -69,7 +69,6 @@ public class BookingsController {
     @GetMapping("/my-bookings")
     public ResponseEntity<List<BookingResponse>> getMyBookings() {
         Long userId = 1L;
-
         var bookings = getUserBookings.handle(userId);
         return ResponseEntity.ok(
                 bookings.stream()
