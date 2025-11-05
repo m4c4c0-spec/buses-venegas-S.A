@@ -41,24 +41,24 @@ public class CreateBookingService {
     Trip trip = tripRepository.findById(tripId)
             .orElseThrow(() -> new IllegalArgumentException("Viaje no encontrado por la id " + tripId));
 
-        List<SeatHold> existingHolds = seatHoldRepository.findByTripIdAndSeatIn(tripId, seats);
-            if (!existingHolds.isEmpty()) {
-        throw new SeatAlreadyHeldException("Uno o mas asientos ya han sido agendados");
+
+    List<SeatHold> existingHolds = seatHoldRepository.findByTripIdAndSeatNumberIn(tripId, seats);
+    if (!existingHolds.isEmpty()) {
+      throw new SeatAlreadyHeldException("Uno o mas asientos ya han sido agendados");
     }
 
 
     if (passengers.size() != seats.size()) {
-      throw new IllegalArgumentException("Number of passengers must match number of seats");
+      throw new IllegalArgumentException("el numero de pasajeros no coincide con el de los asientos ");
     }
 
 
-    BigDecimal totalAmount = BigDecimal.valueOf(trip.basePriceClp()).multiply(BigDecimal.valueOf(seats.size()));
-
+    BigDecimal.valueOf(trip.basePriceClp());
 
     LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES);
     List<SeatHold> seatHolds = new ArrayList<>();
     for (String seat : seats) {
-      SeatHold hold = new SeatHold(null, tripId, seat, userId, expiresAt);
+     SeatHold hold = new SeatHold(null, tripId, seat, userId, expiresAt);
       seatHolds.add(seatHoldRepository.save(hold));
     }
 
@@ -69,6 +69,7 @@ public class CreateBookingService {
     booking.setSeats(seats);
     booking.setPassengers(passengers);
     booking.setStatus(BookingStatus.PENDIENTE);
+    BigDecimal totalAmount = null;
     booking.setTotalAmount(totalAmount);
     booking.setCreatedAt(LocalDateTime.now());
     booking.setExpiresAt(expiresAt);
