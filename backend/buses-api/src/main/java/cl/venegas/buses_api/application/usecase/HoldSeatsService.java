@@ -16,6 +16,6 @@ public class HoldSeatsService {
 
   public LocalDateTime handle(Long tripId, String seat, Long userId) {
     var expiresAt = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES);
-    return holds.hold(tripId, seat, userId, expiresAt);
+    return holds.hold(tripId, seat, userId, expiresAt).expiresAt();
   }
 }

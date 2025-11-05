@@ -1,4 +1,4 @@
-package main.java.cl.venegas.buses_api.presentation.http.exception;
+package cl.venegas.buses_api.presentation.http.exception;
 
 import java.util.Map;
 
@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import main.java.cl.venegas.buses_api.application.exception.SeatAlreadyHeldException;
+import cl.venegas.buses_api.application.exception.SeatAlreadyHeldException;
 
 @ControllerAdvice
 public class RestExceptionHandler {
@@ -21,5 +21,5 @@ public class RestExceptionHandler {
                 .body(Map.of("error", "seat_taken", "message", ex.getMessage()));
     }
 
-    
+
 }
