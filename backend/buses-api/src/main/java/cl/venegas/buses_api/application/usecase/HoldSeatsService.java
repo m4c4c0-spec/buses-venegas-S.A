@@ -6,13 +6,17 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.stereotype.Service;
+
+import cl.venegas.buses_api.domain.model.SeatHold;
+import cl.venegas.buses_api.domain.port.SeatHoldRepository;
 
 @Service
 public class HoldSeatsService {
   private final SeatHoldRepository holds;
   private final long HOLD_DURATION_MINUTES = 10; 
 
-  public HoldSeatsService(SeatHoldRepository holds){ 
+  public HoldSeatsService(SeatHoldRepository holds) { 
     this.holds = holds; 
   }
 
