@@ -2,7 +2,6 @@ package cl.venegas.buses_api.domain.port;
 
 import java.util.List;
 import java.util.Optional;
-
 import cl.venegas.buses_api.domain.model.Booking;
 import cl.venegas.buses_api.domain.model.BookingStatus;
 
