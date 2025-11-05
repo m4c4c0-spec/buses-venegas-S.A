@@ -21,5 +21,5 @@ public class RestExceptionHandler {
                 .body(Map.of("error", "seat_taken", "message", ex.getMessage()));
     }
 
-
+    
 }

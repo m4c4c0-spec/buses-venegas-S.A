@@ -18,6 +18,6 @@ public class TripsController {
                                 @RequestParam String to,
                                 @RequestParam String date){
     return service.handle(from, to, LocalDate.parse(date))
-            .stream().map(TripResponse::from).toList();
+                  .stream().map(TripResponse::from).toList();
   }
 }

@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record Payment(Long id,Long bookingId, BigDecimal amount, PaymentMethod method, PaymentStatus status,
-                      String transactionId,
-                      String gatewayResponse,
-                      LocalDateTime createdAt
+    String transactionId,
+    String gatewayResponse,
+    LocalDateTime createdAt
 ) {
 
 }

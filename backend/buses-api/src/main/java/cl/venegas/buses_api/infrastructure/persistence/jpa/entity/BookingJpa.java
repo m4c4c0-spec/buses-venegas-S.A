@@ -89,22 +89,22 @@ public class BookingJpa {
         }
     }
 
-    public static BookingJpa fromDomain(Booking booking) {
-        try {
-            BookingJpa jpa = new BookingJpa();
-            jpa.setId(booking.getId());
-            jpa.setUserId(booking.getUserId());
-            jpa.setTripId(booking.getTripId());
-            jpa.setSeats(booking.getSeats().toArray(new String[0]));
-            jpa.setPassengersJson(objectMapper.writeValueAsString(booking.getPassengers()));
-            jpa.setStatus(booking.getStatus());
-            jpa.setTotalAmount(booking.getTotalAmount());
-            jpa.setPaymentReference(booking.getPaymentReference());
-            jpa.setCreatedAt(booking.getCreatedAt());
-            jpa.setExpiresAt(booking.getExpiresAt());
-            return jpa;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error al convertir pasajeros  al JSON", e);
-        }
+   public static BookingJpa fromDomain(Booking booking) {
+    try {
+        BookingJpa jpa = new BookingJpa();
+        jpa.setId(booking.getId());
+        jpa.setUserId(booking.getUserId());
+        jpa.setTripId(booking.getTripId());
+        jpa.setSeats(booking.getSeats().toArray(new String[0]));
+        jpa.setPassengersJson(objectMapper.writeValueAsString(booking.getPassengers()));
+        jpa.setStatus(booking.getStatus());
+        jpa.setTotalAmount(booking.getTotalAmount());
+        jpa.setPaymentReference(booking.getPaymentReference());
+        jpa.setCreatedAt(booking.getCreatedAt());
+        jpa.setExpiresAt(booking.getExpiresAt());
+        return jpa;
+    } catch (JsonProcessingException e) {
+        throw new RuntimeException("Error al convertir pasajeros  al JSON", e);
     }
+}
 }
