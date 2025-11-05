@@ -16,14 +16,14 @@ public class HoldSeatsService {
     this.holds = holds; 
   }
 
-  public SeatHold handle(Long tripId, String seat, Long userId){
-   
+  public LocalDateTime handle(Long tripId, String seat, Long userId){
+
     var expiresAt = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES);
-    
+
     return holds.hold(tripId, seat, userId, expiresAt);
   }
 
-  
+
 
 
 }
