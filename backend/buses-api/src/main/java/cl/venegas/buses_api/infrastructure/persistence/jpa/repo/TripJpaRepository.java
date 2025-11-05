@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface TripJpaRepository extends JpaRepository<TripJpa, Long> {
   List<TripJpa> findByOriginAndDestinationAndDepartureTsBetween(
-          String origin, String dest, LocalDateTime from, LocalDateTime to);
+      String origin, String dest, LocalDateTime from, LocalDateTime to);
 }

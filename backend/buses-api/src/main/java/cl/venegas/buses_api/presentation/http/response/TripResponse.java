@@ -7,6 +7,6 @@ public record TripResponse(Long id, String origin, String destination,
                            Integer basePriceClp) {
   public static TripResponse from(Trip t){
     return new TripResponse(t.id(), t.origin(), t.destination(),
-            t.departureTs().toString(), t.arrivalTs().toString(), t.basePriceClp());
+      t.departureTs().toString(), t.arrivalTs().toString(), t.basePriceClp());
   }
 }

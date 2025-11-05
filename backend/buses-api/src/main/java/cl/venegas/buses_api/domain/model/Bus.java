@@ -4,12 +4,12 @@ import java.time.LocalDate;
 
 
 public record Bus(
-        Long id,
-        String plateNumber,
-        String model,
-        Integer totalSeats,
-        BusType type,
-        BusStatus status,
-        LocalDate ultimaMantencion
+    Long id, 
+    String plateNumber, 
+    String model, 
+    Integer totalSeats, 
+    BusType type, 
+    BusStatus status, 
+    LocalDate ultimaMantencion
 ) {
 }
