@@ -18,18 +18,19 @@ public record BookingResponse(
         String createdAt,
         String expiresAt
 ) {
-    public static BookingResponse from(Object booking) {
+    public static BookingResponse from(Booking booking) {
         return new BookingResponse(
-                ((BookingResponse) booking).id(),
-                ((BookingResponse) booking).userId(),
-                ((BookingResponse) booking).tripId(),
-                ((BookingResponse) booking).seats(),
-                ((BookingResponse) booking).passengers(),
-                ((BookingResponse) booking).status(),
-                ((BookingResponse) booking).totalAmount(),
-                ((BookingResponse) booking).paymentReference(),
-                ((BookingResponse) booking).createdAt().toString(),
-                ((BookingResponse) booking).expiresAt().toString()
+                booking.getId(),
+                booking.getUserId(),
+                booking.getTripId(),
+                booking.getSeats(),
+                booking.getPassengers(),
+                booking.getStatus(),
+                booking.getTotalAmount(),
+                booking.getPaymentReference(),
+                booking.getCreatedAt().toString(),
+                booking.getExpiresAt().toString()
         );
     }
 }
+
