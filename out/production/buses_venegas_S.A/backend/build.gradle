@@ -1,0 +1,140 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.6'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco' 
+	id 'org.sonarqube' version '4.4.1.3373'
+}
+
+group = 'cl.venegas'
+version = '0.0.1-SNAPSHOT'
+description = 'Backend Buses Venegas S.A (reservas, pagos, tickets)'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-database-postgresql'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+	
+	testImplementation 'com.h2database:h2'
+}
+
+
+// CONFIGURACIÓN DE JACOCO 
+
+
+jacoco {
+	toolVersion = "0.8.10"
+}
+
+test {
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+	reports {
+		xml.required = false
+		html.required = true
+	}
+	dependsOn test
+}
+
+
+// CONFIGURACIÓN DE SONARQUBE
+
+
+sonarqube {
+	properties {
+		
+		property "sonar.projectKey", "buses-venegas-backend"
+		property "sonar.projectName", "Backend Buses Venegas S.A"
+		property "sonar.projectVersion", "0.0.1-SNAPSHOT"
+		
+		// DIRECTORIOS
+		property "sonar.sources", "src/main/java"
+		property "sonar.tests", "src/test/java"
+		property "sonar.java.binaries", "build/classes/java/main"
+		property "sonar.java.test.binaries", "build/classes/java/test"
+		
+		// CODIFICACIÓN
+		property "sonar.sourceEncoding", "UTF-8"
+		
+		// SERVIDOR SONARQUBE
+		property "sonar.host.url", "http://localhost:9000"
+		property "sonar.login", "  sqp_00a1901f7fcc76e6c332aaa2230e5b4b6697bca5"  
+		
+		// REPORTES DE COBERTURA
+		property "sonar.coverage.jacoco.xmlReportPaths", 
+				 "build/reports/jacoco/test/jacocoTestReport.xml"
+		
+		
+	}
+}
+
+
+// LA TAREA QUE SE CREA PARA EL ANALISIS COMPLETO DE SONARQUBE
+task analisisCompleto {
+	group = 'verification'
+	description = 'Ejecuta tests, genera reportes y ejecuta análisis de SonarQube'
+	
+	dependsOn 'clean'
+	dependsOn 'test'
+	dependsOn 'jacocoTestReport'
+	dependsOn 'sonarqube'
+	
+	tasks.findByName('test').mustRunAfter 'clean'
+	tasks.findByName('jacocoTestReport').mustRunAfter 'test'
+	tasks.findByName('sonarqube').mustRunAfter 'jacocoTestReport'
+}
+
+// LA TAREA PARA QUE CREA EL LCOM4 PARA EL ANALISIS
+task lcom4Metrics(type: Exec) {
+    description = 'Calcular métricas LCOM4 usando ckjm'
+    group = 'verification'
+    
+    workingDir projectDir
+    
+    
+    commandLine 'java', '-jar', 
+                'tools/ckjm_ext-2.3.jar',  
+                'build/classes/java/main'
+    
+    standardOutput = new FileOutputStream('lcom4-report.txt')
+    
+    doLast {
+        println " Reporte LCOM4 generado en: lcom4-report.txt"
+    }
+}
+
+lcom4Metrics.dependsOn compileJava
