@@ -1,6 +1,7 @@
-package backend.src.main.java.cl.app.domain.port;
+package cl.app.domain.repository;
 
-import backend.src.main.java.cl.app.domain.model.SeatHold;
+import cl.app.domain.model.entity.SeatHold;
+
 import java.time.LocalDateTime;
 import java.util.List;
 

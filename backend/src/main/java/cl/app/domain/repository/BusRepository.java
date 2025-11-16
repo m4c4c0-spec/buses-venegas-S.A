@@ -1,9 +1,12 @@
-package backend.src.main.java.cl.app.domain.port;
+package cl.app.domain.repository;
+
+import cl.app.domain.model.entity.Booking;
+import cl.app.domain.model.entity.Bus;
+import cl.app.domain.model.valueobject.BusStatus;
 
 import java.util.List;
 import java.util.Optional;
-import backend.src.main.java.cl.app.domain.model.Bus;
-import backend.src.main.java.cl.app.domain.model.BusStatus;
+
 
 public interface BusRepository {
     Bus save(Bus bus);

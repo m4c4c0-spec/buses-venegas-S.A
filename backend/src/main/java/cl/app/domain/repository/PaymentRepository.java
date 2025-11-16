@@ -1,7 +1,9 @@
-package backend.src.main.java.cl.app.domain.port;
+package cl.app.domain.repository;
+
+import cl.app.domain.model.entity.Payment;
+
 
 import java.util.Optional;
-import backend.src.main.java.cl.app.domain.model.Payment;
 
 public interface PaymentRepository {
     Payment save(Payment payment);

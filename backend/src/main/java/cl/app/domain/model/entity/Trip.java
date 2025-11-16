@@ -1,4 +1,7 @@
-package backend.src.main.java.cl.app.domain.model;
+package cl.app.domain.model.entity;
+
+import cl.app.domain.model.entity.Trip;
+
 
 import java.time.LocalDateTime;
 

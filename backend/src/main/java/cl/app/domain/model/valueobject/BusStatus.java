@@ -1,4 +1,4 @@
-package backend.src.main.java.cl.app.domain.model;
+package cl.app.domain.model.valueobject;
 
 public enum BusStatus {
     ACTIVE,

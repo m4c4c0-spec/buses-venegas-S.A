@@ -1,8 +1,10 @@
-package backend.src.main.java.cl.app.domain.port;
+package cl.app.domain.repository;
+
+import cl.app.domain.model.entity.Route;
+
 
 import java.util.List;
 import java.util.Optional;
-import backend.src.main.java.cl.app.domain.model.Route;
 
 public interface RouteRepository {
     Route save(Route route);

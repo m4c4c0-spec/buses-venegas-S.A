@@ -1,6 +1,7 @@
-package backend.src.main.java.cl.app.domain.port;
+package cl.app.domain.repository;
 
-import backend.src.main.java.cl.app.domain.model.Trip;
+import cl.app.domain.model.entity.Trip;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

@@ -1,4 +1,7 @@
-package backend.src.main.java.cl.app.domain.model;
+package cl.app.domain.model.valueobject;
+
+import cl.app.domain.model.valueobject.PaymentMethod;
+
 
 public enum PaymentMethod {
     TARJETA_CREDITO,
