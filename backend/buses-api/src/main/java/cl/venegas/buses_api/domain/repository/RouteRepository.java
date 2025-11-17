@@ -1,8 +1,11 @@
-package cl.venegas.buses_api.domain.port;
+package cl.venegas.buses_api.domain.repository;
+
+import cl.venegas.buses_api.domain.model.entity.Route;
 
 import java.util.List;
 import java.util.Optional;
-import cl.venegas.buses_api.domain.model.Route;
+
+
 
 public interface RouteRepository {
     Route save(Route route);

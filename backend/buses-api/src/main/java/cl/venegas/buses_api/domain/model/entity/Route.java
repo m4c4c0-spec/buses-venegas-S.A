@@ -1,4 +1,4 @@
-package cl.venegas.buses_api.domain.model;
+package cl.venegas.buses_api.domain.model.entity;
 
 import java.math.BigDecimal;
 import java.time.Duration;

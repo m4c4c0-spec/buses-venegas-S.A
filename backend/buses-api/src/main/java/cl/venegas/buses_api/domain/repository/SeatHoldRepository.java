@@ -1,8 +1,11 @@
-package cl.venegas.buses_api.domain.port;
+package cl.venegas.buses_api.domain.repository;
 
-import cl.venegas.buses_api.domain.model.SeatHold;
+import cl.venegas.buses_api.domain.model.entity.SeatHold;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
+
 
 public interface SeatHoldRepository {
   

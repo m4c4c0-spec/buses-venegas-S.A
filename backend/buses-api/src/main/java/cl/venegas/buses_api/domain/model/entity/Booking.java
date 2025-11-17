@@ -1,4 +1,9 @@
-package cl.venegas.buses_api.domain.model;
+package cl.venegas.buses_api.domain.model.entity;
+
+
+
+import cl.venegas.buses_api.domain.model.valueobject.BookingStatus;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
