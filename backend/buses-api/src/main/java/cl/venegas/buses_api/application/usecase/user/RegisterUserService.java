@@ -1,17 +1,15 @@
-<<<<<<< Updated upstream:backend/buses-api/src/main/java/cl/venegas/buses_api/application/usecase/RegisterUserService.java
-package cl.venegas.buses_api.application.usecase;
-=======
-package cl.app.application.usecase;
->>>>>>> Stashed changes:backend/src/main/java/cl/app/application/usecase/RegisterUserService.java
+package cl.venegas.buses_api.application.usecase.user;
 
 import java.time.LocalDateTime;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import cl.venegas.buses_api.domain.model.User;
-import cl.venegas.buses_api.domain.model.UserRole;
-import cl.venegas.buses_api.domain.port.UserRepository;
+import cl.venegas.buses_api.domain.model.entity.User;
+import cl.venegas.buses_api.domain.model.valueobject.UserRole;
+import cl.venegas.buses_api.domain.repository.UserRepository;
+
+
 
 @Service
 public class RegisterUserService {

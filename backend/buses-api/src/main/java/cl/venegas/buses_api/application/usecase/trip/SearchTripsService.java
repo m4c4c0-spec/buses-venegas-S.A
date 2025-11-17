@@ -1,6 +1,7 @@
-package cl.venegas.buses_api.application.usecase;
+package cl.venegas.buses_api.application.usecase.trip;
 
-import cl.venegas.buses_api.domain.model.Trip;
+
+import cl.venegas.buses_api.domain.model.entity.Trip;
 import cl.venegas.buses_api.domain.repository.TripRepository;
 
 import org.springframework.stereotype.Service;
