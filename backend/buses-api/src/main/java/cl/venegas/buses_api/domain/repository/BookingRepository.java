@@ -1,9 +1,11 @@
-package cl.venegas.buses_api.domain.port;
+package cl.venegas.buses_api.domain.repository;
+
+import cl.venegas.buses_api.domain.model.entity.Booking;
+import cl.venegas.buses_api.domain.model.valueobject.BookingStatus;
+
 
 import java.util.List;
 import java.util.Optional;
-import cl.venegas.buses_api.domain.model.Booking;
-import cl.venegas.buses_api.domain.model.BookingStatus;
 
 public interface BookingRepository {
     Booking save(Booking booking);

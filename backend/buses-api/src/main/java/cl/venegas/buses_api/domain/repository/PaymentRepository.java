@@ -1,7 +1,10 @@
-package cl.venegas.buses_api.domain.port;
+package cl.venegas.buses_api.domain.repository;
+
+import cl.venegas.buses_api.domain.model.entity.Payment;
 
 import java.util.Optional;
-import cl.venegas.buses_api.domain.model.Payment;
+
+
 
 public interface PaymentRepository {
     Payment save(Payment payment);

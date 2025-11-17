@@ -1,7 +1,10 @@
-package cl.venegas.buses_api.domain.port;
+package cl.venegas.buses_api.domain.repository;
+
+import cl.venegas.buses_api.domain.model.entity.User;
 
 import java.util.Optional;
-import cl.venegas.buses_api.domain.model.User;
+
+
 
 public interface UserRepository {
     Optional<User> findById(Long id);
