@@ -1,12 +1,12 @@
-package cl.venegas.buses_api.application.usecase;
+package cl.venegas.buses_api.application.usecase.booking;
 
 import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cl.venegas.buses_api.domain.model.Booking;
-import cl.venegas.buses_api.domain.model.BookingStatus;
+import cl.venegas.buses_api.domain.model.entity.Booking;
+import cl.venegas.buses_api.domain.model.valueobject.BookingStatus;
 import cl.venegas.buses_api.domain.repository.BookingRepository;
 
 @Service

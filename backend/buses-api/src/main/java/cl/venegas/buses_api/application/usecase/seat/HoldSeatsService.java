@@ -1,12 +1,10 @@
-<<<<<<< Updated upstream:backend/buses-api/src/main/java/cl/venegas/buses_api/application/usecase/HoldSeatsService.java
-package cl.venegas.buses_api.application.usecase;
-=======
-package cl.app.application.usecase;
->>>>>>> Stashed changes:backend/src/main/java/cl/app/application/usecase/HoldSeatsService.java
+package cl.venegas.buses_api.application.usecase.seat;
 
-import cl.venegas.buses_api.domain.model.SeatHold;
-import cl.venegas.buses_api.domain.port.SeatHoldRepository;
+
 import org.springframework.stereotype.Service;
+
+import cl.venegas.buses_api.domain.model.entity.SeatHold;
+import cl.venegas.buses_api.domain.repository.SeatHoldRepository;
 
 import java.time.LocalDateTime;
 

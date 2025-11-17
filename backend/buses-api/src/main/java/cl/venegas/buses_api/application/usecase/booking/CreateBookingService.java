@@ -1,4 +1,4 @@
-package cl.venegas.buses_api.application.usecase;
+package cl.venegas.buses_api.application.usecase.booking;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -8,12 +8,12 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cl.venegas.buses_api.application.exception.SeatAlreadyHeldException;
-import cl.venegas.buses_api.domain.model.Booking;
-import cl.venegas.buses_api.domain.model.BookingStatus;
-import cl.venegas.buses_api.domain.model.Passenger;
-import cl.venegas.buses_api.domain.model.SeatHold;
-import cl.venegas.buses_api.domain.model.Trip;
+import cl.venegas.buses_api.domain.exception.SeatAlreadyHeldException;
+import cl.venegas.buses_api.domain.model.entity.Booking;
+import cl.venegas.buses_api.domain.model.entity.Passenger;
+import cl.venegas.buses_api.domain.model.entity.SeatHold;
+import cl.venegas.buses_api.domain.model.entity.Trip;
+import cl.venegas.buses_api.domain.model.valueobject.BookingStatus;
 import cl.venegas.buses_api.domain.repository.BookingRepository;
 import cl.venegas.buses_api.domain.repository.SeatHoldRepository;
 import cl.venegas.buses_api.domain.repository.TripRepository;
@@ -44,7 +44,7 @@ public class CreateBookingService {
 
     List<SeatHold> existingHolds = seatHoldRepository.findByTripIdAndSeatNumberIn(tripId, seats);
     if (!existingHolds.isEmpty()) {
-      throw new SeatAlreadyHeldException("Uno o mas asientos ya han sido agendados");
+      throw new SeatAlreadyHeldException("Uno o mas asientos ya han sido agendados", null);
     }
 
 

@@ -1,13 +1,13 @@
-package cl.venegas.buses_api.application.usecase;
+package cl.venegas.buses_api.application.usecase.booking;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cl.venegas.buses_api.domain.model.Booking;
-import cl.venegas.buses_api.domain.model.BookingStatus;
-import cl.venegas.buses_api.domain.model.SeatHold;
+import cl.venegas.buses_api.domain.model.entity.Booking;
+import cl.venegas.buses_api.domain.model.entity.SeatHold;
+import cl.venegas.buses_api.domain.model.valueobject.BookingStatus;
 import cl.venegas.buses_api.domain.repository.BookingRepository;
 import cl.venegas.buses_api.domain.repository.SeatHoldRepository;
 
