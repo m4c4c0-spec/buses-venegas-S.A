@@ -1,7 +1,8 @@
 package cl.venegas.buses_api.application.usecase;
 
 import cl.venegas.buses_api.domain.model.Trip;
-import cl.venegas.buses_api.domain.port.TripRepository;
+import cl.venegas.buses_api.domain.repository.TripRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

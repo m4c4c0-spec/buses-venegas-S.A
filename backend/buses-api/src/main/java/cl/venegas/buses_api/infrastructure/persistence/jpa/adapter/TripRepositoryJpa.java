@@ -1,7 +1,8 @@
 package cl.venegas.buses_api.infrastructure.persistence.jpa.adapter;
 
 import cl.venegas.buses_api.domain.model.Trip;
-import cl.venegas.buses_api.domain.port.TripRepository;
+import cl.venegas.buses_api.domain.repository.TripRepository;
+
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

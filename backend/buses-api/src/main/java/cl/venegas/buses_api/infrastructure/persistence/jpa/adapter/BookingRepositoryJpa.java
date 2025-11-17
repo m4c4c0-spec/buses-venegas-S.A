@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import cl.venegas.buses_api.domain.model.Booking;
 import cl.venegas.buses_api.domain.model.BookingStatus;
-import cl.venegas.buses_api.domain.port.BookingRepository;
+import cl.venegas.buses_api.domain.repository.BookingRepository;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.entity.BookingJpa;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.repo.BookingJpaRepository;
 

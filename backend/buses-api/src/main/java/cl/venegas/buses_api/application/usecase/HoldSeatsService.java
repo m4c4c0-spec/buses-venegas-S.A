@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream:backend/buses-api/src/main/java/cl/venegas/buses_api/application/usecase/HoldSeatsService.java
 package cl.venegas.buses_api.application.usecase;
+=======
+package cl.app.application.usecase;
+>>>>>>> Stashed changes:backend/src/main/java/cl/app/application/usecase/HoldSeatsService.java
 
 import cl.venegas.buses_api.domain.model.SeatHold;
 import cl.venegas.buses_api.domain.port.SeatHoldRepository;
