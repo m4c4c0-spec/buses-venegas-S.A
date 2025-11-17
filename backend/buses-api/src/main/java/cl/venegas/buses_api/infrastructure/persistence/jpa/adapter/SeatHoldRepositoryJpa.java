@@ -1,7 +1,7 @@
 package cl.venegas.buses_api.infrastructure.persistence.jpa.adapter;
 
 import cl.venegas.buses_api.domain.model.SeatHold;
-import cl.venegas.buses_api.domain.port.SeatHoldRepository;
+import cl.venegas.buses_api.domain.repository.SeatHoldRepository;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.entity.SeatHoldJpa;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.repo.SeatHoldJpaRepository;
 import org.springframework.dao.DataIntegrityViolationException;

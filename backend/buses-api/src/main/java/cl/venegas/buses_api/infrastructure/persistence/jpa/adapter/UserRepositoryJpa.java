@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import cl.venegas.buses_api.domain.model.User;
-import cl.venegas.buses_api.domain.port.UserRepository;
+import cl.venegas.buses_api.domain.repository.UserRepository;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.entity.UserJpa;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.repo.UserJpaRepository;
 

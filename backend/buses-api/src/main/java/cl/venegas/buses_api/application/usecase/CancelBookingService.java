@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import cl.venegas.buses_api.domain.model.Booking;
 import cl.venegas.buses_api.domain.model.BookingStatus;
 import cl.venegas.buses_api.domain.model.SeatHold;
-import cl.venegas.buses_api.domain.port.BookingRepository;
-import cl.venegas.buses_api.domain.port.SeatHoldRepository;
+import cl.venegas.buses_api.domain.repository.BookingRepository;
+import cl.venegas.buses_api.domain.repository.SeatHoldRepository;
 
 @Service
 public class CancelBookingService {

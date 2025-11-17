@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream:backend/buses-api/src/main/java/cl/venegas/buses_api/application/usecase/RegisterUserService.java
 package cl.venegas.buses_api.application.usecase;
+=======
+package cl.app.application.usecase;
+>>>>>>> Stashed changes:backend/src/main/java/cl/app/application/usecase/RegisterUserService.java
 
 import java.time.LocalDateTime;
 
