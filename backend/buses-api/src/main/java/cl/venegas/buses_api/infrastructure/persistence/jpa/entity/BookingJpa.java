@@ -8,9 +8,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import cl.venegas.buses_api.domain.model.Booking;
-import cl.venegas.buses_api.domain.model.BookingStatus;
-import cl.venegas.buses_api.domain.model.Passenger;
+import cl.venegas.buses_api.domain.model.entity.Booking;
+import cl.venegas.buses_api.domain.model.entity.Passenger;
+import cl.venegas.buses_api.domain.model.valueobject.BookingStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

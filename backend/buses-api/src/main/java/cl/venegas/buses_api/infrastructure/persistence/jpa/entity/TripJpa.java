@@ -1,8 +1,9 @@
 package cl.venegas.buses_api.infrastructure.persistence.jpa.entity;
 
-import cl.venegas.buses_api.domain.model.Trip;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import cl.venegas.buses_api.domain.model.entity.Trip;
 
 @Entity @Table(name="trip")
 public class TripJpa {

@@ -2,14 +2,16 @@ package cl.venegas.buses_api.infrastructure.persistence.jpa.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import cl.venegas.buses_api.domain.model.entity.Payment;
+import cl.venegas.buses_api.domain.model.valueobject.PaymentMethod;
+import cl.venegas.buses_api.domain.model.valueobject.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import cl.venegas.buses_api.domain.model.Payment;
-import cl.venegas.buses_api.domain.model.PaymentMethod;
-import cl.venegas.buses_api.domain.model.PaymentStatus;
+
 
 @Entity
 @Table(name = "payments")

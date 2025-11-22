@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import cl.venegas.buses_api.domain.model.Booking;
-import cl.venegas.buses_api.domain.model.BookingStatus;
+import cl.venegas.buses_api.domain.model.entity.Booking;
+import cl.venegas.buses_api.domain.model.valueobject.BookingStatus;
 import cl.venegas.buses_api.domain.repository.BookingRepository;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.entity.BookingJpa;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.repo.BookingJpaRepository;
@@ -55,13 +55,6 @@ public class BookingRepositoryJpa implements BookingRepository {
             repo.save(booking);
         });
     }
-    @Override
-    public List<Booking> findByStatus(BookingStatus status) {
-        return repo.findByStatus(status)
-                .stream()
-                .map(BookingJpa::toDomain)
-                .toList();
-    }
 
     @Override
     public List<Booking> findByTripId(Long tripId) {
@@ -69,5 +62,10 @@ public class BookingRepositoryJpa implements BookingRepository {
                 .stream()
                 .map(BookingJpa::toDomain)
                 .toList();
+    }
+
+    @Override
+    public List<Booking> findByStatus(BookingStatus status) {
+        throw new UnsupportedOperationException("Unimplemented method 'findByStatus'");
     }
 }

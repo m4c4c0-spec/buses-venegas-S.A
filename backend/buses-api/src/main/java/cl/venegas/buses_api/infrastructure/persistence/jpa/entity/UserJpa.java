@@ -1,13 +1,14 @@
 package cl.venegas.buses_api.infrastructure.persistence.jpa.entity;
 
 import java.time.LocalDateTime;
+
+import cl.venegas.buses_api.domain.model.entity.User;
+import cl.venegas.buses_api.domain.model.valueobject.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import cl.venegas.buses_api.domain.model.User;
-import cl.venegas.buses_api.domain.model.UserRole;
 
 @Entity
 @Table(name = "users")
@@ -60,25 +61,24 @@ public class UserJpa {
         return new User(
                 id,
                 email,
+                passwordHash,
                 firstName,
                 lastName,
                 phone,
                 role,
-                createdAt
-        );
+                createdAt);
     }
 
-    public static UserJpa fromDomain(User user, String passwordHash) {
+    public static UserJpa fromDomain(User user) {
         return new UserJpa(
                 user.id(),
                 user.email(),
-                passwordHash,
+                user.password(),
                 user.firstName(),
                 user.lastName(),
                 user.phone(),
                 user.role(),
                 user.createdAt(),
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
     }
 }
