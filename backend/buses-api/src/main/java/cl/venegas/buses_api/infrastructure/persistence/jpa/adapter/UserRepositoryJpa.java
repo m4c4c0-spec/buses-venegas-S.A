@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import cl.venegas.buses_api.domain.model.User;
+import cl.venegas.buses_api.domain.model.entity.User;
 import cl.venegas.buses_api.domain.repository.UserRepository;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.entity.UserJpa;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.repo.UserJpaRepository;
@@ -20,19 +20,7 @@ public class UserRepositoryJpa implements UserRepository {
 
     @Override
     public User save(User user) {
-        String passwordHash;
-
-
-        if (user.id() != null) {
-            passwordHash = repo.findById(user.id())
-                    .map(UserJpa::getPasswordHash)
-                    .orElse("");
-        } else {
-
-            passwordHash = "";
-        }
-
-        UserJpa jpa = UserJpa.fromDomain(user, passwordHash);
+        UserJpa jpa = UserJpa.fromDomain(user);
         UserJpa saved = repo.save(jpa);
         return saved.toDomain();
     }

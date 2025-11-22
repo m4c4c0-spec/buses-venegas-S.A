@@ -2,7 +2,7 @@ package cl.venegas.buses_api.infrastructure.persistence.jpa.entity;
 
 import java.time.LocalDateTime;
 
-import cl.venegas.buses_api.domain.model.SeatHold;
+import cl.venegas.buses_api.domain.model.entity.SeatHold;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
