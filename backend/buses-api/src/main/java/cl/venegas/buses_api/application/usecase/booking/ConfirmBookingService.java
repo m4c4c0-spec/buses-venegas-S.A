@@ -19,14 +19,14 @@ public class ConfirmBookingService {
   }
 
   @Transactional
-  public void handle(Long bookingId, String paymentReference) {
-    Booking booking = bookingRepository.findById(bookingId)
-            .orElseThrow(() -> new IllegalArgumentException("el viaje no ha sido encontrado por el id : " + bookingId));
+  public Booking execute(String bookingId) {
+    Long id = Long.parseLong(bookingId);
+    Booking booking = bookingRepository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("el viaje no ha sido encontrado por el id : " + bookingId));
 
     if (booking.getStatus() != BookingStatus.PENDIENTE) {
       throw new IllegalStateException("esta el viaje en estado de pendiente " + booking.getStatus());
     }
-
 
     if (booking.getExpiresAt() != null && LocalDateTime.now().isAfter(booking.getExpiresAt())) {
       booking.setStatus(BookingStatus.EXPIRADO);
@@ -34,11 +34,8 @@ public class ConfirmBookingService {
       throw new IllegalStateException("el viaje ha expirado");
     }
 
-
     booking.setStatus(BookingStatus.CONFIRMADO);
-    booking.setPaymentReference(paymentReference);
 
-
-    bookingRepository.save(booking);
+    return bookingRepository.save(booking);
   }
 }

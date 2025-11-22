@@ -2,42 +2,41 @@ package cl.venegas.buses_api.application.usecase.user;
 
 import java.time.LocalDateTime;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import cl.venegas.buses_api.application.Command.RegisterUserCommand;
 import cl.venegas.buses_api.domain.model.entity.User;
 import cl.venegas.buses_api.domain.model.valueobject.UserRole;
 import cl.venegas.buses_api.domain.repository.UserRepository;
-
-
+import cl.venegas.buses_api.domain.service.PasswordHasher;
 
 @Service
 public class RegisterUserService {
     private final UserRepository users;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordHasher passwordHasher;
 
-    public RegisterUserService(UserRepository users, PasswordEncoder passwordEncoder) {
+    public RegisterUserService(UserRepository users, PasswordHasher passwordHasher) {
         this.users = users;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordHasher = passwordHasher;
     }
 
-    public User handle(String email, String password, String firstName,
-                       String lastName, String phone) {
+    public User execute(RegisterUserCommand command) {
 
-        users.findByEmail(email).ifPresent(u -> {
+        users.findByEmail(command.email()).ifPresent(u -> {
             throw new IllegalArgumentException("Email ya esta registrado");
         });
 
+        String encodedPassword = passwordHasher.encode(command.password());
 
         User user = new User(
                 null,
-                email,
-                firstName,
-                lastName,
-                phone,
+                command.email(),
+                encodedPassword,
+                command.firstName(),
+                command.lastName(),
+                command.phone(),
                 UserRole.CLIENTE,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return users.save(user);
     }

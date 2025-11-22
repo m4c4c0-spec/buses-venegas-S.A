@@ -19,7 +19,6 @@ public class ExpiredHoldsCleanupTask {
         this.seatHoldRepo = seatHoldRepo;
     }
 
-    // Se ejecuta cada 1 minuto (60000 ms)
     @Scheduled(fixedRate = 60000)
     @Transactional
     public void cleanupExpiredHolds() {
