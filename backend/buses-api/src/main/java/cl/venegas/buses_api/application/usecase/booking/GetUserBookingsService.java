@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import cl.venegas.buses_api.domain.model.entity.Booking;
 import cl.venegas.buses_api.domain.repository.BookingRepository;
 
-
-
 @Service
 public class GetUserBookingsService {
 
@@ -18,8 +16,8 @@ public class GetUserBookingsService {
         this.bookingRepository = bookingRepository;
     }
 
-    public List<Booking> handle(Long userId) {
-        //Se buscan todas las reservas del usuario
-        return bookingRepository.findByUserId(userId);
+    public List<Booking> execute(String userId) {
+        // Se buscan todas las reservas del usuario
+        return bookingRepository.findByUserId(Long.parseLong(userId));
     }
 }
