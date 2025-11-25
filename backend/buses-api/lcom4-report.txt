@@ -1,0 +1,528 @@
+cl.venegas.buses_api.domain.model.Payment 12 2 0 7 16 50 2 5 12 0,9091 81 1,0000 2 0,2143 0,1979 1 1 5,0833
+ ~ public final boolean equals(Object o): 1
+ ~ public java.math.BigDecimal amount(): 1
+ ~ public Long id(): 1
+ ~ public final String toString(): 1
+ ~ public final int hashCode(): 1
+ ~ public cl.venegas.buses_api.domain.model.PaymentMethod method(): 1
+ ~ public String transactionId(): 1
+ ~ public java.time.LocalDateTime createdAt(): 1
+ ~ public cl.venegas.buses_api.domain.model.PaymentStatus status(): 1
+ ~ public String gatewayResponse(): 1
+ ~ public void <init>(Long id, Long bookingId, java.math.BigDecimal amount, cl.venegas.buses_api.domain.model.PaymentMethod method, cl.venegas.buses_api.domain.model.PaymentStatus status, String transactionId, String gatewayResponse, java.time.LocalDateTime createdAt): 1
+ ~ public Long bookingId(): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.entity.SeatHoldJpa 14 1 0 2 21 43 1 1 14 0,7077 112 1,0000 0 0,0000 0,3143 0 0 6,6429
+ ~ public void setExpiresAt(java.time.LocalDateTime v): 1
+ ~ public void setId(Long id): 1
+ ~ public void setUserId(Long v): 1
+ ~ public void setSeat(String v): 1
+ ~ public void <init>(Long tripId, String seat, Long userId, java.time.LocalDateTime expiresAt): 1
+ ~ public Long getTripId(): 1
+ ~ public java.time.LocalDateTime getExpiresAt(): 1
+ ~ public Long getId(): 1
+ ~ public Long getUserId(): 1
+ ~ public String getSeat(): 1
+ ~ public void <init>(): 1
+ ~ public void setTripId(Long v): 1
+ ~ public static cl.venegas.buses_api.infrastructure.persistence.jpa.entity.SeatHoldJpa fromDomain(cl.venegas.buses_api.domain.model.SeatHold seatHold): 1
+ ~ public cl.venegas.buses_api.domain.model.SeatHold toDomain(): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.repo.BookingJpaRepository 3 1 0 3 3 3 1 2 3 2,0000 3 0,0000 0 0,0000 0,6667 0 0 0,0000
+ ~ public abstract java.util.List findByUserId(Long): 1
+ ~ public abstract java.util.List findByStatus(cl.venegas.buses_api.domain.model.BookingStatus): 1
+ ~ public abstract java.util.List findByTripId(Long): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.repo.UserJpaRepository 1 1 0 2 1 0 1 1 1 2,0000 1 0,0000 0 0,0000 1,0000 0 0 0,0000
+ ~ public abstract java.util.Optional findByEmail(String): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.entity.TripJpa 14 1 0 1 16 55 0 1 14 0,8462 81 1,0000 0 0,0000 0,2857 0 0 4,3571
+ ~ public void setId(Long id): 1
+ ~ public void setOrigin(String v): 1
+ ~ public void setDestination(String v): 1
+ ~ public java.time.LocalDateTime getDepartureTs(): 1
+ ~ public String getDestination(): 1
+ ~ public Long getId(): 1
+ ~ public String getOrigin(): 1
+ ~ public Integer getBasePriceClp(): 1
+ ~ public cl.venegas.buses_api.domain.model.Trip toDomain(): 1
+ ~ public void setBasePriceClp(Integer v): 1
+ ~ public void <init>(): 1
+ ~ public java.time.LocalDateTime getArrivalTs(): 1
+ ~ public void setArrivalTs(java.time.LocalDateTime v): 1
+ ~ public void setDepartureTs(java.time.LocalDateTime v): 1
+
+cl.venegas.buses_api.domain.model.Trip 10 2 0 6 14 33 3 3 10 0,8889 65 1,0000 0 0,2500 0,2500 1 1 4,9000
+ ~ public final boolean equals(Object o): 1
+ ~ public Long id(): 1
+ ~ public void <init>(Long id, String origin, String destination, java.time.LocalDateTime departureTs, java.time.LocalDateTime arrivalTs, Integer basePriceClp): 1
+ ~ public final String toString(): 1
+ ~ public String origin(): 1
+ ~ public final int hashCode(): 1
+ ~ public String destination(): 1
+ ~ public java.time.LocalDateTime arrivalTs(): 1
+ ~ public Integer basePriceClp(): 1
+ ~ public java.time.LocalDateTime departureTs(): 1
+
+cl.venegas.buses_api.infrastructure.config.OpenApiConfig 2 1 0 5 22 1 0 5 2 2,0000 56 0,0000 0 0,0000 1,0000 0 0 27,0000
+ ~ public io.swagger.v3.oas.models.OpenAPI busesApiOpenAPI(): 1
+ ~ public void <init>(): 1
+
+cl.venegas.buses_api.domain.model.Passenger 11 2 0 3 15 41 0 3 11 0,9000 73 1,0000 0 0,2308 0,3182 1 1 5,0000
+ ~ public final boolean equals(Object o): 1
+ ~ public String firstName(): 1
+ ~ public String email(): 1
+ ~ public Long id(): 1
+ ~ public final String toString(): 1
+ ~ public final int hashCode(): 1
+ ~ public String documentNumber(): 1
+ ~ public String lastName(): 1
+ ~ public void <init>(Long id, String firstName, String lastName, String documentType, String documentNumber, String email, String phone): 1
+ ~ public String documentType(): 1
+ ~ public String phone(): 1
+
+cl.venegas.buses_api.BusesApiApplication 2 1 0 2 4 1 0 2 2 2,0000 10 0,0000 0 0,0000 0,5000 0 0 4,0000
+ ~ public static void main(String[] args): 1
+ ~ public void <init>(): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.adapter.UserRepositoryJpa 5 1 0 5 16 0 0 5 5 0,0000 61 1,0000 1 0,0000 0,4000 0 0 11,0000
+ ~ public java.util.Optional findById(Long id): 1
+ ~ public java.util.Optional findByEmail(String email): 1
+ ~ public void delete(Long userId): 1
+ ~ public void <init>(cl.venegas.buses_api.infrastructure.persistence.jpa.repo.UserJpaRepository repo): 1
+ ~ public cl.venegas.buses_api.domain.model.User save(cl.venegas.buses_api.domain.model.User user): 2
+
+cl.venegas.buses_api.presentation.http.controller.HoldsController 2 1 0 4 10 0 0 4 2 0,0000 27 1,0000 1 0,0000 0,6667 0 0 12,0000
+ ~ public void <init>(cl.venegas.buses_api.application.usecase.HoldSeatsService s): 1
+ ~ public org.springframework.http.ResponseEntity hold(cl.venegas.buses_api.presentation.http.request.HoldRequest req): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.entity.Updated 1 1 0 0 2 0 0 0 1 2,0000 4 0,0000 0 0,0000 1,0000 0 0 3,0000
+ ~ public void <init>(): 1
+
+cl.venegas.buses_api.domain.model.SeatHold 9 2 0 9 13 26 6 3 9 0,8750 57 1,0000 0 0,2727 0,2889 1 1 4,7778
+ ~ public final boolean equals(Object o): 1
+ ~ public java.time.LocalDateTime expiresAt(): 1
+ ~ public void <init>(Long id, Long tripId, String seat, Long userId, java.time.LocalDateTime expiresAt): 1
+ ~ public Long id(): 1
+ ~ public final String toString(): 1
+ ~ public Long tripId(): 1
+ ~ public final int hashCode(): 1
+ ~ public String seat(): 1
+ ~ public Long userId(): 1
+
+cl.venegas.buses_api.presentation.http.request.RegisterUserRequest 9 2 0 4 13 26 1 3 9 0,8750 57 1,0000 0 0,2727 0,4074 1 1 4,7778
+ ~ public final boolean equals(Object o): 1
+ ~ public String email(): 1
+ ~ public String firstName(): 1
+ ~ public final String toString(): 1
+ ~ public final int hashCode(): 1
+ ~ public String password(): 1
+ ~ public String lastName(): 1
+ ~ public void <init>(String email, String password, String firstName, String lastName, String phone): 1
+ ~ public String phone(): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.entity.BookingJpa 25 1 0 7 44 192 2 6 24 0,8409 247 1,0000 1 0,0000 0,2083 0 0 8,4400
+ ~ public void setPaymentReference(String paymentReference): 1
+ ~ public void setUserId(Long userId): 1
+ ~ public void setCreatedAt(java.time.LocalDateTime createdAt): 1
+ ~ public void setSeats(String[] seats): 1
+ ~ public void setStatus(cl.venegas.buses_api.domain.model.BookingStatus status): 1
+ ~ public void setPassengersJson(String passengersJson): 1
+ ~ public static cl.venegas.buses_api.infrastructure.persistence.jpa.entity.BookingJpa fromDomain(cl.venegas.buses_api.domain.model.Booking booking): 1
+ ~ public Long getTripId(): 1
+ ~ public void setTotalAmount(java.math.BigDecimal totalAmount): 1
+ ~ public Long getUserId(): 1
+ ~ public String getPaymentReference(): 1
+ ~ public String[] getSeats(): 1
+ ~ public void setTripId(Long tripId): 1
+ ~ public void setExpiresAt(java.time.LocalDateTime expiresAt): 1
+ ~ public cl.venegas.buses_api.domain.model.Booking toDomain(): 1
+ ~ public void setId(Long id): 1
+ ~ public java.time.LocalDateTime getCreatedAt(): 1
+ ~ public java.math.BigDecimal getTotalAmount(): 1
+ ~ public String getPassengersJson(): 1
+ ~ public java.time.LocalDateTime getExpiresAt(): 1
+ ~ public Long getId(): 1
+ ~ public void <init>(Long id, Long userId, Long tripId, String[] seats, String passengersJson, cl.venegas.buses_api.domain.model.BookingStatus status, java.math.BigDecimal totalAmount, String paymentReference, java.time.LocalDateTime createdAt, java.time.LocalDateTime expiresAt): 1
+ ~ public cl.venegas.buses_api.domain.model.BookingStatus getStatus(): 1
+ ~ static void <clinit>(): 1
+ ~ public void <init>(): 1
+
+cl.venegas.buses_api.presentation.http.controller.TripsController 2 1 0 2 9 0 0 2 2 0,0000 21 1,0000 1 0,0000 0,6667 0 0 9,0000
+ ~ public void <init>(cl.venegas.buses_api.application.usecase.SearchTripsService s): 1
+ ~ public java.util.List get(String from, String to, String date): 1
+
+cl.venegas.buses_api.domain.port.SeatHoldRepository 5 1 0 5 5 10 4 1 5 2,0000 5 0,0000 0 0,0000 0,4667 0 0 0,0000
+ ~ public abstract cl.venegas.buses_api.domain.model.SeatHold hold(Long, String, Long, java.time.LocalDateTime): 1
+ ~ public abstract java.util.List findByTripIdAndSeatIn(Long, java.util.List): 1
+ ~ public abstract void deleteAll(java.util.List): 1
+ ~ public abstract cl.venegas.buses_api.domain.model.SeatHold save(cl.venegas.buses_api.domain.model.SeatHold): 1
+ ~ public abstract java.util.List findByTripIdAndSeatNumberIn(Long, java.util.List): 1
+
+cl.venegas.buses_api.application.usecase.CancelBookingService 3 1 0 6 20 1 0 6 2 0,5000 82 1,0000 2 0,0000 0,5000 0 0 25,6667
+ ~ public void <init>(cl.venegas.buses_api.domain.port.BookingRepository bookingRepository, cl.venegas.buses_api.domain.port.SeatHoldRepository seatHoldRepository): 1
+ ~ public void handle(Long bookingId, Long userId): 5
+ ~ private static synthetic IllegalArgumentException lambda$handle$0(Long bookingId): 1
+
+cl.venegas.buses_api.presentation.http.controller.BookingsController 2 1 0 3 10 0 0 3 2 0,0000 24 1,0000 1 0,0000 0,7500 0 0 10,5000
+ ~ public org.springframework.http.ResponseEntity getMyBookings(): 1
+ ~ public void <init>(cl.venegas.buses_api.application.usecase.GetUserBookingsService getUserBookings): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.repo.TripJpaRepository 1 1 0 1 1 0 0 1 1 2,0000 1 0,0000 0 0,0000 1,0000 0 0 0,0000
+ ~ public abstract java.util.List findByOriginAndDestinationAndDepartureTsBetween(String, String, java.time.LocalDateTime, java.time.LocalDateTime): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.entity.PaymentJpa 21 1 0 3 32 120 0 3 20 0,7938 162 1,0000 2 0,0000 0,2083 0 0 6,3333
+ ~ protected void onCreate(): 2
+ ~ public void setTransactionId(String transactionId): 1
+ ~ public Long getBookingId(): 1
+ ~ public cl.venegas.buses_api.domain.model.PaymentMethod getMethod(): 1
+ ~ public String getGatewayResponse(): 1
+ ~ public void setId(Long id): 1
+ ~ public java.time.LocalDateTime getCreatedAt(): 1
+ ~ public cl.venegas.buses_api.domain.model.Payment toDomain(): 1
+ ~ public void setCreatedAt(java.time.LocalDateTime createdAt): 1
+ ~ public void setAmount(java.math.BigDecimal amount): 1
+ ~ public void <init>(Long id, Long bookingId, java.math.BigDecimal amount, cl.venegas.buses_api.domain.model.PaymentMethod method, cl.venegas.buses_api.domain.model.PaymentStatus status, String transactionId, String gatewayResponse, java.time.LocalDateTime createdAt): 1
+ ~ public void setBookingId(Long bookingId): 1
+ ~ public void setGatewayResponse(String gatewayResponse): 1
+ ~ public java.math.BigDecimal getAmount(): 1
+ ~ public void setStatus(cl.venegas.buses_api.domain.model.PaymentStatus status): 1
+ ~ public void setMethod(cl.venegas.buses_api.domain.model.PaymentMethod method): 1
+ ~ public Long getId(): 1
+ ~ public cl.venegas.buses_api.domain.model.PaymentStatus getStatus(): 1
+ ~ public static cl.venegas.buses_api.infrastructure.persistence.jpa.entity.PaymentJpa fromDomain(cl.venegas.buses_api.domain.model.Payment payment): 1
+ ~ public void <init>(): 1
+ ~ public String getTransactionId(): 1
+
+cl.venegas.buses_api.presentation.http.response.UserResponse 12 2 0 6 24 52 1 5 12 0,8182 93 1,0000 1 0,2143 0,2222 1 1 6,1667
+ ~ public final boolean equals(Object o): 1
+ ~ public String email(): 1
+ ~ public String firstName(): 1
+ ~ public Long id(): 1
+ ~ public final String toString(): 1
+ ~ public final int hashCode(): 1
+ ~ public String createdAt(): 1
+ ~ public void <init>(Long id, String email, String firstName, String lastName, String phone, cl.venegas.buses_api.domain.model.UserRole role, String createdAt): 1
+ ~ public static cl.venegas.buses_api.presentation.http.response.UserResponse from(cl.venegas.buses_api.domain.model.User user): 1
+ ~ public String lastName(): 1
+ ~ public cl.venegas.buses_api.domain.model.UserRole role(): 1
+ ~ public String phone(): 1
+
+cl.venegas.buses_api.domain.model.Booking 22 1 0 8 23 171 7 1 22 0,9048 138 1,0000 1 0,0000 0,2468 0 0 4,8182
+ ~ public void setExpiresAt(java.time.LocalDateTime expiresAt): 1
+ ~ public void setId(Long id): 1
+ ~ public void setPaymentReference(String paymentReference): 1
+ ~ public java.time.LocalDateTime getCreatedAt(): 1
+ ~ public void setSeats(java.util.List seats): 1
+ ~ public void setUserId(Long userId): 1
+ ~ public void <init>(Long id, Long userId, Long tripId, java.util.List seats, java.util.List passengers, cl.venegas.buses_api.domain.model.BookingStatus status, java.math.BigDecimal totalAmount, String paymentReference, java.time.LocalDateTime createdAt, java.time.LocalDateTime expiresAt): 1
+ ~ public void setCreatedAt(java.time.LocalDateTime createdAt): 1
+ ~ public void setStatus(cl.venegas.buses_api.domain.model.BookingStatus status): 1
+ ~ public java.math.BigDecimal getTotalAmount(): 1
+ ~ public Long getTripId(): 1
+ ~ public java.util.List getSeats(): 1
+ ~ public void setTotalAmount(java.math.BigDecimal totalAmount): 1
+ ~ public java.time.LocalDateTime getExpiresAt(): 1
+ ~ public Long getId(): 1
+ ~ public void setPassengers(java.util.List passengers): 1
+ ~ public java.util.List getPassengers(): 1
+ ~ public cl.venegas.buses_api.domain.model.BookingStatus getStatus(): 1
+ ~ public Long getUserId(): 1
+ ~ public String getPaymentReference(): 1
+ ~ public void <init>(): 1
+ ~ public void setTripId(Long tripId): 1
+
+cl.venegas.buses_api.domain.model.Bus 11 2 0 6 15 41 1 5 11 0,9000 73 1,0000 2 0,2308 0,2045 1 1 5,0000
+ ~ public final boolean equals(Object o): 1
+ ~ public String plateNumber(): 1
+ ~ public Long id(): 1
+ ~ public Integer totalSeats(): 1
+ ~ public final String toString(): 1
+ ~ public cl.venegas.buses_api.domain.model.BusStatus status(): 1
+ ~ public final int hashCode(): 1
+ ~ public java.time.LocalDate ultimaMantencion(): 1
+ ~ public cl.venegas.buses_api.domain.model.BusType type(): 1
+ ~ public String model(): 1
+ ~ public void <init>(Long id, String plateNumber, String model, Integer totalSeats, cl.venegas.buses_api.domain.model.BusType type, cl.venegas.buses_api.domain.model.BusStatus status, java.time.LocalDate ultimaMantencion): 1
+
+cl.venegas.buses_api.domain.model.BusType 5 2 0 2 8 6 1 1 2 0,7500 59 0,2500 4 0,8333 0,3333 1 1 10,0000
+ ~ public static cl.venegas.buses_api.domain.model.BusType[] values(): 1
+ ~ private static synthetic cl.venegas.buses_api.domain.model.BusType[] $values(): 1
+ ~ static void <clinit>(): 1
+ ~ private void <init>(String, int): 1
+ ~ public static cl.venegas.buses_api.domain.model.BusType valueOf(String name): 1
+
+cl.venegas.buses_api.domain.port.UserRepository 4 1 0 3 4 6 2 1 4 2,0000 4 0,0000 0 0,0000 0,5000 0 0 0,0000
+ ~ public abstract void delete(Long): 1
+ ~ public abstract java.util.Optional findByEmail(String): 1
+ ~ public abstract cl.venegas.buses_api.domain.model.User save(cl.venegas.buses_api.domain.model.User): 1
+ ~ public abstract java.util.Optional findById(Long): 1
+
+cl.venegas.buses_api.presentation.http.request.CreateBookingRequest 7 2 0 3 11 15 0 3 7 0,8333 41 1,0000 0 0,3333 0,3571 1 1 4,4286
+ ~ public final boolean equals(Object o): 1
+ ~ public void <init>(Long tripId, java.util.List seats, java.util.List passengers): 1
+ ~ public final String toString(): 1
+ ~ public Long tripId(): 1
+ ~ public final int hashCode(): 1
+ ~ public java.util.List passengers(): 1
+ ~ public java.util.List seats(): 1
+
+cl.venegas.buses_api.domain.model.Route 10 2 0 4 14 33 1 3 10 0,8889 65 1,0000 0 0,2500 0,2286 1 1 4,9000
+ ~ public final boolean equals(Object o): 1
+ ~ public Long id(): 1
+ ~ public final String toString(): 1
+ ~ public String origin(): 1
+ ~ public final int hashCode(): 1
+ ~ public Boolean active(): 1
+ ~ public String destination(): 1
+ ~ public java.time.Duration estimatedDuration(): 1
+ ~ public void <init>(Long id, String origin, String destination, java.time.Duration estimatedDuration, java.math.BigDecimal basePrice, Boolean active): 1
+ ~ public java.math.BigDecimal basePrice(): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.adapter.SeatHoldRepositoryJpa 6 1 0 8 19 0 0 8 6 0,0000 80 1,0000 1 0,0000 0,3810 0 0 12,1667
+ ~ public cl.venegas.buses_api.domain.model.SeatHold hold(Long tripId, String seat, Long userId, java.time.LocalDateTime expiresAt): 1
+ ~ public void <init>(cl.venegas.buses_api.infrastructure.persistence.jpa.repo.SeatHoldJpaRepository repo): 1
+ ~ public cl.venegas.buses_api.domain.model.SeatHold save(cl.venegas.buses_api.domain.model.SeatHold seatHold): 1
+ ~ public java.util.List findByTripIdAndSeatNumberIn(Long tripId, java.util.List seatNumbers): 1
+ ~ public void deleteAll(java.util.List seatHolds): 1
+ ~ public java.util.List findByTripIdAndSeatIn(Long tripId, java.util.List seatNumbers): 1
+
+cl.venegas.buses_api.infrastructure.config.CorsConfig 2 1 0 3 7 1 0 3 2 2,0000 50 0,0000 0 0,0000 0,7500 0 0 24,0000
+ ~ public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry): 1
+ ~ public void <init>(): 1
+
+cl.venegas.buses_api.presentation.http.request.PassengerRequest 10 2 0 3 14 33 0 3 10 0,8889 65 1,0000 0 0,2500 0,4000 1 1 4,9000
+ ~ public final boolean equals(Object o): 1
+ ~ public String firstName(): 1
+ ~ public String email(): 1
+ ~ public final String toString(): 1
+ ~ public final int hashCode(): 1
+ ~ public String documentNumber(): 1
+ ~ public String lastName(): 1
+ ~ public void <init>(String firstName, String lastName, String documentType, String documentNumber, String email, String phone): 1
+ ~ public String documentType(): 1
+ ~ public String phone(): 1
+
+cl.venegas.buses_api.domain.model.BookingStatus 5 2 0 10 8 6 9 1 2 0,7500 81 0,1667 6 0,8333 0,3333 1 1 14,0000
+ ~ public static cl.venegas.buses_api.domain.model.BookingStatus valueOf(String name): 1
+ ~ private static synthetic cl.venegas.buses_api.domain.model.BookingStatus[] $values(): 1
+ ~ static void <clinit>(): 1
+ ~ public static cl.venegas.buses_api.domain.model.BookingStatus[] values(): 1
+ ~ private void <init>(String, int): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.entity.BookingJpa$1 1 2 0 2 2 0 1 2 0 2,0000 4 0,0000 0 1,0000 1,0000 0 0 3,0000
+ ~ void <init>(cl.venegas.buses_api.infrastructure.persistence.jpa.entity.BookingJpa this$0): 1
+
+cl.venegas.buses_api.domain.model.UserRole 5 2 0 5 8 6 4 1 2 0,7500 59 0,2500 4 0,8333 0,3333 1 1 10,0000
+ ~ static void <clinit>(): 1
+ ~ public static cl.venegas.buses_api.domain.model.UserRole valueOf(String name): 1
+ ~ private void <init>(String, int): 1
+ ~ public static cl.venegas.buses_api.domain.model.UserRole[] values(): 1
+ ~ private static synthetic cl.venegas.buses_api.domain.model.UserRole[] $values(): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.adapter.TripRepositoryJpa 3 1 0 1 6 3 0 1 3 2,0000 10 0,0000 0 0,0000 0,5000 0 0 2,3333
+ ~ public java.util.Optional findById(Long id): 1
+ ~ public java.util.List findBy(String origin, String dest, java.time.LocalDate date): 1
+ ~ public void <init>(): 1
+
+cl.venegas.buses_api.presentation.http.request.HoldRequest 6 2 0 4 10 11 1 3 6 0,8000 33 1,0000 0 0,3750 0,3750 1 1 4,1667
+ ~ public final boolean equals(Object o): 1
+ ~ public final String toString(): 1
+ ~ public Long tripId(): 1
+ ~ public final int hashCode(): 1
+ ~ public String seat(): 1
+ ~ public void <init>(Long tripId, String seat): 1
+
+cl.venegas.buses_api.presentation.http.response.TripResponse 11 2 0 4 22 43 0 4 11 0,8000 84 1,0000 0 0,2308 0,2273 1 1 6,0909
+ ~ public final boolean equals(Object o): 1
+ ~ public String departureTs(): 1
+ ~ public static cl.venegas.buses_api.presentation.http.response.TripResponse from(cl.venegas.buses_api.domain.model.Trip t): 1
+ ~ public Long id(): 1
+ ~ public final String toString(): 1
+ ~ public String origin(): 1
+ ~ public final int hashCode(): 1
+ ~ public String destination(): 1
+ ~ public void <init>(Long id, String origin, String destination, String departureTs, String arrivalTs, Integer basePriceClp): 1
+ ~ public Integer basePriceClp(): 1
+ ~ public String arrivalTs(): 1
+
+cl.venegas.buses_api.domain.port.BookingRepository 7 1 0 7 7 21 5 2 7 2,0000 7 0,0000 0 0,0000 0,5357 0 0 0,0000
+ ~ public abstract java.util.List findByUserId(Long): 1
+ ~ public abstract cl.venegas.buses_api.domain.model.Booking save(cl.venegas.buses_api.domain.model.Booking): 1
+ ~ public abstract void updateStatus(Long, cl.venegas.buses_api.domain.model.BookingStatus): 1
+ ~ public abstract void delete(cl.venegas.buses_api.domain.model.Booking): 1
+ ~ public abstract java.util.List findByStatus(cl.venegas.buses_api.domain.model.BookingStatus): 1
+ ~ public abstract java.util.List findByTripId(Long): 1
+ ~ public abstract java.util.Optional findById(Long): 1
+
+cl.venegas.buses_api.application.usecase.GetUserBookingsService 2 1 0 2 4 0 1 1 2 0,0000 14 1,0000 1 0,0000 0,6667 0 0 5,5000
+ ~ public java.util.List handle(Long userId): 1
+ ~ public void <init>(cl.venegas.buses_api.domain.port.BookingRepository bookingRepository): 1
+
+cl.venegas.buses_api.presentation.http.exception.RestExceptionHandler 2 1 0 6 7 1 0 6 1 2,0000 15 0,0000 0 0,0000 0,6667 0 0 6,5000
+ ~ protected org.springframework.http.ResponseEntity handleSeatAlreadyHeld(cl.venegas.buses_api.application.exception.SeatAlreadyHeldException ex, org.springframework.web.context.request.WebRequest request): 1
+ ~ public void <init>(): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.adapter.BookingRepositoryJpa 9 1 0 7 27 0 0 7 8 0,0000 89 1,0000 1 0,0000 0,3704 0 0 8,7778
+ ~ public java.util.Optional findById(Long id): 1
+ ~ public java.util.List findByUserId(Long userId): 1
+ ~ public void delete(cl.venegas.buses_api.domain.model.Booking booking): 2
+ ~ public void updateStatus(Long bookingId, cl.venegas.buses_api.domain.model.BookingStatus status): 1
+ ~ public void <init>(cl.venegas.buses_api.infrastructure.persistence.jpa.repo.BookingJpaRepository repo): 1
+ ~ public java.util.List findByStatus(cl.venegas.buses_api.domain.model.BookingStatus status): 1
+ ~ public cl.venegas.buses_api.domain.model.Booking save(cl.venegas.buses_api.domain.model.Booking booking): 1
+ ~ public java.util.List findByTripId(Long tripId): 1
+ ~ private synthetic void lambda$updateStatus$0(cl.venegas.buses_api.domain.model.BookingStatus status, cl.venegas.buses_api.infrastructure.persistence.jpa.entity.BookingJpa booking): 1
+
+cl.venegas.buses_api.domain.model.PaymentMethod 5 2 0 3 8 6 2 1 2 0,7500 81 0,1667 6 0,8333 0,3333 1 1 14,0000
+ ~ public static cl.venegas.buses_api.domain.model.PaymentMethod[] values(): 1
+ ~ private static synthetic cl.venegas.buses_api.domain.model.PaymentMethod[] $values(): 1
+ ~ public static cl.venegas.buses_api.domain.model.PaymentMethod valueOf(String name): 1
+ ~ static void <clinit>(): 1
+ ~ private void <init>(String, int): 1
+
+cl.venegas.buses_api.domain.model.PaymentStatus 5 2 0 3 8 6 2 1 2 0,7500 70 0,2000 5 0,8333 0,3333 1 1 12,0000
+ ~ private static synthetic cl.venegas.buses_api.domain.model.PaymentStatus[] $values(): 1
+ ~ public static cl.venegas.buses_api.domain.model.PaymentStatus[] values(): 1
+ ~ public static cl.venegas.buses_api.domain.model.PaymentStatus valueOf(String name): 1
+ ~ static void <clinit>(): 1
+ ~ private void <init>(String, int): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.entity.UserJpa 24 1 0 3 34 172 1 2 22 0,8213 178 1,0000 1 0,0000 0,2639 0 0 6,0417
+ ~ protected void onCreate(): 1
+ ~ public void setPasswordHash(String passwordHash): 1
+ ~ public void <init>(Long id, String email, String passwordHash, String firstName, String lastName, String phone, cl.venegas.buses_api.domain.model.UserRole role, java.time.LocalDateTime createdAt, java.time.LocalDateTime updatedAt): 1
+ ~ public cl.venegas.buses_api.domain.model.User toDomain(): 1
+ ~ public String getLastName(): 1
+ ~ public void setId(Long id): 1
+ ~ public void setUpdatedAt(java.time.LocalDateTime updatedAt): 1
+ ~ public java.time.LocalDateTime getCreatedAt(): 1
+ ~ public String getPhone(): 1
+ ~ public static cl.venegas.buses_api.infrastructure.persistence.jpa.entity.UserJpa fromDomain(cl.venegas.buses_api.domain.model.User user, String passwordHash): 1
+ ~ protected void onUpdate(): 1
+ ~ public void setLastName(String lastName): 1
+ ~ public void setCreatedAt(java.time.LocalDateTime createdAt): 1
+ ~ public String getEmail(): 1
+ ~ public void setEmail(String email): 1
+ ~ public cl.venegas.buses_api.domain.model.UserRole getRole(): 1
+ ~ public void setRole(cl.venegas.buses_api.domain.model.UserRole role): 1
+ ~ public void setPhone(String phone): 1
+ ~ public void setFirstName(String firstName): 1
+ ~ public Long getId(): 1
+ ~ public java.time.LocalDateTime getUpdatedAt(): 1
+ ~ public String getPasswordHash(): 1
+ ~ public String getFirstName(): 1
+ ~ public void <init>(): 1
+
+cl.venegas.buses_api.infrastructure.persistence.jpa.repo.SeatHoldJpaRepository 2 1 0 3 2 1 2 1 2 2,0000 2 0,0000 0 0,0000 0,6250 0 0 0,0000
+ ~ public abstract java.util.List findByTripIdAndSeatIn(Long, java.util.List): 1
+ ~ public abstract void deleteByExpiresAtBefore(java.time.LocalDateTime): 1
+
+cl.venegas.buses_api.domain.model.BusStatus 5 2 0 3 8 6 2 1 2 0,7500 59 0,2500 4 0,8333 0,3333 1 1 10,0000
+ ~ private static synthetic cl.venegas.buses_api.domain.model.BusStatus[] $values(): 1
+ ~ public static cl.venegas.buses_api.domain.model.BusStatus[] values(): 1
+ ~ static void <clinit>(): 1
+ ~ private void <init>(String, int): 1
+ ~ public static cl.venegas.buses_api.domain.model.BusStatus valueOf(String name): 1
+
+cl.venegas.buses_api.application.usecase.CreateBookingService 8 1 0 10 39 18 0 10 2 0,7857 166 1,0000 3 0,0000 0,3750 0 0 19,2500
+ ~ private void validateSeatAvailability(Long tripId, java.util.List seats): 2
+ ~ private void createSeatHolds(Long userId, Long tripId, java.util.List seats, java.time.LocalDateTime expiresAt): 2
+ ~ public void <init>(cl.venegas.buses_api.domain.port.BookingRepository bookingRepository, cl.venegas.buses_api.domain.port.TripRepository tripRepository, cl.venegas.buses_api.domain.port.SeatHoldRepository seatHoldRepository): 1
+ ~ private void validatePassengerCount(java.util.List seats, java.util.List passengers): 2
+ ~ private cl.venegas.buses_api.domain.model.Booking buildBooking(Long userId, Long tripId, java.util.List seats, java.util.List passengers, cl.venegas.buses_api.domain.model.Trip trip, java.time.LocalDateTime expiresAt): 1
+ ~ private static synthetic IllegalArgumentException lambda$getTripOrThrow$0(Long tripId): 1
+ ~ public cl.venegas.buses_api.domain.model.Booking handle(Long userId, Long tripId, java.util.List seats, java.util.List passengers): 1
+ ~ private cl.venegas.buses_api.domain.model.Trip getTripOrThrow(Long tripId): 1
+
+cl.venegas.buses_api.application.usecase.HoldSeatsService 2 1 0 3 6 0 1 2 2 0,5000 25 1,0000 1 0,0000 0,6250 0 0 10,5000
+ ~ public void <init>(cl.venegas.buses_api.domain.port.SeatHoldRepository holds): 1
+ ~ public cl.venegas.buses_api.domain.model.SeatHold handle(Long tripId, String seat, Long userId): 1
+
+cl.venegas.buses_api.application.usecase.RegisterUserService 3 1 0 6 11 1 1 5 2 0,7500 41 1,0000 1 0,0000 0,4000 0 0 12,0000
+ ~ private static synthetic void lambda$handle$0(cl.venegas.buses_api.domain.model.User u): 1
+ ~ public cl.venegas.buses_api.domain.model.User handle(String email, String password, String firstName, String lastName, String phone): 1
+ ~ public void <init>(cl.venegas.buses_api.domain.port.UserRepository users, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder): 1
+
+cl.venegas.buses_api.application.usecase.SearchTripsService 2 1 0 2 4 0 1 1 2 0,0000 16 1,0000 1 0,0000 0,6250 0 0 6,5000
+ ~ public void <init>(cl.venegas.buses_api.domain.port.TripRepository trips): 1
+ ~ public java.util.List handle(String origin, String dest, java.time.LocalDate date): 1
+
+cl.venegas.buses_api.presentation.http.response.BookingResponse 15 2 0 5 30 85 0 5 15 0,8571 124 1,0000 1 0,1765 0,1750 1 1 6,6000
+ ~ public final boolean equals(Object o): 1
+ ~ public Long tripId(): 1
+ ~ public final int hashCode(): 1
+ ~ public cl.venegas.buses_api.domain.model.BookingStatus status(): 1
+ ~ public String expiresAt(): 1
+ ~ public static cl.venegas.buses_api.presentation.http.response.BookingResponse from(cl.venegas.buses_api.domain.model.Booking booking): 1
+ ~ public Long userId(): 1
+ ~ public Long id(): 1
+ ~ public final String toString(): 1
+ ~ public String paymentReference(): 1
+ ~ public void <init>(Long id, Long userId, Long tripId, java.util.List seats, java.util.List passengers, cl.venegas.buses_api.domain.model.BookingStatus status, java.math.BigDecimal totalAmount, String paymentReference, String createdAt, String expiresAt): 1
+ ~ public java.util.List passengers(): 1
+ ~ public String createdAt(): 1
+ ~ public java.util.List seats(): 1
+ ~ public java.math.BigDecimal totalAmount(): 1
+
+cl.venegas.buses_api.infrastructure.security.SecurityConfig 5 1 0 10 14 10 0 10 2 2,0000 32 0,0000 0 0,0000 0,3000 0 0 5,4000
+ ~ private static synthetic void lambda$filterChain$0(org.springframework.security.config.annotation.web.configurers.CsrfConfigurer csrf): 1
+ ~ private static synthetic void lambda$filterChain$1(org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer$AuthorizationManagerRequestMatcherRegistry auth): 1
+ ~ public void <init>(): 1
+ ~ org.springframework.security.web.SecurityFilterChain filterChain(org.springframework.security.config.annotation.web.builders.HttpSecurity http): 1
+ ~ public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder(): 1
+
+cl.venegas.buses_api.domain.model.User 11 2 0 10 15 41 6 4 11 0,9000 73 1,0000 1 0,2308 0,2424 1 1 5,0000
+ ~ public final boolean equals(Object o): 1
+ ~ public String email(): 1
+ ~ public String firstName(): 1
+ ~ public Long id(): 1
+ ~ public final String toString(): 1
+ ~ public final int hashCode(): 1
+ ~ public void <init>(Long id, String email, String firstName, String lastName, String phone, cl.venegas.buses_api.domain.model.UserRole role, java.time.LocalDateTime createdAt): 1
+ ~ public java.time.LocalDateTime createdAt(): 1
+ ~ public String lastName(): 1
+ ~ public cl.venegas.buses_api.domain.model.UserRole role(): 1
+ ~ public String phone(): 1
+
+cl.venegas.buses_api.application.exception.SeatAlreadyHeldException 1 4 0 3 2 0 3 0 1 2,0000 5 0,0000 0 1,0000 1,0000 0 0 4,0000
+ ~ public void <init>(String message): 1
+
+cl.venegas.buses_api.domain.port.BusRepository 5 1 0 2 5 10 0 2 5 2,0000 5 0,0000 0 0,0000 0,3600 0 0 0,0000
+ ~ public abstract java.util.List findAll(): 1
+ ~ public abstract cl.venegas.buses_api.domain.model.Bus save(cl.venegas.buses_api.domain.model.Bus): 1
+ ~ public abstract java.util.List findByStatus(cl.venegas.buses_api.domain.model.BusStatus): 1
+ ~ public abstract java.util.Optional findById(Long): 1
+ ~ public abstract java.util.Optional findByPlateNumber(String): 1
+
+cl.venegas.buses_api.application.usecase.ConfirmBookingService 4 1 0 5 20 4 0 5 2 0,6667 79 1,0000 1 0,0000 0,4000 0 0 18,5000
+ ~ private boolean isExpired(cl.venegas.buses_api.domain.model.Booking booking): 3
+ ~ private static synthetic IllegalArgumentException lambda$handle$0(Long bookingId): 1
+ ~ public void handle(Long bookingId, String paymentReference): 3
+ ~ public void <init>(cl.venegas.buses_api.domain.port.BookingRepository bookingRepository): 1
+
+cl.venegas.buses_api.domain.port.PaymentRepository 4 1 0 1 4 6 0 1 4 2,0000 4 0,0000 0 0,0000 0,5000 0 0 0,0000
+ ~ public abstract cl.venegas.buses_api.domain.model.Payment save(cl.venegas.buses_api.domain.model.Payment): 1
+ ~ public abstract java.util.Optional findByTransactionId(String): 1
+ ~ public abstract java.util.Optional findByBookingId(Long): 1
+ ~ public abstract java.util.Optional findById(Long): 1
+
+cl.venegas.buses_api.domain.port.RouteRepository 4 1 0 1 4 6 0 1 4 2,0000 4 0,0000 0 0,0000 0,4375 0 0 0,0000
+ ~ public abstract java.util.List findActiveRoutes(): 1
+ ~ public abstract cl.venegas.buses_api.domain.model.Route save(cl.venegas.buses_api.domain.model.Route): 1
+ ~ public abstract java.util.List findByOriginAndDestination(String, String): 1
+ ~ public abstract java.util.Optional findById(Long): 1
+
+cl.venegas.buses_api.application.task.ExpiredHoldsCleanupTask 3 1 0 3 9 0 0 3 2 0,5000 32 1,0000 1 0,0000 0,7500 0 0 9,0000
+ ~ public void cleanupExpiredHolds(): 1
+ ~ public void <init>(cl.venegas.buses_api.infrastructure.persistence.jpa.repo.SeatHoldJpaRepository seatHoldRepo): 1
+ ~ static void <clinit>(): 1
+
+cl.venegas.buses_api.presentation.http.controller.UsersController 2 1 0 5 11 0 0 5 2 0,0000 27 1,0000 1 0,0000 0,6667 0 0 12,0000
+ ~ public org.springframework.http.ResponseEntity register(cl.venegas.buses_api.presentation.http.request.RegisterUserRequest request): 1
+ ~ public void <init>(cl.venegas.buses_api.application.usecase.RegisterUserService registerUser): 1
+
+cl.venegas.buses_api.domain.port.TripRepository 2 1 0 3 2 1 3 0 2 2,0000 2 0,0000 0 0,0000 0,6250 0 0 0,0000
+ ~ public abstract java.util.List findBy(String, String, java.time.LocalDate): 1
+ ~ public abstract java.util.Optional findById(Long): 1
+

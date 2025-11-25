@@ -31,11 +31,17 @@ class ConfirmBookingServiceTest {
         booking.setStatus(BookingStatus.PENDIENTE);
         booking.setExpiresAt(LocalDateTime.now().plusMinutes(10));
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
         // 2. ACT
         confirmBookingService.handle(bookingId, paymentRef);
+
         // 3. ASSERT
-        assertEquals(BookingStatus.CONFIRMADO, booking.getStatus());
-        verify(bookingRepository).save(booking);
+        org.mockito.ArgumentCaptor<Booking> bookingCaptor = org.mockito.ArgumentCaptor.forClass(Booking.class);
+        verify(bookingRepository).save(bookingCaptor.capture());
+        Booking savedBooking = bookingCaptor.getValue();
+
+        assertEquals(BookingStatus.CONFIRMADO, savedBooking.getStatus());
+        assertEquals(paymentRef, savedBooking.getPaymentReference());
     }
 
     @Test

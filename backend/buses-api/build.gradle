@@ -125,12 +125,15 @@ task lcom4Metrics(type: Exec) {
     
     workingDir projectDir
     
-    
-    commandLine 'java', '-jar', 
-                'tools/ckjm_ext-2.3.jar',  
-                'build/classes/java/main'
-    
-    standardOutput = new FileOutputStream('lcom4-report.txt')
+    doFirst {
+        standardOutput = new FileOutputStream('lcom4-report.txt')
+        
+        def classpath = sourceSets.main.runtimeClasspath.asPath
+        def ckjmJar = 'tools/ckjm_ext-2.3.jar'
+        def fileArgs = fileTree(dir: 'build/classes/java/main', include: '**/*.class').files.collect { it.absolutePath }
+        
+        commandLine = ['java', '-cp', "${ckjmJar}${File.pathSeparator}${classpath}", 'gr.spinellis.ckjm.MetricsFilter'] + fileArgs
+    }
     
     doLast {
         println " Reporte LCOM4 generado en: lcom4-report.txt"
