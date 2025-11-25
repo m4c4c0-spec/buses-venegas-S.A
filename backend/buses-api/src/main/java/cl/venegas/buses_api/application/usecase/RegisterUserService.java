@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import cl.venegas.buses_api.domain.model.User;
 import cl.venegas.buses_api.domain.model.UserRole;
+import cl.venegas.buses_api.domain.model.valueobject.Email;
+import cl.venegas.buses_api.domain.model.valueobject.Password;
 import cl.venegas.buses_api.domain.port.UserRepository;
 
 @Service
@@ -20,22 +22,21 @@ public class RegisterUserService {
     }
 
     public User handle(String email, String password, String firstName,
-                       String lastName, String phone) {
+            String lastName, String phone) {
 
         users.findByEmail(email).ifPresent(u -> {
             throw new IllegalArgumentException("Email ya esta registrado");
         });
 
-
         User user = new User(
                 null,
-                email,
+                new Email(email),
+                new Password(passwordEncoder.encode(password)),
                 firstName,
                 lastName,
                 phone,
                 UserRole.CLIENTE,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return users.save(user);
     }

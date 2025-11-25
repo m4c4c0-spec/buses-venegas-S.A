@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import cl.venegas.buses_api.domain.model.User;
 import cl.venegas.buses_api.domain.model.UserRole;
+import cl.venegas.buses_api.domain.model.valueobject.Email;
+import cl.venegas.buses_api.domain.model.valueobject.Password;
 
 @Entity
 @Table(name = "users")
@@ -59,26 +61,25 @@ public class UserJpa {
     public User toDomain() {
         return new User(
                 id,
-                email,
+                new Email(email),
+                new Password(passwordHash),
                 firstName,
                 lastName,
                 phone,
                 role,
-                createdAt
-        );
+                createdAt);
     }
 
     public static UserJpa fromDomain(User user, String passwordHash) {
         return new UserJpa(
                 user.id(),
-                user.email(),
+                user.email().getValue(),
                 passwordHash,
                 user.firstName(),
                 user.lastName(),
                 user.phone(),
                 user.role(),
                 user.createdAt(),
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
     }
 }

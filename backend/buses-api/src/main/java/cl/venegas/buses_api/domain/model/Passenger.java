@@ -1,5 +1,8 @@
 package cl.venegas.buses_api.domain.model;
 
-public record Passenger(Long id, String firstName, String lastName, String documentType, String documentNumber, String email, String phone) {
-    
+import cl.venegas.buses_api.domain.model.valueobject.Email;
+
+public record Passenger(Long id, String firstName, String lastName, String documentType, String documentNumber,
+                Email email, String phone) {
+
 }

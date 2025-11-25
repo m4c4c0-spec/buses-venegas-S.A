@@ -3,6 +3,7 @@ package cl.venegas.buses_api.application.usecase;
 import cl.venegas.buses_api.domain.model.Booking;
 import cl.venegas.buses_api.domain.model.BookingStatus;
 import cl.venegas.buses_api.domain.model.SeatHold;
+import cl.venegas.buses_api.domain.model.valueobject.SeatNumber;
 import cl.venegas.buses_api.domain.port.BookingRepository;
 import cl.venegas.buses_api.domain.port.SeatHoldRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -43,13 +44,15 @@ class CancelBookingServiceTest {
         booking.setId(bookingId);
         booking.setUserId(userId);
         booking.setTripId(tripId);
-        booking.setSeats(seats);
+        booking.setSeats(seats.stream().map(SeatNumber::new).toList());
         booking.setStatus(BookingStatus.PENDIENTE);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
         List<SeatHold> seatHolds = List.of(new SeatHold(1L, tripId, "A1", userId, null),
                 new SeatHold(2L, tripId, "A2", userId, null));
+
+        // The service converts SeatNumber to String before calling the repository
         when(seatHoldRepository.findByTripIdAndSeatNumberIn(tripId, seats)).thenReturn(seatHolds);
 
         // ACT

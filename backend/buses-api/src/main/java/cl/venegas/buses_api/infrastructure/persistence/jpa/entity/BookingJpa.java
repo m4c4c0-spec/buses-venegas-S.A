@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cl.venegas.buses_api.domain.model.Booking;
 import cl.venegas.buses_api.domain.model.BookingStatus;
 import cl.venegas.buses_api.domain.model.Passenger;
+import cl.venegas.buses_api.domain.model.valueobject.Money;
+import cl.venegas.buses_api.domain.model.valueobject.SeatNumber;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -70,41 +72,40 @@ public class BookingJpa {
         try {
             List<Passenger> passengers = objectMapper.readValue(
                     passengersJson,
-                    new TypeReference<List<Passenger>>() {}
-            );
+                    new TypeReference<List<Passenger>>() {
+                    });
             return new Booking(
                     id,
                     userId,
                     tripId,
-                    List.of(seats),
+                    List.of(seats).stream().map(SeatNumber::new).toList(),
                     passengers,
                     status,
-                    totalAmount,
+                    Money.of(totalAmount),
                     paymentReference,
                     createdAt,
-                    expiresAt
-            );
+                    expiresAt);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error al buscar los pasajeros JSON", e);
         }
     }
 
-   public static BookingJpa fromDomain(Booking booking) {
-    try {
-        BookingJpa jpa = new BookingJpa();
-        jpa.setId(booking.getId());
-        jpa.setUserId(booking.getUserId());
-        jpa.setTripId(booking.getTripId());
-        jpa.setSeats(booking.getSeats().toArray(new String[0]));
-        jpa.setPassengersJson(objectMapper.writeValueAsString(booking.getPassengers()));
-        jpa.setStatus(booking.getStatus());
-        jpa.setTotalAmount(booking.getTotalAmount());
-        jpa.setPaymentReference(booking.getPaymentReference());
-        jpa.setCreatedAt(booking.getCreatedAt());
-        jpa.setExpiresAt(booking.getExpiresAt());
-        return jpa;
-    } catch (JsonProcessingException e) {
-        throw new RuntimeException("Error al convertir pasajeros  al JSON", e);
+    public static BookingJpa fromDomain(Booking booking) {
+        try {
+            BookingJpa jpa = new BookingJpa();
+            jpa.setId(booking.getId());
+            jpa.setUserId(booking.getUserId());
+            jpa.setTripId(booking.getTripId());
+            jpa.setSeats(booking.getSeats().stream().map(SeatNumber::getValue).toArray(String[]::new));
+            jpa.setPassengersJson(objectMapper.writeValueAsString(booking.getPassengers()));
+            jpa.setStatus(booking.getStatus());
+            jpa.setTotalAmount(booking.getTotalAmount().getAmount());
+            jpa.setPaymentReference(booking.getPaymentReference());
+            jpa.setCreatedAt(booking.getCreatedAt());
+            jpa.setExpiresAt(booking.getExpiresAt());
+            return jpa;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error al convertir pasajeros  al JSON", e);
+        }
     }
-}
 }

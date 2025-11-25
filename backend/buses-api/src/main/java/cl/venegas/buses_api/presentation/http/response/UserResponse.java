@@ -10,17 +10,15 @@ public record UserResponse(
         String lastName,
         String phone,
         UserRole role,
-        String createdAt
-) {
+        String createdAt) {
     public static UserResponse from(User user) {
         return new UserResponse(
                 user.id(),
-                user.email(),
+                user.email().getValue(),
                 user.firstName(),
                 user.lastName(),
                 user.phone(),
                 user.role(),
-                user.createdAt().toString()
-        );
+                user.createdAt().toString());
     }
 }

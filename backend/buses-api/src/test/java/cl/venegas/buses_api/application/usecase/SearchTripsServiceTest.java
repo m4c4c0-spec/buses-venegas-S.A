@@ -1,6 +1,7 @@
 package cl.venegas.buses_api.application.usecase;
 
 import cl.venegas.buses_api.domain.model.Trip;
+import cl.venegas.buses_api.domain.model.valueobject.Money;
 import cl.venegas.buses_api.domain.port.TripRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ class SearchTripsServiceTest {
         String dest = "Temuco";
         LocalDate date = LocalDate.now();
         List<Trip> expectedTrips = List.of(new Trip(1L, origin, dest, java.time.LocalDateTime.now(),
-                java.time.LocalDateTime.now().plusHours(5), 10000));
+                java.time.LocalDateTime.now().plusHours(5), Money.of(10000)));
         when(tripRepository.findBy(origin, dest, date)).thenReturn(expectedTrips);
         // 2. ACT
         List<Trip> result = searchTripsService.handle(origin, dest, date);

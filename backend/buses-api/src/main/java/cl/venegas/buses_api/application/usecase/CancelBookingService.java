@@ -18,7 +18,7 @@ public class CancelBookingService {
   private final SeatHoldRepository seatHoldRepository;
 
   public CancelBookingService(BookingRepository bookingRepository,
-                              SeatHoldRepository seatHoldRepository) {
+      SeatHoldRepository seatHoldRepository) {
     this.bookingRepository = bookingRepository;
     this.seatHoldRepository = seatHoldRepository;
   }
@@ -26,7 +26,7 @@ public class CancelBookingService {
   @Transactional
   public void handle(Long bookingId, Long userId) {
     Booking booking = bookingRepository.findById(bookingId)
-            .orElseThrow(() -> new IllegalArgumentException("El viaje ha sido cancelado" + bookingId));
+        .orElseThrow(() -> new IllegalArgumentException("El viaje ha sido cancelado" + bookingId));
 
     if (!booking.getUserId().equals(userId)) {
       throw new IllegalArgumentException("el viaje no pertence al usuario, ya que es un id distinto" + userId);
@@ -44,9 +44,8 @@ public class CancelBookingService {
     bookingRepository.save(booking);
 
     List<SeatHold> seatHolds = seatHoldRepository.findByTripIdAndSeatNumberIn(
-            booking.getTripId(),
-            booking.getSeats()
-    );
+        booking.getTripId(),
+        booking.getSeats().stream().map(cl.venegas.buses_api.domain.model.valueobject.SeatNumber::getValue).toList());
 
     if (!seatHolds.isEmpty()) {
       seatHoldRepository.deleteAll(seatHolds);

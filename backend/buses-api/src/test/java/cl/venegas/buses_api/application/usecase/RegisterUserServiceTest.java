@@ -29,16 +29,18 @@ class RegisterUserServiceTest {
     private RegisterUserService registerUserService;
 
     @Test
-    @DisplayName("Debe registrar un usuario correctamente (aunque actualmente ignora la contraseña)")
+    @DisplayName("Debe registrar un usuario correctamente")
     void shouldRegisterUserSuccessfully() {
         // ARRANGE
         String email = "test@example.com";
         String password = "password123";
+        String encodedPassword = "encodedPassword123";
         String firstName = "John";
         String lastName = "Doe";
         String phone = "123456789";
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // ACT
@@ -46,18 +48,13 @@ class RegisterUserServiceTest {
 
         // ASSERT
         assertNotNull(result);
-        assertEquals(email, result.email());
+        assertEquals(email, result.email().getValue());
         assertEquals(firstName, result.firstName());
         assertEquals(lastName, result.lastName());
 
         // Verificamos que se llamó a save
         verify(userRepository).save(any(User.class));
-
-        // NOTA: No verificamos passwordEncoder porque el código actual tiene un bug y
-        // no lo usa.
-        // Si agregamos verify(passwordEncoder).encode(password), el test fallaría.
-        // Este test asegura que al menos el flujo básico funciona antes del
-        // refactoring.
+        verify(passwordEncoder).encode(password);
     }
 
     @Test

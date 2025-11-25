@@ -1,6 +1,5 @@
 package cl.venegas.buses_api.application.usecase;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,6 +12,8 @@ import cl.venegas.buses_api.domain.model.BookingStatus;
 import cl.venegas.buses_api.domain.model.Passenger;
 import cl.venegas.buses_api.domain.model.SeatHold;
 import cl.venegas.buses_api.domain.model.Trip;
+import cl.venegas.buses_api.domain.model.valueobject.Money;
+import cl.venegas.buses_api.domain.model.valueobject.SeatNumber;
 import cl.venegas.buses_api.domain.port.BookingRepository;
 import cl.venegas.buses_api.domain.port.SeatHoldRepository;
 import cl.venegas.buses_api.domain.port.TripRepository;
@@ -52,6 +53,11 @@ public class CreateBookingService {
   }
 
   private void validateSeatAvailability(Long tripId, List<String> seats) {
+    // Note: SeatHoldRepository likely still expects String seat numbers if it
+    // hasn't been refactored.
+    // Assuming SeatHold uses String for seatNumber for now as it wasn't in the plan
+    // to refactor SeatHold entity deeply yet,
+    // but we should check. If SeatHold uses String, we pass strings.
     List<SeatHold> existingHolds = seatHoldRepository.findByTripIdAndSeatNumberIn(tripId, seats);
     if (!existingHolds.isEmpty()) {
       throw new SeatAlreadyHeldException("Uno o mas asientos ya han sido agendados");
@@ -76,11 +82,14 @@ public class CreateBookingService {
     Booking booking = new Booking();
     booking.setUserId(userId);
     booking.setTripId(tripId);
-    booking.setSeats(seats);
+
+    List<SeatNumber> seatNumbers = seats.stream().map(SeatNumber::new).toList();
+    booking.setSeats(seatNumbers);
+
     booking.setPassengers(passengers);
     booking.setStatus(BookingStatus.PENDIENTE);
 
-    BigDecimal totalAmount = BigDecimal.valueOf(trip.basePriceClp()).multiply(BigDecimal.valueOf(seats.size()));
+    Money totalAmount = trip.basePrice().multiply(seats.size());
     booking.setTotalAmount(totalAmount);
 
     booking.setCreatedAt(LocalDateTime.now());
