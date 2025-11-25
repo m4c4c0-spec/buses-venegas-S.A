@@ -37,9 +37,10 @@ class CreateBookingServiceTest {
                 // 1. ARRANGE
                 Long userId = 1L;
                 Long tripId = 100L;
-                List<String> seats = List.of("A1");
+                List<String> seats = List.of("A1", "A2");
                 List<Passenger> passengers = List.of(
-                                new Passenger(1L, "John", "Doe", "DNI", "12345678", "john@example.com", "123456789"));
+                                new Passenger(1L, "John", "Doe", "DNI", "12345678", "john@example.com", "123456789"),
+                                new Passenger(2L, "Jane", "Doe", "DNI", "87654321", "jane@example.com", "987654321"));
 
                 Trip trip = new Trip(tripId, "Santiago", "Temuco", LocalDateTime.now(),
                                 LocalDateTime.now().plusHours(5), 10000);
@@ -47,13 +48,26 @@ class CreateBookingServiceTest {
                 when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
                 when(seatHoldRepository.findByTripIdAndSeatNumberIn(any(), any())).thenReturn(Collections.emptyList());
                 when(bookingRepository.save(any(Booking.class))).thenAnswer(i -> i.getArguments()[0]);
+
                 // 2. ACT
                 Booking result = createBookingService.handle(userId, tripId, seats, passengers);
+
                 // 3. ASSERT
                 assertNotNull(result);
-                assertEquals(BookingStatus.PENDIENTE, result.getStatus());
-                assertEquals(new BigDecimal("10000"), result.getTotalAmount());
-                verify(seatHoldRepository, times(1)).save(any(SeatHold.class));
+
+                // Capturar el objeto guardado para verificar estado interno
+                org.mockito.ArgumentCaptor<Booking> bookingCaptor = org.mockito.ArgumentCaptor.forClass(Booking.class);
+                verify(bookingRepository).save(bookingCaptor.capture());
+                Booking savedBooking = bookingCaptor.getValue();
+
+                assertEquals(BookingStatus.PENDIENTE, savedBooking.getStatus());
+                // 10000 * 2 asientos = 20000
+                assertEquals(new BigDecimal("20000"), savedBooking.getTotalAmount());
+                assertNotNull(savedBooking.getExpiresAt());
+                assertTrue(savedBooking.getExpiresAt().isAfter(LocalDateTime.now()));
+
+                // Verificar que se crearon los bloqueos de asientos
+                verify(seatHoldRepository, times(2)).save(any(SeatHold.class));
         }
 
         @Test
