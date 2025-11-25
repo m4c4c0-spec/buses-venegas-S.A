@@ -115,4 +115,20 @@ public class Booking {
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
     }
+
+    public void cancel(Long userId) {
+        if (!this.userId.equals(userId)) {
+            throw new IllegalArgumentException("el viaje no pertence al usuario, ya que es un id distinto" + userId);
+        }
+
+        if (this.status == BookingStatus.CANCELADO) {
+            throw new IllegalStateException("el viaje ya ha sido cancelado");
+        }
+
+        if (this.status == BookingStatus.EXPIRADO) {
+            throw new IllegalStateException("este viaje no puede ser cancelado ya que ha expirado");
+        }
+
+        this.status = BookingStatus.CANCELADO;
+    }
 }

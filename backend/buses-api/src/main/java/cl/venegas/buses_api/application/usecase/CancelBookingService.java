@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cl.venegas.buses_api.domain.model.Booking;
-import cl.venegas.buses_api.domain.model.BookingStatus;
 import cl.venegas.buses_api.domain.model.SeatHold;
 import cl.venegas.buses_api.domain.port.BookingRepository;
 import cl.venegas.buses_api.domain.port.SeatHoldRepository;
@@ -28,19 +27,9 @@ public class CancelBookingService {
     Booking booking = bookingRepository.findById(bookingId)
         .orElseThrow(() -> new IllegalArgumentException("El viaje ha sido cancelado" + bookingId));
 
-    if (!booking.getUserId().equals(userId)) {
-      throw new IllegalArgumentException("el viaje no pertence al usuario, ya que es un id distinto" + userId);
-    }
+    // Delegate validation and state change to the domain entity
+    booking.cancel(userId);
 
-    if (booking.getStatus() == BookingStatus.CANCELADO) {
-      throw new IllegalStateException("el viaje ya ha sido cancelado");
-    }
-
-    if (booking.getStatus() == BookingStatus.EXPIRADO) {
-      throw new IllegalStateException("este viaje no puede ser cancelado ya que ha expirado");
-    }
-
-    booking.setStatus(BookingStatus.CANCELADO);
     bookingRepository.save(booking);
 
     List<SeatHold> seatHolds = seatHoldRepository.findByTripIdAndSeatNumberIn(
