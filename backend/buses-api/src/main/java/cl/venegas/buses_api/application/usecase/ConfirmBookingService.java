@@ -1,7 +1,5 @@
 package cl.venegas.buses_api.application.usecase;
 
-import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,23 +21,9 @@ public class ConfirmBookingService {
     Booking booking = bookingRepository.findById(bookingId)
         .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada por id: " + bookingId));
 
-    if (booking.getStatus() != BookingStatus.PENDIENTE) {
-      throw new IllegalStateException("La reserva no está en estado PENDIENTE. Estado actual: " + booking.getStatus());
-    }
-
-    if (isExpired(booking)) {
-      booking.setStatus(BookingStatus.EXPIRADO);
-      bookingRepository.save(booking);
-      throw new IllegalStateException("La reserva ha expirado");
-    }
-
-    booking.setStatus(BookingStatus.CONFIRMADO);
-    booking.setPaymentReference(paymentReference);
+    booking.confirm(paymentReference);
 
     bookingRepository.save(booking);
   }
 
-  private boolean isExpired(Booking booking) {
-    return booking.getExpiresAt() != null && LocalDateTime.now().isAfter(booking.getExpiresAt());
-  }
 }

@@ -131,4 +131,22 @@ public class Booking {
 
         this.status = BookingStatus.CANCELADO;
     }
+
+    public void confirm(String paymentReference) {
+        if (this.status != BookingStatus.PENDIENTE) {
+            throw new IllegalStateException("La reserva no está en estado PENDIENTE. Estado actual: " + this.status);
+        }
+
+        if (isExpired()) {
+            this.status = BookingStatus.EXPIRADO;
+            throw new IllegalStateException("La reserva ha expirado");
+        }
+
+        this.status = BookingStatus.CONFIRMADO;
+        this.paymentReference = paymentReference;
+    }
+
+    private boolean isExpired() {
+        return this.expiresAt != null && LocalDateTime.now().isAfter(this.expiresAt);
+    }
 }
