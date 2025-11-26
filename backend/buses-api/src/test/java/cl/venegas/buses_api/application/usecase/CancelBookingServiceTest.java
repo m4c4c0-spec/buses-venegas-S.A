@@ -33,13 +33,19 @@ class CancelBookingServiceTest {
     private CancelBookingService cancelBookingService;
 
     @Test
-    @DisplayName("Debe cancelar la reserva correctamente y liberar asientos")
+    @DisplayName("Debe cancelar la reserva exitosamente y liberar asientos")
     void shouldCancelBookingSuccessfully() {
-        // ARRANGE
+        // 1. ARRANGE
         Long bookingId = 1L;
+<<<<<<< HEAD
         Long userId = 10L;
         Long tripId = 100L;
         List<SeatNumber> seats = List.of(new SeatNumber("A1"), new SeatNumber("A2"));
+=======
+        Long userId = 100L;
+        Long tripId = 50L;
+        List<String> seats = List.of("A1", "A2");
+>>>>>>> parent of 85b11cc (Suma de test)
 
         Booking booking = new Booking();
         booking.setId(bookingId);
@@ -48,16 +54,22 @@ class CancelBookingServiceTest {
         booking.setSeats(seats);
         booking.setStatus(BookingStatus.PENDIENTE);
 
-        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        List<SeatHold> seatHolds = List.of(
+                new SeatHold(1L, tripId, "A1", userId, LocalDateTime.now()),
+                new SeatHold(2L, tripId, "A2", userId, LocalDateTime.now()));
 
+<<<<<<< HEAD
         List<SeatHold> seatHolds = List.of(new SeatHold(1L, tripId, new SeatNumber("A1"), userId, LocalDateTime.now()),
                 new SeatHold(2L, tripId, new SeatNumber("A2"), userId, LocalDateTime.now()));
+=======
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+>>>>>>> parent of 85b11cc (Suma de test)
         when(seatHoldRepository.findByTripIdAndSeatNumberIn(tripId, seats)).thenReturn(seatHolds);
 
-        // ACT
+        // 2. ACT
         cancelBookingService.handle(bookingId, userId);
 
-        // ASSERT
+        // 3. ASSERT
         assertEquals(BookingStatus.CANCELADO, booking.getStatus());
         verify(bookingRepository).save(booking);
         verify(seatHoldRepository).deleteAll(seatHolds);
@@ -66,58 +78,63 @@ class CancelBookingServiceTest {
     @Test
     @DisplayName("Debe lanzar excepción si la reserva no existe")
     void shouldThrowExceptionWhenBookingNotFound() {
-        Long bookingId = 1L;
-        Long userId = 10L;
+        // 1. ARRANGE
+        Long bookingId = 999L;
+        Long userId = 100L;
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
 
+        // 2. ACT & ASSERT
         assertThrows(IllegalArgumentException.class, () -> cancelBookingService.handle(bookingId, userId));
     }
 
     @Test
-    @DisplayName("Debe lanzar excepción si el usuario no corresponde a la reserva")
-    void shouldThrowExceptionWhenUserDoesNotMatch() {
+    @DisplayName("Debe lanzar excepción si el usuario no es el dueño de la reserva")
+    void shouldThrowExceptionWhenUserIsNotOwner() {
+        // 1. ARRANGE
         Long bookingId = 1L;
-        Long userId = 10L;
-        Long otherUserId = 99L;
+        Long userId = 100L;
+        Long otherUserId = 200L;
 
         Booking booking = new Booking();
-        booking.setId(bookingId);
-        booking.setUserId(otherUserId); // Different user
+        booking.setUserId(otherUserId); // Dueño diferente
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
+        // 2. ACT & ASSERT
         assertThrows(IllegalArgumentException.class, () -> cancelBookingService.handle(bookingId, userId));
     }
 
     @Test
     @DisplayName("Debe lanzar excepción si la reserva ya está cancelada")
     void shouldThrowExceptionWhenBookingAlreadyCancelled() {
+        // 1. ARRANGE
         Long bookingId = 1L;
-        Long userId = 10L;
+        Long userId = 100L;
 
         Booking booking = new Booking();
-        booking.setId(bookingId);
         booking.setUserId(userId);
         booking.setStatus(BookingStatus.CANCELADO);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
+        // 2. ACT & ASSERT
         assertThrows(IllegalStateException.class, () -> cancelBookingService.handle(bookingId, userId));
     }
 
     @Test
     @DisplayName("Debe lanzar excepción si la reserva ha expirado")
     void shouldThrowExceptionWhenBookingExpired() {
+        // 1. ARRANGE
         Long bookingId = 1L;
-        Long userId = 10L;
+        Long userId = 100L;
 
         Booking booking = new Booking();
-        booking.setId(bookingId);
         booking.setUserId(userId);
         booking.setStatus(BookingStatus.EXPIRADO);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
+        // 2. ACT & ASSERT
         assertThrows(IllegalStateException.class, () -> cancelBookingService.handle(bookingId, userId));
     }
 }
