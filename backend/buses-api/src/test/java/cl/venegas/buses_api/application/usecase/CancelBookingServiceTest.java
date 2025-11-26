@@ -3,6 +3,7 @@ package cl.venegas.buses_api.application.usecase;
 import cl.venegas.buses_api.domain.model.Booking;
 import cl.venegas.buses_api.domain.model.BookingStatus;
 import cl.venegas.buses_api.domain.model.SeatHold;
+import cl.venegas.buses_api.domain.model.valueobject.SeatNumber;
 import cl.venegas.buses_api.domain.port.BookingRepository;
 import cl.venegas.buses_api.domain.port.SeatHoldRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +39,7 @@ class CancelBookingServiceTest {
         Long bookingId = 1L;
         Long userId = 10L;
         Long tripId = 100L;
-        List<String> seats = List.of("A1", "A2");
+        List<SeatNumber> seats = List.of(new SeatNumber("A1"), new SeatNumber("A2"));
 
         Booking booking = new Booking();
         booking.setId(bookingId);
@@ -48,8 +50,8 @@ class CancelBookingServiceTest {
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
-        List<SeatHold> seatHolds = List.of(new SeatHold(1L, tripId, "A1", userId, null),
-                new SeatHold(2L, tripId, "A2", userId, null));
+        List<SeatHold> seatHolds = List.of(new SeatHold(1L, tripId, new SeatNumber("A1"), userId, LocalDateTime.now()),
+                new SeatHold(2L, tripId, new SeatNumber("A2"), userId, LocalDateTime.now()));
         when(seatHoldRepository.findByTripIdAndSeatNumberIn(tripId, seats)).thenReturn(seatHolds);
 
         // ACT

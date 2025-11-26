@@ -8,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import cl.venegas.buses_api.domain.model.valueobject.Money;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,7 +31,7 @@ class SearchTripsServiceTest {
         String dest = "Temuco";
         LocalDate date = LocalDate.now();
         List<Trip> expectedTrips = List.of(new Trip(1L, origin, dest, java.time.LocalDateTime.now(),
-                java.time.LocalDateTime.now().plusHours(5), 10000));
+                java.time.LocalDateTime.now().plusHours(5), new Money(BigDecimal.valueOf(10000))));
         when(tripRepository.findBy(origin, dest, date)).thenReturn(expectedTrips);
         // 2. ACT
         List<Trip> result = searchTripsService.handle(origin, dest, date);

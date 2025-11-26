@@ -1,8 +1,8 @@
 package cl.venegas.buses_api.application.usecase;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +13,8 @@ import cl.venegas.buses_api.domain.model.BookingStatus;
 import cl.venegas.buses_api.domain.model.Passenger;
 import cl.venegas.buses_api.domain.model.SeatHold;
 import cl.venegas.buses_api.domain.model.Trip;
+import cl.venegas.buses_api.domain.model.valueobject.Money;
+import cl.venegas.buses_api.domain.model.valueobject.SeatNumber;
 import cl.venegas.buses_api.domain.port.BookingRepository;
 import cl.venegas.buses_api.domain.port.SeatHoldRepository;
 import cl.venegas.buses_api.domain.port.TripRepository;
@@ -35,7 +37,11 @@ public class CreateBookingService {
   }
 
   @Transactional
-  public Booking handle(Long userId, Long tripId, List<String> seats, List<Passenger> passengers) {
+  public Booking handle(Long userId, Long tripId, List<String> seatStrings, List<Passenger> passengers) {
+    List<SeatNumber> seats = seatStrings.stream()
+        .map(SeatNumber::new)
+        .collect(Collectors.toList());
+
     Trip trip = getTripOrThrow(tripId);
     validateSeatAvailability(tripId, seats);
     validatePassengerCount(seats, passengers);
@@ -51,40 +57,42 @@ public class CreateBookingService {
         .orElseThrow(() -> new IllegalArgumentException("Viaje no encontrado por la id " + tripId));
   }
 
-  private void validateSeatAvailability(Long tripId, List<String> seats) {
+  private void validateSeatAvailability(Long tripId, List<SeatNumber> seats) {
     List<SeatHold> existingHolds = seatHoldRepository.findByTripIdAndSeatNumberIn(tripId, seats);
     if (!existingHolds.isEmpty()) {
       throw new SeatAlreadyHeldException("Uno o mas asientos ya han sido agendados");
     }
   }
 
-  private void validatePassengerCount(List<String> seats, List<Passenger> passengers) {
+  private void validatePassengerCount(List<SeatNumber> seats, List<Passenger> passengers) {
     if (passengers.size() != seats.size()) {
       throw new IllegalArgumentException("el numero de pasajeros no coincide con el de los asientos ");
     }
   }
 
-  private void createSeatHolds(Long userId, Long tripId, List<String> seats, LocalDateTime expiresAt) {
-    for (String seat : seats) {
-      SeatHold hold = new SeatHold(null, tripId, seat, userId, expiresAt);
-      seatHoldRepository.save(hold);
-    }
+  private void createSeatHolds(Long userId, Long tripId, List<SeatNumber> seats, LocalDateTime expiresAt) {
+    List<SeatHold> holds = seats.stream()
+        .map(seat -> new SeatHold(null, tripId, seat, userId, expiresAt))
+        .collect(Collectors.toList());
+    seatHoldRepository.saveAll(holds);
   }
 
-  private Booking buildBooking(Long userId, Long tripId, List<String> seats, List<Passenger> passengers, Trip trip,
+  private Booking buildBooking(Long userId, Long tripId, List<SeatNumber> seats, List<Passenger> passengers, Trip trip,
       LocalDateTime expiresAt) {
-    Booking booking = new Booking();
-    booking.setUserId(userId);
-    booking.setTripId(tripId);
-    booking.setSeats(seats);
-    booking.setPassengers(passengers);
-    booking.setStatus(BookingStatus.PENDIENTE);
 
-    BigDecimal totalAmount = BigDecimal.valueOf(trip.basePriceClp()).multiply(BigDecimal.valueOf(seats.size()));
-    booking.setTotalAmount(totalAmount);
+    Money totalAmount = trip.basePrice().multiply(seats.size());
 
-    booking.setCreatedAt(LocalDateTime.now());
-    booking.setExpiresAt(expiresAt);
+    Booking booking = new Booking(
+        null,
+        userId,
+        tripId,
+        seats,
+        passengers,
+        BookingStatus.PENDIENTE,
+        totalAmount,
+        null,
+        LocalDateTime.now(),
+        expiresAt);
 
     return bookingRepository.save(booking);
   }

@@ -2,6 +2,8 @@ package cl.venegas.buses_api.application.usecase;
 
 import cl.venegas.buses_api.application.exception.SeatAlreadyHeldException;
 import cl.venegas.buses_api.domain.model.*;
+import cl.venegas.buses_api.domain.model.valueobject.Money;
+import cl.venegas.buses_api.domain.model.valueobject.SeatNumber;
 import cl.venegas.buses_api.domain.port.BookingRepository;
 import cl.venegas.buses_api.domain.port.SeatHoldRepository;
 import cl.venegas.buses_api.domain.port.TripRepository;
@@ -43,7 +45,7 @@ class CreateBookingServiceTest {
                                 new Passenger(2L, "Jane", "Doe", "DNI", "87654321", "jane@example.com", "987654321"));
 
                 Trip trip = new Trip(tripId, "Santiago", "Temuco", LocalDateTime.now(),
-                                LocalDateTime.now().plusHours(5), 10000);
+                                LocalDateTime.now().plusHours(5), new Money(BigDecimal.valueOf(10000)));
 
                 when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
                 when(seatHoldRepository.findByTripIdAndSeatNumberIn(any(), any())).thenReturn(Collections.emptyList());
@@ -62,12 +64,12 @@ class CreateBookingServiceTest {
 
                 assertEquals(BookingStatus.PENDIENTE, savedBooking.getStatus());
                 // 10000 * 2 asientos = 20000
-                assertEquals(new BigDecimal("20000"), savedBooking.getTotalAmount());
+                assertEquals(new Money(new BigDecimal("20000")), savedBooking.getTotalAmount());
                 assertNotNull(savedBooking.getExpiresAt());
                 assertTrue(savedBooking.getExpiresAt().isAfter(LocalDateTime.now()));
 
                 // Verificar que se crearon los bloqueos de asientos
-                verify(seatHoldRepository, times(2)).save(any(SeatHold.class));
+                verify(seatHoldRepository, times(1)).saveAll(anyList());
         }
 
         @Test
@@ -78,9 +80,11 @@ class CreateBookingServiceTest {
                 List<String> seats = List.of("A1");
 
                 when(tripRepository.findById(tripId)).thenReturn(Optional.of(new Trip(tripId, "Santiago", "Temuco",
-                                LocalDateTime.now(), LocalDateTime.now().plusHours(5), 10000)));
-                when(seatHoldRepository.findByTripIdAndSeatNumberIn(eq(tripId), eq(seats)))
-                                .thenReturn(List.of(new SeatHold(1L, tripId, "A1", 2L, LocalDateTime.now())));
+                                LocalDateTime.now(), LocalDateTime.now().plusHours(5),
+                                new Money(BigDecimal.valueOf(10000)))));
+                when(seatHoldRepository.findByTripIdAndSeatNumberIn(eq(tripId), anyList()))
+                                .thenReturn(List.of(new SeatHold(1L, tripId, new SeatNumber("A1"), 2L,
+                                                LocalDateTime.now())));
                 // 2. ACT & ASSERT
                 assertThrows(SeatAlreadyHeldException.class,
                                 () -> createBookingService.handle(1L, tripId, seats, List.of(new Passenger(1L, "John",
@@ -110,7 +114,8 @@ class CreateBookingServiceTest {
                                                                                                                        // 1
                                                                                                                        // pasajero
                 when(tripRepository.findById(tripId)).thenReturn(Optional.of(new Trip(tripId, "Santiago", "Temuco",
-                                LocalDateTime.now(), LocalDateTime.now().plusHours(5), 10000)));
+                                LocalDateTime.now(), LocalDateTime.now().plusHours(5),
+                                new Money(BigDecimal.valueOf(10000)))));
                 when(seatHoldRepository.findByTripIdAndSeatNumberIn(any(), any())).thenReturn(Collections.emptyList());
                 // 2. ACT & ASSERT
                 assertThrows(IllegalArgumentException.class,

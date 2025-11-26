@@ -16,21 +16,18 @@ public record BookingResponse(
         BigDecimal totalAmount,
         String paymentReference,
         String createdAt,
-        String expiresAt
-) {
+        String expiresAt) {
     public static BookingResponse from(Booking booking) {
         return new BookingResponse(
                 booking.getId(),
                 booking.getUserId(),
                 booking.getTripId(),
-                booking.getSeats(),
+                booking.getSeats().stream().map(s -> s.getValue()).toList(),
                 booking.getPassengers(),
                 booking.getStatus(),
-                booking.getTotalAmount(),
+                booking.getTotalAmount().getAmount(),
                 booking.getPaymentReference(),
                 booking.getCreatedAt().toString(),
-                booking.getExpiresAt().toString()
-        );
+                booking.getExpiresAt().toString());
     }
 }
-
