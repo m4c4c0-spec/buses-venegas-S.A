@@ -40,12 +40,9 @@ class CancelBookingServiceTest {
         Long tripId = 100L;
         List<String> seats = List.of("A1", "A2");
 
-        Booking booking = new Booking();
-        booking.setId(bookingId);
-        booking.setUserId(userId);
-        booking.setTripId(tripId);
-        booking.setSeats(seats.stream().map(SeatNumber::new).toList());
-        booking.setStatus(BookingStatus.PENDIENTE);
+        Booking booking = new Booking(bookingId, userId, tripId,
+                seats.stream().map(SeatNumber::new).toList(),
+                null, BookingStatus.PENDIENTE, null, null, null, null);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
@@ -81,9 +78,8 @@ class CancelBookingServiceTest {
         Long userId = 10L;
         Long otherUserId = 99L;
 
-        Booking booking = new Booking();
-        booking.setId(bookingId);
-        booking.setUserId(otherUserId); // Different user
+        Booking booking = new Booking(bookingId, otherUserId, 100L, List.of(), null, BookingStatus.PENDIENTE, null,
+                null, null, null);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
@@ -96,10 +92,8 @@ class CancelBookingServiceTest {
         Long bookingId = 1L;
         Long userId = 10L;
 
-        Booking booking = new Booking();
-        booking.setId(bookingId);
-        booking.setUserId(userId);
-        booking.setStatus(BookingStatus.CANCELADO);
+        Booking booking = new Booking(bookingId, userId, 100L, List.of(), null, BookingStatus.CANCELADO, null, null,
+                null, null);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
@@ -112,10 +106,8 @@ class CancelBookingServiceTest {
         Long bookingId = 1L;
         Long userId = 10L;
 
-        Booking booking = new Booking();
-        booking.setId(bookingId);
-        booking.setUserId(userId);
-        booking.setStatus(BookingStatus.EXPIRADO);
+        Booking booking = new Booking(bookingId, userId, 100L, List.of(), null, BookingStatus.EXPIRADO, null, null,
+                null, null);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 

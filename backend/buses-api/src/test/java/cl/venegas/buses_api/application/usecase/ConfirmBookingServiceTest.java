@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -27,9 +28,9 @@ class ConfirmBookingServiceTest {
         // 1. ARRANGE
         Long bookingId = 1L;
         String paymentRef = "PAY-123";
-        Booking booking = new Booking();
-        booking.setStatus(BookingStatus.PENDIENTE);
-        booking.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+        Booking booking = new Booking(bookingId, 1L, 1L, List.of(), List.of(), BookingStatus.PENDIENTE, null, null,
+                LocalDateTime.now(), LocalDateTime.now().plusMinutes(10));
+
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
         // 2. ACT
@@ -49,9 +50,9 @@ class ConfirmBookingServiceTest {
     void shouldExpireBookingIfTimePassed() {
         // 1. ARRANGE
         Long bookingId = 1L;
-        Booking booking = new Booking();
-        booking.setStatus(BookingStatus.PENDIENTE);
-        booking.setExpiresAt(LocalDateTime.now().minusMinutes(1));
+        Booking booking = new Booking(bookingId, 1L, 1L, List.of(), List.of(), BookingStatus.PENDIENTE, null, null,
+                LocalDateTime.now(), LocalDateTime.now().minusMinutes(1));
+
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
         // 2. ACT & ASSERT
         assertThrows(IllegalStateException.class, () -> confirmBookingService.handle(bookingId, "PAY-123"),
@@ -75,8 +76,9 @@ class ConfirmBookingServiceTest {
     void shouldThrowExceptionWhenBookingIsNotPending() {
         // 1. ARRANGE
         Long bookingId = 1L;
-        Booking booking = new Booking();
-        booking.setStatus(BookingStatus.CONFIRMADO); // Ya confirmada
+        Booking booking = new Booking(bookingId, 1L, 1L, List.of(), List.of(), BookingStatus.CONFIRMADO, null, null,
+                LocalDateTime.now(), LocalDateTime.now().plusMinutes(10));
+
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
         // 2. ACT & ASSERT
         assertThrows(IllegalStateException.class, () -> confirmBookingService.handle(bookingId, "PAY-123"),

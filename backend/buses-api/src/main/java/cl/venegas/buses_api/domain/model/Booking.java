@@ -4,6 +4,7 @@ import cl.venegas.buses_api.domain.model.valueobject.Money;
 import cl.venegas.buses_api.domain.model.valueobject.SeatNumber;
 import java.time.LocalDateTime;
 import java.util.List;
+import cl.venegas.buses_api.domain.model.Trip;
 
 public class Booking {
     private Long id;
@@ -76,44 +77,18 @@ public class Booking {
         return expiresAt;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public void setTripId(Long tripId) {
-        this.tripId = tripId;
-    }
-
-    public void setSeats(List<SeatNumber> seats) {
-        this.seats = seats;
-    }
-
-    public void setPassengers(List<Passenger> passengers) {
-        this.passengers = passengers;
-    }
-
-    public void setStatus(BookingStatus status) {
-        this.status = status;
-    }
-
-    public void setTotalAmount(Money totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public void setPaymentReference(String paymentReference) {
-        this.paymentReference = paymentReference;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setExpiresAt(LocalDateTime expiresAt) {
-        this.expiresAt = expiresAt;
+    public static Booking create(Long userId, Long tripId, List<SeatNumber> seats, List<Passenger> passengers,
+            Trip trip, LocalDateTime expiresAt) {
+        Booking booking = new Booking();
+        booking.userId = userId;
+        booking.tripId = tripId;
+        booking.seats = seats;
+        booking.passengers = passengers;
+        booking.status = BookingStatus.PENDIENTE;
+        booking.totalAmount = trip.basePrice().multiply(seats.size());
+        booking.createdAt = LocalDateTime.now();
+        booking.expiresAt = expiresAt;
+        return booking;
     }
 
     public void cancel(Long userId) {
