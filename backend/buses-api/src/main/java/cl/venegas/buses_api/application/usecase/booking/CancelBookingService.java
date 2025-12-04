@@ -2,6 +2,8 @@ package cl.venegas.buses_api.application.usecase.booking;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +16,8 @@ import cl.venegas.buses_api.domain.repository.SeatHoldRepository;
 @Service
 public class CancelBookingService {
 
+  private static final Logger log = LoggerFactory.getLogger(CancelBookingService.class);
+
   private final BookingRepository bookingRepository;
   private final SeatHoldRepository seatHoldRepository;
 
@@ -25,20 +29,32 @@ public class CancelBookingService {
 
   @Transactional
   public void execute(String bookingId) {
+    log.info("Iniciando cancelación de reserva: bookingId={}", bookingId);
+
     Long id = Long.parseLong(bookingId);
     Booking booking = bookingRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("El viaje ha sido cancelado" + bookingId));
+        .orElseThrow(() -> {
+          log.warn("Reserva no encontrada para cancelar: bookingId={}", bookingId);
+          return new IllegalArgumentException("Reserva no encontrada: " + bookingId);
+        });
+
+    log.debug("Reserva encontrada: bookingId={}, status={}", bookingId, booking.getStatus());
 
     if (booking.getStatus() == BookingStatus.CANCELADO) {
-      throw new IllegalStateException("el viaje ya ha sido cancelado");
+      log.warn("Intento de cancelar reserva ya cancelada: bookingId={}", bookingId);
+      throw new IllegalStateException("La reserva ya ha sido cancelada");
     }
 
     if (booking.getStatus() == BookingStatus.EXPIRADO) {
-      throw new IllegalStateException("este viaje no puede ser cancelado ya que ha expirado");
+      log.warn("Intento de cancelar reserva expirada: bookingId={}", bookingId);
+      throw new IllegalStateException("La reserva ha expirado y no puede ser cancelada");
     }
 
     booking.setStatus(BookingStatus.CANCELADO);
     bookingRepository.save(booking);
+
+    log.debug("Liberando asientos retenidos: tripId={}, seats={}",
+        booking.getTripId(), booking.getSeats());
 
     List<SeatHold> seatHolds = seatHoldRepository.findByTripIdAndSeatNumberIn(
         booking.getTripId(),
@@ -46,6 +62,10 @@ public class CancelBookingService {
 
     if (!seatHolds.isEmpty()) {
       seatHoldRepository.deleteAll(seatHolds);
+      log.debug("Liberados {} asientos", seatHolds.size());
     }
+
+    log.info("Reserva cancelada exitosamente: bookingId={}, seatsLiberated={}",
+        bookingId, seatHolds.size());
   }
 }

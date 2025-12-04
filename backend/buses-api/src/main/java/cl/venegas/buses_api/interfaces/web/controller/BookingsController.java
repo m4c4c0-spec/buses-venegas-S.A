@@ -13,6 +13,8 @@ import cl.venegas.buses_api.interfaces.web.mapper.BookingDTOMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/bookings")
 @CrossOrigin(origins = "*")
 public class BookingsController {
+
+    private static final Logger log = LoggerFactory.getLogger(BookingsController.class);
 
     private final CreateBookingUseCase createBookingUseCase;
     private final CancelBookingService cancelBookingService;
@@ -50,13 +54,25 @@ public class BookingsController {
     public ResponseEntity<BookingResponse> createBooking(
             @RequestBody @Validated CreateBookingRequest request) {
 
-        CreateBookingCommand command = mapper.toCreateCommand(request);
+        log.info("Recibido POST /api/v1/bookings: tripId={}, userId={}, seatNumber={}",
+                request.tripId(), request.userId(), request.seatNumber());
 
-        Booking booking = createBookingUseCase.execute(command);
+        try {
+            CreateBookingCommand command = mapper.toCreateCommand(request);
+            Booking booking = createBookingUseCase.execute(command);
+            BookingResponse response = mapper.toResponse(booking);
 
-        BookingResponse response = mapper.toResponse(booking);
+            log.info("Reserva creada exitosamente: bookingId={}, totalAmount={}",
+                    response.id(), response.totalAmount());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            log.warn("Error de validación al crear reserva: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Error inesperado al crear reserva", e);
+            throw e;
+        }
     }
 
     /**
@@ -67,13 +83,20 @@ public class BookingsController {
     public ResponseEntity<List<BookingResponse>> getUserBookings(
             @PathVariable String userId) {
 
-        List<Booking> bookings = getUserBookingsUseCase.execute(userId);
+        log.info("Recibido GET /api/v1/bookings/user/{}: userId={}", userId, userId);
 
-        List<BookingResponse> response = bookings.stream()
-                .map(mapper::toResponse)
-                .collect(Collectors.toList());
+        try {
+            List<Booking> bookings = getUserBookingsUseCase.execute(userId);
+            List<BookingResponse> response = bookings.stream()
+                    .map(mapper::toResponse)
+                    .collect(Collectors.toList());
 
-        return ResponseEntity.ok(response);
+            log.info("Retornando {} reservas para userId={}", response.size(), userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error al obtener reservas de usuario: userId={}", userId, e);
+            throw e;
+        }
     }
 
     /**
@@ -84,11 +107,20 @@ public class BookingsController {
     public ResponseEntity<BookingResponse> confirmBooking(
             @PathVariable String bookingId) {
 
-        Booking booking = confirmBookingUseCase.execute(bookingId);
+        log.info("Recibido PUT /api/v1/bookings/{}/confirm: bookingId={}", bookingId, bookingId);
 
-        BookingResponse response = mapper.toResponse(booking);
+        try {
+            Booking booking = confirmBookingUseCase.execute(bookingId);
+            BookingResponse response = mapper.toResponse(booking);
 
-        return ResponseEntity.ok(response);
+            log.info("Reserva confirmada exitosamente: bookingId={}, status={}",
+                    response.id(), response.status());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error al confirmar reserva: bookingId={}", bookingId, e);
+            throw e;
+        }
     }
 
     /**
@@ -99,8 +131,15 @@ public class BookingsController {
     public ResponseEntity<Void> cancelBooking(
             @PathVariable String bookingId) {
 
-        cancelBookingService.execute(bookingId);
+        log.info("Recibido DELETE /api/v1/bookings/{}: bookingId={}", bookingId, bookingId);
 
-        return ResponseEntity.noContent().build();
+        try {
+            cancelBookingService.execute(bookingId);
+            log.info("Reserva cancelada exitosamente: bookingId={}", bookingId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Error al cancelar reserva: bookingId={}", bookingId, e);
+            throw e;
+        }
     }
 }
