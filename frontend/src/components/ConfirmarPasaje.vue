@@ -18,6 +18,7 @@
               placeholder="Ejemplo: BB123456789"
               v-model="form.codigoReserva"
               required
+              :disabled="loading"
           />
           <small>Ingresa el código que recibiste al realizar tu compra</small>
         </div>
@@ -34,6 +35,7 @@
               placeholder="12.345.678-9"
               v-model="form.rut"
               required
+              :disabled="loading"
           />
         </div>
 
@@ -47,6 +49,7 @@
               placeholder="Tu apellido"
               v-model="form.apellido"
               required
+              :disabled="loading"
           />
         </div>
       </div>
@@ -62,9 +65,22 @@
               placeholder="tucorreo@ejemplo.com"
               v-model="form.email"
               required
+              :disabled="loading"
           />
           <small>Te enviaremos la confirmación a este correo</small>
         </div>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div v-if="error" class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ error }}
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <div v-if="success" class="success-message">
+        <i class="fas fa-check-circle"></i>
+        {{ success }}
       </div>
 
       <div class="info-box success">
@@ -76,228 +92,217 @@
 
       <div class="checkbox-group">
         <label class="checkbox-container">
-          <input type="checkbox" v-model="form.aceptaTerminos" required>
+          <input type="checkbox" v-model="form.aceptaTerminos" required :disabled="loading">
           <span>Acepto los <a href="about:blank" target="_blank">términos y condiciones</a></span>
         </label>
         <label class="checkbox-container">
-          <input type="checkbox" v-model="form.recibirNotificaciones">
+          <input type="checkbox" v-model="form.recibirNotificaciones" :disabled="loading">
           <span>Deseo recibir notificaciones sobre mi viaje</span>
         </label>
       </div>
 
-      <button type="submit" class="btn-submit" :disabled="!form.aceptaTerminos">
-        <i class="fas fa-check-circle"></i> CONFIRMAR PASAJE
+      <button type="submit" class="btn-submit" :disabled="!form.aceptaTerminos || loading">
+        <i class="fas fa-check-circle"></i> 
+        {{ loading ? 'CONFIRMANDO...' : 'CONFIRMAR PASAJE' }}
       </button>
     </form>
+
+    <!-- Detalles de la reserva confirmada -->
+    <div v-if="currentBooking" class="booking-details">
+      <h3><i class="fas fa-ticket-alt"></i> Detalles de la Reserva</h3>
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="label">ID de Reserva:</span>
+          <span class="value">{{ currentBooking.id }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Estado:</span>
+          <span class="value status" :class="currentBooking.status.toLowerCase()">
+            {{ getStatusText(currentBooking.status) }}
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Asientos:</span>
+          <span class="value">{{ currentBooking.seats.join(', ') }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Monto Total:</span>
+          <span class="value price">{{ formatCurrency(currentBooking.totalAmount) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Fecha de Creación:</span>
+          <span class="value">{{ formatDateTime(currentBooking.createdAt) }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: "ConfirmaPasaje",
-  data() {
-    return {
-      form: {
-        codigoReserva: "",
-        rut: "",
-        apellido: "",
-        email: "",
-        aceptaTerminos: false,
-        recibirNotificaciones: true,
-      },
-    };
-  },
-  methods: {
-    confirmarPasaje() {
-      console.log("Confirmando pasaje:", this.form);
-      alert(`¡Pasaje confirmado! Código: ${this.form.codigoReserva}`);
-      // Aquí se conectará con el backend
-    },
-  },
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useBookings } from '../composables/useBookings';
+import { formatCurrency, formatDateTime } from '../utils/formatters';
+import type { BookingStatus } from '../types/booking';
+import "../assets/ConfirmarPasaje.css";
+
+// Composable para gestionar reservas
+const { currentBooking, loading, error, success, confirmBooking } = useBookings();
+
+// Estado del formulario
+const form = ref({
+  codigoReserva: '',
+  rut: '',
+  apellido: '',
+  email: '',
+  aceptaTerminos: false,
+  recibirNotificaciones: true,
+});
+
+/**
+ * Confirmar pasaje
+ */
+const confirmarPasaje = async () => {
+  if (!form.value.aceptaTerminos) {
+    alert('Debes aceptar los términos y condiciones');
+    return;
+  }
+
+  const resultado = await confirmBooking(form.value.codigoReserva);
+  
+  if (resultado) {
+    // Limpiar formulario después de confirmar
+    form.value.codigoReserva = '';
+    form.value.rut = '';
+    form.value.apellido = '';
+    form.value.aceptaTerminos = false;
+  }
+};
+
+/**
+ * Obtener texto del estado
+ */
+const getStatusText = (status: BookingStatus): string => {
+  const statusMap: Record<BookingStatus, string> = {
+    'PENDING': 'Pendiente',
+    'CONFIRMED': 'Confirmado',
+    'CANCELLED': 'Cancelado',
+  };
+  return statusMap[status] || status;
 };
 </script>
 
 <style scoped>
-.form-card {
-  background: linear-gradient(135deg, #0d286d 0%, #174291 100%);
-  padding: 40px;
-  width: 90%;
-  max-width: 900px;
-  margin: 0 auto;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  position: relative;
-  top: -30px;
-}
-
-.form-header {
-  text-align: center;
+.error-message {
+  background-color: rgba(244, 67, 54, 0.1);
+  border-left: 4px solid #f44336;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 8px;
   color: white;
-  margin-bottom: 35px;
-}
-
-.form-header i {
-  font-size: 3rem;
-  color: #4caf50;
-  margin-bottom: 15px;
-}
-
-.form-header h2 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.form-header p {
-  opacity: 0.9;
-  font-size: 1.1rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.full-width {
-  grid-column: 1 / -1;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: white;
-  font-size: 0.9rem;
+  gap: 10px;
 }
 
-label i {
-  color: #4caf50;
+.error-message i {
+  color: #f44336;
+  font-size: 1.2rem;
 }
 
-input {
-  width: 100%;
-  padding: 14px;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  box-sizing: border-box;
-  font-size: 0.95rem;
-  font-family: "Poppins", sans-serif;
-  transition: all 0.3s;
-  background-color: white;
-}
-
-input:focus {
-  outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
-}
-
-small {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.8rem;
-  margin-top: 5px;
-}
-
-.info-box {
+.success-message {
   background-color: rgba(76, 175, 80, 0.1);
   border-left: 4px solid #4caf50;
   padding: 15px;
   margin: 20px 0;
   border-radius: 8px;
-  display: flex;
-  gap: 15px;
   color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.info-box i {
+.success-message i {
   color: #4caf50;
-  font-size: 1.5rem;
-  flex-shrink: 0;
+  font-size: 1.2rem;
 }
 
-.checkbox-group {
-  margin: 20px 0;
+.booking-details {
+  margin-top: 30px;
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.booking-details h3 {
+  color: #0d286d;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.detail-item {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 5px;
 }
 
-.checkbox-container {
-  display: flex;
-  align-items: center;
-  color: white;
-  cursor: pointer;
-  user-select: none;
+.detail-item .label {
+  color: #666;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
-.checkbox-container input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin-right: 10px;
-  cursor: pointer;
-}
-
-.checkbox-container span {
-  font-size: 0.9rem;
-}
-
-.checkbox-container a {
-  color: #4caf50;
-  text-decoration: underline;
-}
-
-.btn-submit {
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-  color: white;
-  border: none;
-  padding: 16px 40px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 700;
+.detail-item .value {
+  color: #333;
   font-size: 1.1rem;
-  width: 100%;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-  margin-top: 10px;
+  font-weight: 500;
 }
 
-.btn-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+.value.status {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  display: inline-block;
+  width: fit-content;
 }
 
-.btn-submit:active:not(:disabled) {
-  transform: translateY(0);
+.value.status.pending {
+  background-color: #ff9800;
+  color: white;
 }
 
-.btn-submit:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.value.status.confirmed {
+  background-color: #4caf50;
+  color: white;
 }
 
-@media (max-width: 768px) {
-  .form-card {
-    padding: 30px 20px;
+.value.status.cancelled {
+  background-color: #f44336;
+  color: white;
+}
+
+.value.price {
+  color: #4caf50;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-
-  .form-header h2 {
-    font-size: 1.5rem;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

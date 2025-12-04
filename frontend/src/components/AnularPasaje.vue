@@ -18,6 +18,7 @@
               placeholder="Ejemplo: BB123456789"
               v-model="form.codigoReserva"
               required
+              :disabled="loading"
           />
           <small>Encuentra el código en tu correo de confirmación</small>
         </div>
@@ -34,6 +35,7 @@
               placeholder="12.345.678-9"
               v-model="form.rut"
               required
+              :disabled="loading"
           />
         </div>
 
@@ -47,6 +49,7 @@
               placeholder="tucorreo@ejemplo.com"
               v-model="form.email"
               required
+              :disabled="loading"
           />
         </div>
       </div>
@@ -56,7 +59,7 @@
           <label for="motivoAnulacion">
             <i class="fas fa-comment-alt"></i> Motivo de la Anulación
           </label>
-          <select id="motivoAnulacion" v-model="form.motivoAnulacion" required>
+          <select id="motivoAnulacion" v-model="form.motivoAnulacion" required :disabled="loading">
             <option value="">Selecciona un motivo</option>
             <option value="personal">Motivo Personal</option>
             <option value="salud">Motivo de Salud</option>
@@ -78,6 +81,7 @@
               placeholder="Cuéntanos más sobre tu solicitud..."
               v-model="form.detalles"
               rows="4"
+              :disabled="loading"
           ></textarea>
         </div>
       </div>
@@ -87,7 +91,7 @@
           <label for="metodoDevolución">
             <i class="fas fa-credit-card"></i> Método de Devolución
           </label>
-          <select id="metodoDevolución" v-model="form.metodoDevolución" required>
+          <select id="metodoDevolución" v-model="form.metodoDevolución" required :disabled="loading">
             <option value="">Selecciona método</option>
             <option value="original">Método de pago original</option>
             <option value="transferencia">Transferencia bancaria</option>
@@ -104,8 +108,21 @@
               id="cuentaBancaria"
               placeholder="123456789"
               v-model="form.cuentaBancaria"
+              :disabled="loading"
           />
         </div>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div v-if="error" class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ error }}
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <div v-if="success" class="success-message">
+        <i class="fas fa-check-circle"></i>
+        {{ success }}
       </div>
 
       <div class="warning-box">
@@ -123,240 +140,116 @@
 
       <div class="checkbox-group">
         <label class="checkbox-container">
-          <input type="checkbox" v-model="form.aceptaPoliticas" required>
+          <input type="checkbox" v-model="form.aceptaPoliticas" required :disabled="loading">
           <span>He leído y acepto las políticas de anulación</span>
         </label>
         <label class="checkbox-container">
-          <input type="checkbox" v-model="form.confirmaAnulacion" required>
+          <input type="checkbox" v-model="form.confirmaAnulacion" required :disabled="loading">
           <span>Confirmo que deseo anular definitivamente este pasaje</span>
         </label>
       </div>
 
-      <button type="submit" class="btn-submit" :disabled="!form.aceptaPoliticas || !form.confirmaAnulacion">
-        <i class="fas fa-times-circle"></i> ANULAR PASAJE
+      <button type="submit" class="btn-submit" :disabled="!form.aceptaPoliticas || !form.confirmaAnulacion || loading">
+        <i class="fas fa-times-circle"></i> 
+        {{ loading ? 'ANULANDO...' : 'ANULAR PASAJE' }}
       </button>
     </form>
   </div>
 </template>
 
-<script>
-export default {
-  name: "AnulaPasaje",
-  data() {
-    return {
-      form: {
-        codigoReserva: "",
-        rut: "",
-        email: "",
-        motivoAnulacion: "",
-        detalles: "",
-        metodoDevolución: "",
-        cuentaBancaria: "",
-        aceptaPoliticas: false,
-        confirmaAnulacion: false,
-      },
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useBookings } from '../composables/useBookings';
+import "../assets/AnularPasaje.css";
+
+// Composable para gestionar reservas
+const { loading, error, success, cancelBooking } = useBookings();
+
+// Estado del formulario
+const form = ref({
+  codigoReserva: '',
+  rut: '',
+  email: '',
+  motivoAnulacion: '',
+  detalles: '',
+  metodoDevolución: '',
+  cuentaBancaria: '',
+  aceptaPoliticas: false,
+  confirmaAnulacion: false,
+});
+
+/**
+ * Anular pasaje
+ */
+const anularPasaje = async () => {
+  if (!form.value.aceptaPoliticas || !form.value.confirmaAnulacion) {
+    alert('Debes aceptar las políticas y confirmar la anulación');
+    return;
+  }
+
+  const resultado = await cancelBooking(form.value.codigoReserva);
+  
+  if (resultado) {
+    // Limpiar formulario después de anular
+    form.value = {
+      codigoReserva: '',
+      rut: '',
+      email: '',
+      motivoAnulacion: '',
+      detalles: '',
+      metodoDevolución: '',
+      cuentaBancaria: '',
+      aceptaPoliticas: false,
+      confirmaAnulacion: false,
     };
-  },
-  methods: {
-    anularPasaje() {
-      console.log("Anulando pasaje:", this.form);
-      alert(`Solicitud de anulación recibida para la reserva ${this.form.codigoReserva}`);
-      // Aquí se conectará con el backend
-    },
-  },
+  }
 };
 </script>
 
 <style scoped>
-.form-card {
-  background: linear-gradient(135deg, #0d286d 0%, #174291 100%);
-  padding: 40px;
-  width: 90%;
-  max-width: 900px;
-  margin: 0 auto;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  position: relative;
-  top: -30px;
-}
-
-.form-header {
-  text-align: center;
-  color: white;
-  margin-bottom: 35px;
-}
-
-.form-header i {
-  font-size: 3rem;
-  color: #f44336;
-  margin-bottom: 15px;
-}
-
-.form-header h2 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.form-header p {
-  opacity: 0.9;
-  font-size: 1.1rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.full-width {
-  grid-column: 1 / -1;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: white;
-  font-size: 0.9rem;
-}
-
-label i {
-  color: #f44336;
-}
-
-input, select, textarea {
-  width: 100%;
-  padding: 14px;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  box-sizing: border-box;
-  font-size: 0.95rem;
-  font-family: "Poppins", sans-serif;
-  transition: all 0.3s;
-  background-color: white;
-}
-
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: #f44336;
-  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.2);
-}
-
-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-small {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.8rem;
-  margin-top: 5px;
-}
-
-.warning-box {
+.error-message {
   background-color: rgba(244, 67, 54, 0.1);
   border-left: 4px solid #f44336;
   padding: 15px;
   margin: 20px 0;
   border-radius: 8px;
-  display: flex;
-  gap: 15px;
   color: white;
-}
-
-.warning-box i {
-  color: #f44336;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.warning-box ul {
-  margin: 10px 0;
-  padding-left: 20px;
-}
-
-.warning-box li {
-  margin: 5px 0;
-}
-
-.checkbox-group {
-  margin: 20px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.checkbox-container {
   display: flex;
   align-items: center;
-  color: white;
-  cursor: pointer;
-  user-select: none;
-}
-
-.checkbox-container input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin-right: 10px;
-  cursor: pointer;
-}
-
-.checkbox-container span {
-  font-size: 0.9rem;
-}
-
-.btn-submit {
-  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-  color: white;
-  border: none;
-  padding: 16px 40px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1.1rem;
-  width: 100%;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 10px;
-  box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
-  margin-top: 10px;
 }
 
-.btn-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+.error-message i {
+  color: #f44336;
+  font-size: 1.2rem;
 }
 
-.btn-submit:active:not(:disabled) {
-  transform: translateY(0);
+.success-message {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-left: 4px solid #4caf50;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 8px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeIn 0.5s ease-in;
 }
 
-.btn-submit:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.success-message i {
+  color: #4caf50;
+  font-size: 1.2rem;
 }
 
-@media (max-width: 768px) {
-  .form-card {
-    padding: 30px 20px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-
-  .form-header h2 {
-    font-size: 1.5rem;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
