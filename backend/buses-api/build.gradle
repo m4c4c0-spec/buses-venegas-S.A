@@ -125,12 +125,13 @@ task lcom4Metrics(type: Exec) {
     
     workingDir projectDir
     
-    
     commandLine 'java', '-jar', 
                 'tools/ckjm_ext-2.3.jar',  
                 'build/classes/java/main'
     
-    standardOutput = new FileOutputStream('lcom4-report.txt')
+    doFirst {
+        standardOutput = new FileOutputStream(file('lcom4-report.txt'))
+    }
     
     doLast {
         println " Reporte LCOM4 generado en: lcom4-report.txt"
