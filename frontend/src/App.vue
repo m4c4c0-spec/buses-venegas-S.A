@@ -2,13 +2,12 @@
   <div id="app">
     <header class="header">
       <div class="logo-container">
-        <img src="/src/assets/logo.png" alt="Logo Buses Bio Bío" class="logo" />
+        <img src="/src/assets/logo.png" alt="Logo Buses Venegas" class="logo" />
       </div>
       <nav class="nav-links">
         <a href="about:blank" target="_blank">¡PREPARA TU VIAJE! <i class="fas fa-chevron-down"></i></a>
         <a href="about:blank" target="_blank">AHORRA <i class="fas fa-chevron-down"></i></a>
-        <a href="about:blank" target="_blank">SERVICIOS ADICIONALES <i class="fas fa-chevron-down"></i></a>
-        <a href="about:blank" target="_blank">CLUB MUVIY <i class="fas fa-chevron-down"></i></a>
+        <a href="about:blank" target="_blank">SERVICIOS <i class="fas fa-chevron-down"></i></a>
         <a href="about:blank" target="_blank">AYUDA <i class="fas fa-chevron-down"></i></a>
         <a href="about:blank" target="_blank"><i class="fas fa-user-circle"></i></a>
       </nav>
@@ -46,29 +45,11 @@
         <i class="fas fa-check-circle"></i>
         <span>Confirma tu pasaje</span>
       </button>
-      <button
-          class="servicio-btn"
-          :class="{ active: seccionActiva === 'anula' }"
-          @click="seccionActiva = 'anula'"
-      >
-        <i class="fas fa-times-circle"></i>
-        <span>Anula tu pasaje</span>
-      </button>
-      <button
-          class="servicio-btn"
-          :class="{ active: seccionActiva === 'seguimiento' }"
-          @click="seccionActiva = 'seguimiento'"
-      >
-        <i class="fas fa-search"></i>
-        <span>Seguimiento</span>
-      </button>
     </div>
 
     <BuscadorBoletos v-if="seccionActiva === 'compra'" />
     <CambiaPasaje v-if="seccionActiva === 'cambia'" />
     <ConfirmaPasaje v-if="seccionActiva === 'confirma'" />
-    <AnulaPasaje v-if="seccionActiva === 'anula'" />
-    <SeguimientoPasaje v-if="seccionActiva === 'seguimiento'" />
 
     <section class="info-section">
       <div class="info-container">
@@ -98,13 +79,13 @@
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-section">
-          <h4>Buses Bio Bío</h4>
+          <h4>Buses Venegas S.A.</h4>
           <p>Conectando Chile desde 1980</p>
         </div>
         <div class="footer-section">
           <h4>Contacto</h4>
           <p><i class="fas fa-phone"></i> +56 9 1234 5678</p>
-          <p><i class="fas fa-envelope"></i> contacto@busesbiobio.cl</p>
+          <p><i class="fas fa-envelope"></i> contacto@busesvenegas.cl</p>
         </div>
         <div class="footer-section">
           <h4>Síguenos</h4>
@@ -116,7 +97,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>© {{ currentYear }} Buses Bio Bío. Todos los derechos reservados.</p>
+        <p>© {{ currentYear }} Buses Venegas S.A. Todos los derechos reservados.</p>
       </div>
     </footer>
   </div>
@@ -127,8 +108,6 @@ import "./assets/App.css";
 import BuscadorBoletos from "./components/BuscadorBoletos.vue";
 import CambiaPasaje from "./components/CambiarPasaje.vue";
 import ConfirmaPasaje from "./components/ConfirmarPasaje.vue";
-import AnulaPasaje from "./components/AnularPasaje.vue";
-import SeguimientoPasaje from "./components/SeguimientoPasaje.vue";
 
 export default {
   name: "App",
@@ -136,8 +115,6 @@ export default {
     BuscadorBoletos,
     CambiaPasaje,
     ConfirmaPasaje,
-    AnulaPasaje,
-    SeguimientoPasaje,
   },
   data() {
     return {

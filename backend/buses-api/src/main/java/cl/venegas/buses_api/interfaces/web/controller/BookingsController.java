@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
-@CrossOrigin(origins = "*")
+
 public class BookingsController {
 
     private static final Logger log = LoggerFactory.getLogger(BookingsController.class);
