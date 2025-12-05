@@ -98,3 +98,7 @@ COMMENT ON TABLE bookings IS 'Reservas de pasajes realizadas por usuarios';
 COMMENT ON TABLE payments IS 'Pagos asociados a reservas';
 COMMENT ON COLUMN bookings.passengers IS 'JSON con información de pasajeros: [{firstName, lastName, documentType, documentNumber, email, phone}]';
 COMMENT ON COLUMN bookings.seats IS 'Array de números de asiento reservados (ej: {A1, A2, B3})';
+
+-- Seed default user
+INSERT INTO users (email, password_hash, first_name, last_name, phone, role)
+VALUES ('usuario@ejemplo.com', 'hash_dummy', 'Juan', 'Pérez', '123456789', 'CLIENTE');
