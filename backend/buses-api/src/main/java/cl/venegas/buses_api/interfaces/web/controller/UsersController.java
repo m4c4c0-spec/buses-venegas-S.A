@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/users")
-@CrossOrigin(origins = "*")
+
 public class UsersController {
 
     private final RegisterUserService registerUserUseCase;

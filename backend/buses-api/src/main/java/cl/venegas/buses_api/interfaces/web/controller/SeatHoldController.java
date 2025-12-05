@@ -22,7 +22,6 @@ import jakarta.validation.Valid;
  */
 @RestController
 @RequestMapping("/api/v1/holds")
-@CrossOrigin(origins = "*")
 public class SeatHoldController {
 
     private static final Logger log = LoggerFactory.getLogger(SeatHoldController.class);

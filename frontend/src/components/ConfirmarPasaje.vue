@@ -102,13 +102,13 @@
       </div>
 
       <button type="submit" class="btn-submit" :disabled="!form.aceptaTerminos || loading">
-        <i class="fas fa-check-circle"></i> 
-        {{ loading ? 'CONFIRMANDO...' : 'CONFIRMAR PASAJE' }}
+        <i class="fas fa-credit-card"></i> 
+        {{ loading ? 'BUSCANDO...' : 'CONFIRMAR Y PAGAR' }}
       </button>
     </form>
 
     <!-- Detalles de la reserva confirmada -->
-    <div v-if="currentBooking" class="booking-details">
+    <div v-if="currentBooking && paymentCompleted" class="booking-details">
       <h3><i class="fas fa-ticket-alt"></i> Detalles de la Reserva</h3>
       <div class="details-grid">
         <div class="detail-item">
@@ -117,8 +117,8 @@
         </div>
         <div class="detail-item">
           <span class="label">Estado:</span>
-          <span class="value status" :class="currentBooking.status.toLowerCase()">
-            {{ getStatusText(currentBooking.status) }}
+          <span class="value status confirmed">
+            Confirmado y Pagado
           </span>
         </div>
         <div class="detail-item">
@@ -129,24 +129,50 @@
           <span class="label">Monto Total:</span>
           <span class="value price">{{ formatCurrency(currentBooking.totalAmount) }}</span>
         </div>
-        <div class="detail-item">
-          <span class="label">Fecha de Creación:</span>
-          <span class="value">{{ formatDateTime(currentBooking.createdAt) }}</span>
+        <div class="detail-item" v-if="paymentTransactionId">
+          <span class="label">Transacción:</span>
+          <span class="value transaction">{{ paymentTransactionId }}</span>
         </div>
       </div>
     </div>
+
+    <!-- Modal de Pago -->
+    <PaymentModal
+      :is-open="showPaymentModal"
+      :booking="bookingForPayment"
+      @close="closePaymentModal"
+      @payment-complete="onPaymentComplete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { useBookings } from '../composables/useBookings';
 import { formatCurrency, formatDateTime } from '../utils/formatters';
-import type { BookingStatus } from '../types/booking';
+import type { BookingStatus, BookingResponse } from '../types/booking';
+import PaymentModal from './PaymentModal.vue';
 import "../assets/ConfirmarPasaje.css";
 
 // Composable para gestionar reservas
 const { currentBooking, loading, error, success, confirmBooking } = useBookings();
+
+// Estado del modal de pago
+const showPaymentModal = ref(false);
+const paymentCompleted = ref(false);
+const paymentTransactionId = ref<string | null>(null);
+
+// Booking para el modal (puede ser simulado si no viene del backend)
+const bookingForPayment = ref<BookingResponse>({
+  id: 0,
+  tripId: 0,
+  userId: 0,
+  seats: [],
+  status: 'PENDING',
+  totalAmount: 0,
+  createdAt: '',
+  expiresAt: '',
+});
 
 // Estado del formulario
 const form = ref({
@@ -159,7 +185,7 @@ const form = ref({
 });
 
 /**
- * Confirmar pasaje
+ * Confirmar pasaje - ahora abre el modal de pago
  */
 const confirmarPasaje = async () => {
   if (!form.value.aceptaTerminos) {
@@ -167,15 +193,52 @@ const confirmarPasaje = async () => {
     return;
   }
 
-  const resultado = await confirmBooking(form.value.codigoReserva);
+  // Buscar o crear datos de booking para el pago
+  // En un caso real, esto vendría del backend
+  const bookingId = parseInt(form.value.codigoReserva) || Math.floor(Math.random() * 1000) + 1;
   
-  if (resultado) {
-    // Limpiar formulario después de confirmar
-    form.value.codigoReserva = '';
-    form.value.rut = '';
-    form.value.apellido = '';
-    form.value.aceptaTerminos = false;
+  bookingForPayment.value = {
+    id: bookingId,
+    tripId: 1,
+    userId: 1,
+    seats: ['A1', 'A2'],
+    status: 'PENDING',
+    totalAmount: 25000,
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 3600000).toISOString(),
+  };
+
+  // Abrir modal de pago
+  showPaymentModal.value = true;
+};
+
+/**
+ * Cerrar modal de pago
+ */
+const closePaymentModal = () => {
+  showPaymentModal.value = false;
+};
+
+/**
+ * Manejar pago completado
+ */
+const onPaymentComplete = (transactionId: string) => {
+  paymentCompleted.value = true;
+  paymentTransactionId.value = transactionId;
+  
+  // Actualizar el booking local
+  if (bookingForPayment.value) {
+    currentBooking.value = {
+      ...bookingForPayment.value,
+      status: 'CONFIRMED',
+    };
   }
+  
+  // Limpiar formulario
+  form.value.codigoReserva = '';
+  form.value.rut = '';
+  form.value.apellido = '';
+  form.value.aceptaTerminos = false;
 };
 
 /**
@@ -293,6 +356,14 @@ const getStatusText = (status: BookingStatus): string => {
   color: #4caf50;
   font-weight: 700;
   font-size: 1.3rem;
+}
+
+.value.transaction {
+  font-family: monospace;
+  background: linear-gradient(135deg, #0d286d 0%, #174291 100%);
+  color: #ffeb3b;
+  padding: 5px 12px;
+  border-radius: 6px;
 }
 
 @keyframes fadeIn {

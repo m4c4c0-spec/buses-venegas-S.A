@@ -3,13 +3,13 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/buses
-    username: buses
-    password: buses
+    url: jdbc:postgresql://localhost:5433/buses
+    username: postgres
+    password: admin
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
       hibernate.format_sql: true
