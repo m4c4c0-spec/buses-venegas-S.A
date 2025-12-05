@@ -308,26 +308,31 @@ const buscarViajes = async () => {
   
   // Solo avanzar si hay resultados del API
   if (trips.value.length > 0) {
+    // Asignar asientos disponibles aleatorios para simulación visual consistente
+    trips.value.forEach(trip => {
+      // Generar un número aleatorio entre 10 y 35 asientos disponibles (de un total de 40)
+      trip.availableSeats = Math.floor(Math.random() * (35 - 10 + 1)) + 10;
+    });
     currentStep.value = 1;
   }
 };
 
 const selectTrip = (trip: TripResponse) => {
   selectedTrip.value = trip;
-  // Generar asientos al seleccionar el viaje
-  currentSeats.value = generateSeats(40);
+  // Generar asientos al seleccionar el viaje, respetando la cantidad disponible del trip
+  currentSeats.value = generateSeats(40, trip.availableSeats);
 };
 
-const generateSeats = (total: number) => {
+const generateSeats = (total: number, availableCount: number = 40) => {
   const seats: { number: string; isAisle: boolean; occupied: boolean }[] = [];
   
-  // Generar asientos ocupados aleatoriamente (20-40% de ocupación)
-  const occupationRate = 0.2 + Math.random() * 0.2;
-  const numOccupied = Math.floor(total * occupationRate);
+  // Calcular cuántos asientos deben estar ocupados
+  const numOccupied = total - availableCount;
   const occupiedSeats = new Set<number>();
   
   while (occupiedSeats.size < numOccupied) {
-    occupiedSeats.add(Math.floor(Math.random() * total) + 1);
+    const seatNum = Math.floor(Math.random() * total) + 1;
+    occupiedSeats.add(seatNum);
   }
   
   for (let i = 1; i <= total + 10; i++) { // +10 for aisles

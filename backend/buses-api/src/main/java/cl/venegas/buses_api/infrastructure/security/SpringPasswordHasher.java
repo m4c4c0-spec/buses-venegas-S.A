@@ -1,5 +1,6 @@
 package cl.venegas.buses_api.infrastructure.security;
 
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -15,12 +16,12 @@ public class SpringPasswordHasher implements PasswordHasher {
     }
 
     @Override
-    public String encode(String rawPassword) {
+    public String encode(@NonNull String rawPassword) {
         return passwordEncoder.encode(rawPassword);
     }
 
     @Override
-    public boolean matches(String rawPassword, String encodedPassword) {
+    public boolean matches(@NonNull String rawPassword, @NonNull String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 }

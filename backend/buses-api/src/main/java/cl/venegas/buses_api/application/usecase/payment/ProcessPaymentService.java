@@ -56,7 +56,7 @@ public class ProcessPaymentService {
         PaymentResult result = paymentGateway.processPayment(bookingId, amount, method);
 
         // 3. Create payment record
-        PaymentStatus status = result.success() ? PaymentStatus.COMPLETADO : PaymentStatus.FALLIDO;
+        PaymentStatus status = result.success() ? PaymentStatus.APROBADO : PaymentStatus.RECHAZADO;
 
         Payment payment = new Payment(
                 null,
