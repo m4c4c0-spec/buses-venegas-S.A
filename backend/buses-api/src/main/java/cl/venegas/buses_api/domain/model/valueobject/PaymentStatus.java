@@ -1,8 +1,8 @@
 package cl.venegas.buses_api.domain.model.valueobject;
 
-public enum PaymentStatus{
+public enum PaymentStatus {
     PENDIENTE,
-    COMPLETADO,
-    FALLIDO,
+    APROBADO,
+    RECHAZADO,
     REEMBOLSADO
 }

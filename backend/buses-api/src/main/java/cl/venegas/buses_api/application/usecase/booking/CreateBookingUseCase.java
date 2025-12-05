@@ -65,8 +65,12 @@ public class CreateBookingUseCase {
     booking.setSeats(seats);
     booking.setPassengers(passengers);
     booking.setStatus(BookingStatus.PENDIENTE);
-    BigDecimal totalAmount = null;
+
+    // Calculate total amount
+    BigDecimal pricePerSeat = BigDecimal.valueOf(trip.basePriceClp());
+    BigDecimal totalAmount = pricePerSeat.multiply(BigDecimal.valueOf(seats.size()));
     booking.setTotalAmount(totalAmount);
+
     booking.setCreatedAt(LocalDateTime.now());
     booking.setExpiresAt(expiresAt);
 
