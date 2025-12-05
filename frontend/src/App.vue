@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <header class="header">
-      <div class="logo-container">
-        <img src="/src/assets/logo.png" alt="Logo Buses Venegas" class="logo" />
+      <div class="logo-container" @click="seccionActiva = 'compra'" style="cursor: pointer;">
+        <img src="/src/assets/logo_buses_venegas_sa.jpg" alt="Logo Buses Venegas" class="logo" />
       </div>
       <nav class="nav-links">
         <a href="about:blank" target="_blank">¡PREPARA TU VIAJE! <i class="fas fa-chevron-down"></i></a>

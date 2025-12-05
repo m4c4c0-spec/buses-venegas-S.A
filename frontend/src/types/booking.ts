@@ -7,9 +7,12 @@ export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED';
  * Información del pasajero
  */
 export interface PassengerRequest {
-    name: string;
-    rut: string;
+    firstName: string;
+    lastName: string;
+    documentNumber: string;
+    documentType: string;
     email: string;
+    phone: string;
 }
 
 /**
