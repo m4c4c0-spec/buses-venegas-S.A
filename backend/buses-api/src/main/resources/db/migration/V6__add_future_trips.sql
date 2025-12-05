@@ -1,5 +1,5 @@
 -- Add more trips with future dates for testing
-INSERT INTO trip(origin, destination, departure_date, price)
+INSERT INTO trip(origin, destination, departure_ts, base_price_clp)
 VALUES
   ('Santiago', 'Concepción', '2025-12-05', 15000),
   ('Santiago', 'Concepción', '2025-12-05', 18000),

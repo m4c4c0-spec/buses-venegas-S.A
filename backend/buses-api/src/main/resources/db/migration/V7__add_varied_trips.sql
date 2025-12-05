@@ -1,6 +1,6 @@
 -- Add varied trips across multiple routes and times
 -- Santiago - Concepción (Dec 5-10)
-INSERT INTO trip(origin, destination, departure_date, price)
+INSERT INTO trip(origin, destination, departure_ts, base_price_clp)
 VALUES
   ('Santiago', 'Concepción', '2025-12-05 06:30:00', 12500),
   ('Santiago', 'Concepción', '2025-12-05 09:00:00', 15000),

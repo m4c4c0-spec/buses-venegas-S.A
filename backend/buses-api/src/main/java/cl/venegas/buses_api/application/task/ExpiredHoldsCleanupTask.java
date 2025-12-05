@@ -24,7 +24,7 @@ public class ExpiredHoldsCleanupTask {
     public void cleanupExpiredHolds() {
         log.info("Ejecutando limpieza de reservas expiradas...");
         try {
-            seatHoldRepo.deleteByExpiresAtBefore(LocalDateTime.now());
+            seatHoldRepo.deleteByHoldUntilBefore(LocalDateTime.now());
             log.info("Limpieza completada.");
         } catch (Exception e) {
             log.error("Error durante la limpieza de reservas expiradas", e);
