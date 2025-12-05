@@ -209,7 +209,7 @@
           </div>
           <div class="detail-row">
             <span class="label">Fecha:</span>
-            <span class="value">{{ formatDate(selectedTrip?.departureTime) }}</span>
+            <span class="value">{{ formatDate(selectedTrip?.departureTime || '') }}</span>
           </div>
           <div class="detail-row">
             <span class="label">Asientos:</span>
@@ -319,7 +319,7 @@ const selectTrip = (trip: TripResponse) => {
 };
 
 const generateSeats = (total: number) => {
-  const seats = [];
+  const seats: { number: string; isAisle: boolean; occupied: boolean }[] = [];
   
   // Generar asientos ocupados aleatoriamente (20-40% de ocupación)
   const occupationRate = 0.2 + Math.random() * 0.2;
@@ -338,12 +338,12 @@ const generateSeats = (total: number) => {
     if (col === 2) {
       seats.push({ number: '', isAisle: true, occupied: false });
     } else {
-      const seatNum = seats.filter(s => !s.isAisle).length + 1;
-      if (seatNum <= total) {
+      const seatNumber = seats.filter(s => !s.isAisle).length + 1;
+      if (seatNumber <= total) {
         seats.push({
-          number: seatNum.toString(),
+          number: seatNumber.toString(),
           isAisle: false,
-          occupied: occupiedSeats.has(seatNum),
+          occupied: occupiedSeats.has(seatNumber),
         });
       }
     }
@@ -373,21 +373,25 @@ const goToPayment = async () => {
   bookingError.value = null;
   
   try {
+    
     // Crear booking real en el backend
     const bookingRequest = {
       tripId: selectedTrip.value.id.toString(),
       userId: '1', // En producción vendría del usuario autenticado
       seatNumber: selectedSeats.value[0], // Backend espera un asiento, los demás se agregan
       passenger: {
-        name: 'Pasajero',
-        rut: '12345678-9',
-        email: 'pasajero@email.com',
+        firstName: 'Juan',
+        lastName: 'Pérez',
+        documentNumber: '12345678-9',
+        documentType: 'RUT',
+        email: 'juan.perez@email.com',
+        phone: '+56912345678'
       },
     };
     
     // Llamar al API para crear la reserva
     const createdBooking = await bookingService.createBooking(bookingRequest);
-    
+
     console.log('Reserva creada en BD:', createdBooking);
     
     // Usar el booking real del backend

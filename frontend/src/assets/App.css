@@ -31,7 +31,7 @@ body {
 }
 
 .logo {
-    height: 50px;
+    height: 85px;
     transition: transform 0.3s;
 }
 
@@ -56,7 +56,7 @@ body {
 }
 
 .header-banner {
-    background-image: url("https://i.imgur.com/K1LgO3u.jpeg");
+    background-image: url("./BUSES_VENEGAS_FONDO.jpg");
     background-size: cover;
     background-position: center;
     height: 500px;
