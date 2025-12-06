@@ -10,6 +10,7 @@ import cl.venegas.buses_api.infrastructure.persistence.jpa.entity.PaymentJpa;
 import cl.venegas.buses_api.infrastructure.persistence.jpa.repo.PaymentJpaRepository;
 
 @Repository
+@SuppressWarnings("null")
 public class PaymentRepositoryJpaAdapter implements PaymentRepository {
 
     private final PaymentJpaRepository jpaRepository;

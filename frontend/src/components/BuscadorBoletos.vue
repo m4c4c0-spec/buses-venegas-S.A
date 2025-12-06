@@ -29,11 +29,26 @@
           <div class="form-row">
             <div class="form-group">
               <label><i class="fas fa-map-marker-alt"></i> Origen</label>
-              <input type="text" v-model="searchForm.origen" placeholder="¿Desde dónde viajas?" required />
+              <input 
+                type="text" 
+                v-model="searchForm.origen" 
+                placeholder="¿Desde dónde viajas?" 
+                list="cities" 
+                required 
+              />
             </div>
             <div class="form-group">
               <label><i class="fas fa-map-marker-alt"></i> Destino</label>
-              <input type="text" v-model="searchForm.destino" placeholder="¿A dónde vas?" required />
+              <input 
+                type="text" 
+                v-model="searchForm.destino" 
+                placeholder="¿A dónde vas?" 
+                list="cities" 
+                required 
+              />
+              <datalist id="cities">
+                <option v-for="city in availableCities" :key="city" :value="city" />
+              </datalist>
             </div>
           </div>
           <div class="form-row">
@@ -111,14 +126,24 @@
           {{ bookingError }}
         </div>
 
-      <div class="step-actions" style="display: none;">
-          <!-- Hidden actions for merged step -->
-      </div>
+        <div class="step-actions">
+          <button class="btn-secondary" @click="prevStep">
+            <i class="fas fa-arrow-left"></i> Volver
+          </button>
+          <button 
+            class="btn-primary" 
+            @click="nextStep" 
+            :disabled="!areSeatsComplete"
+            :title="!areSeatsComplete ? `Debes seleccionar ${searchForm.pasajeros} asiento(s)` : ''"
+          >
+            Continuar <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
       </div>
 
 
       <!-- PASO 3: Datos de Pasajeros -->
-      <div v-if="currentStep === 2" class="step-container">
+      <div v-if="currentStep === 3" class="step-container">
         <div class="step-header">
           <i class="fas fa-users"></i>
           <h2>Datos de los Pasajeros</h2>
@@ -146,7 +171,7 @@
       </div>
 
       <!-- PASO 4: Confirmación -->
-      <div v-if="currentStep === 3" class="step-container confirmation">
+      <div v-if="currentStep === 4" class="step-container confirmation">
         <div class="success-header">
           <div class="success-icon">
             <i class="fas fa-check-circle"></i>
@@ -217,7 +242,7 @@ import PassengerForm from './PassengerForm.vue';
 import "../assets/BusacadorBoletos.css";
 
 // Steps
-const steps = ['Buscar', 'Seleccionar Bus', 'Asientos y Pasajeros', 'Confirmación'];
+const steps = ['Buscar', 'Seleccionar Bus', 'Selección de Asientos', 'Datos de Pasajeros', 'Confirmación'];
 const currentStep = ref(0);
 
 // Composable
@@ -236,6 +261,24 @@ const searchForm = ref({
 });
 
 const fechaMinima = new Date().toISOString().split('T')[0];
+
+// Cities for Autocomplete
+// Cities for Autocomplete
+const availableCities = [
+  'Arica', 'Iquique', 'Alto Hospicio', 'Antofagasta', 'Calama', 'Tocopilla',
+  'Copiapó', 'Vallenar', 'La Serena', 'Coquimbo', 'Ovalle', 'Illapel',
+  'Valparaíso', 'Viña del Mar', 'Quilpué', 'Villa Alemana', 'San Antonio', 'Los Andes', 'San Felipe',
+  'Santiago', 'Puente Alto', 'San Bernardo', 'Maipú', 'La Florida', 'Las Condes', 'Melipilla', 'Talagante',
+  'Rancagua', 'San Fernando', 'Rengo', 'Machalí',
+  'Talca', 'Curicó', 'Linares', 'Cauquenes', 'Constitución',
+  'Chillán', 'San Carlos', 'Bulnes',
+  'Concepción', 'Talcahuano', 'Coronel', 'San Pedro de la Paz', 'Chiguayante', 'Los Ángeles',
+  'Temuco', 'Padre Las Casas', 'Villarrica', 'Pucón', 'Angol', 'Victoria',
+  'Valdivia', 'La Unión', 'Río Bueno',
+  'Osorno', 'Puerto Montt', 'Puerto Varas', 'Castro', 'Ancud',
+  'Coyhaique', 'Puerto Aysén',
+  'Punta Arenas', 'Puerto Natales'
+].sort();
 
 // Selection state
 const selectedTrip = ref<TripResponse | null>(null);
@@ -274,10 +317,25 @@ watch(selectedSeats, (newSeats) => {
   }
 }, { deep: true });
 
+// Validation for Passenger Data Step
 const areAllPassengersValid = computed(() => {
-    return passengersData.value.length > 0 && passengersData.value.every(p => 
-        p.firstName && p.lastName && p.documentNumber && p.email
-    );
+    if (passengersData.value.length === 0) return false;
+    
+    // Basic presence check + strict regex validation handled by child form visual feedback
+    // Here we enforce that fields are not empty and look roughly correct
+    return passengersData.value.every(p => {
+        const hasBasicData = p.firstName.length > 1 && 
+                             p.lastName.length > 1 && 
+                             p.documentNumber.length > 6 && 
+                             p.email.includes('@') && 
+                             p.phone.length > 8;
+        return hasBasicData;
+    });
+});
+
+// Validation for Seat Selection Step
+const areSeatsComplete = computed(() => {
+    return selectedSeats.value.length === Number(searchForm.value.pasajeros);
 });
 
 
@@ -412,7 +470,7 @@ const onPaymentComplete = (transactionId: string) => {
   paymentTransactionId.value = transactionId;
   bookingCode.value = `BV-${Date.now().toString().slice(-8)}`;
   showPaymentModal.value = false;
-  currentStep.value = 3;
+  currentStep.value = 4; // Move to confirmation
 };
 
 const prevStep = () => {
@@ -422,6 +480,10 @@ const prevStep = () => {
 };
 
 const nextStep = () => {
+  if (currentStep.value === 2 && !areSeatsComplete.value) {
+      // Prevent manual step increase if seats incomplete (extra safety)
+      return; 
+  }
   if (currentStep.value < steps.length - 1) {
     currentStep.value++;
   }

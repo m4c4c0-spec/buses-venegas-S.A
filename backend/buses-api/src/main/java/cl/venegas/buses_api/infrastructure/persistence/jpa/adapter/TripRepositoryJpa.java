@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
+@SuppressWarnings("null")
 public class TripRepositoryJpa implements TripRepository {
 
     private final TripJpaRepository repository;
