@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    
+    <!-- Definir propiedades -->
+    <property name="LOG_PATH" value="logs"/>
+    <property name="LOG_FILE" value="application"/>
+    
+    <!-- Patrón de formato -->
+    <property name="LOG_PATTERN" 
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%logger{36}] - %msg%n"/>
+    
+    <!-- Appender para consola (desarrollo) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+    
+    <!-- Appender para archivo -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_FILE}.log</file>
+        
+        <!-- Política de rotación por fecha -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Archivo diario -->
+            <fileNamePattern>${LOG_PATH}/${LOG_FILE}-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- Mantener logs de los últimos 30 días -->
+            <maxHistory>30</maxHistory>
+            <!-- Tamaño máximo total de logs: 1GB -->
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+    
+    <!-- Logger para nuestro paquete (nivel DEBUG) -->
+    <logger name="cl.venegas.buses_api" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+    
+    <!-- Logger para Spring Framework (nivel INFO) -->
+    <logger name="org.springframework" level="INFO"/>
+    
+    <!-- Logger para Hibernate (nivel WARN para reducir verbosidad) -->
+    <logger name="org.hibernate" level="WARN"/>
+    
+    <!-- Logger para SQL queries (opcional, comentado por defecto) -->
+    <!-- <logger name="org.hibernate.SQL" level="DEBUG"/> -->
+    
+    <!-- Root logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+    
+</configuration>
