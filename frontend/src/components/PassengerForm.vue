@@ -14,7 +14,10 @@
             placeholder="Nombres" 
             :value="modelValue.firstName"
             @input="updateField('firstName', ($event.target as HTMLInputElement).value)"
+            @blur="touchField('firstName')"
+            :class="{ 'invalid': errors.firstName && touched.firstName }"
           />
+          <span v-if="errors.firstName && touched.firstName" class="error-text">Requerido</span>
         </div>
         <div class="form-item">
           <label>Apellido</label>
@@ -23,7 +26,10 @@
             placeholder="Apellidos" 
             :value="modelValue.lastName"
             @input="updateField('lastName', ($event.target as HTMLInputElement).value)"
+            @blur="touchField('lastName')"
+             :class="{ 'invalid': errors.lastName && touched.lastName }"
           />
+           <span v-if="errors.lastName && touched.lastName" class="error-text">Requerido</span>
         </div>
       </div>
 
@@ -46,7 +52,10 @@
             placeholder="Ej: 12.345.678-9" 
             :value="modelValue.documentNumber"
             @input="updateField('documentNumber', ($event.target as HTMLInputElement).value)"
+            @blur="touchField('documentNumber')"
+            :class="{ 'invalid': errors.documentNumber && touched.documentNumber }"
           />
+          <span v-if="errors.documentNumber && touched.documentNumber" class="error-text">Formato inválido</span>
         </div>
       </div>
 
@@ -58,7 +67,10 @@
             placeholder="contacto@ejemplo.com" 
             :value="modelValue.email"
             @input="updateField('email', ($event.target as HTMLInputElement).value)"
+            @blur="touchField('email')"
+            :class="{ 'invalid': errors.email && touched.email }"
           />
+          <span v-if="errors.email && touched.email" class="error-text">Email inválido</span>
         </div>
         <div class="form-item">
           <label>Teléfono</label>
@@ -67,7 +79,10 @@
             placeholder="+56 9 ..." 
             :value="modelValue.phone"
             @input="updateField('phone', ($event.target as HTMLInputElement).value)"
+             @blur="touchField('phone')"
+             :class="{ 'invalid': errors.phone && touched.phone }"
           />
+           <span v-if="errors.phone && touched.phone" class="error-text">Min 9 dígitos</span>
         </div>
       </div>
     </div>
@@ -75,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-// defineProps and defineEmits are available in script setup
+import { computed, ref, reactive } from 'vue';
 
 interface PassengerData {
   firstName: string;
@@ -95,11 +110,34 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: PassengerData): void;
 }>();
 
+const touched = reactive({
+    firstName: false,
+    lastName: false,
+    documentNumber: false,
+    email: false,
+    phone: false
+});
+
+const errors = computed(() => {
+    return {
+        firstName: props.modelValue.firstName.length < 2,
+        lastName: props.modelValue.lastName.length < 2,
+        documentNumber: props.modelValue.documentNumber.length < 7, // Basic length check
+        email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.modelValue.email),
+        phone: props.modelValue.phone.length < 9
+    };
+});
+
 const updateField = (field: keyof PassengerData, value: string) => {
   emit('update:modelValue', {
     ...props.modelValue,
     [field]: value
   });
+};
+
+const touchField = (field: keyof typeof touched) => {
+    // @ts-ignore
+    touched[field] = true;
 };
 </script>
 
@@ -180,6 +218,17 @@ input:focus, select:focus {
   outline: none;
   border-color: #ffeb3b;
   background: rgba(255, 255, 255, 0.15);
+}
+
+input.invalid {
+    border-color: #f44336;
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.error-text {
+    color: #f44336;
+    font-size: 0.75rem;
+    margin-top: 2px;
 }
 
 select option {
