@@ -14,3 +14,4 @@
 
 #Herramientas para los test
 backend/buses-api/tools/*.jar
+backend/buses-api/logs/application.log
