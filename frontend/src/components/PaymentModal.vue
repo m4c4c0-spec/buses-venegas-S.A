@@ -51,15 +51,17 @@
                   <i class="fas fa-credit-card"></i>
                   <span>Débito</span>
                 </label>
-                <label class="method-card" :class="{ active: selectedMethod === 'WEBPAY' }">
-                  <input type="radio" v-model="selectedMethod" value="WEBPAY" />
+                <label class="method-card disabled">
+                  <input type="radio" value="WEBPAY" disabled />
                   <i class="fas fa-globe"></i>
                   <span>Webpay</span>
+                  <span class="badge-disabled">Prox.</span>
                 </label>
-                <label class="method-card" :class="{ active: selectedMethod === 'MERCADOPAGO' }">
-                  <input type="radio" v-model="selectedMethod" value="MERCADOPAGO" />
+                <label class="method-card disabled">
+                  <input type="radio" value="MERCADOPAGO" disabled />
                   <i class="fas fa-money-bill-wave"></i>
                   <span>MercadoPago</span>
+                  <span class="badge-disabled">Prox.</span>
                 </label>
               </div>
             </div>
@@ -76,6 +78,17 @@
                   <input type="text" v-model="cardHolder" placeholder="NOMBRE APELLIDO" />
                 </div>
               </div>
+
+              <div v-if="selectedMethod === 'TARJETA_CREDITO'" class="form-group">
+                 <label><i class="fas fa-layer-group"></i> Cuotas</label>
+                 <select v-model="installments" class="select-css">
+                   <option value="1">1 Cuota (Sin interés)</option>
+                   <option value="3">3 Cuotas</option>
+                   <option value="6">6 Cuotas</option>
+                   <option value="12">12 Cuotas</option>
+                 </select>
+              </div>
+
               <div class="form-row">
                 <div class="form-group half">
                   <label><i class="fas fa-calendar"></i> Vencimiento</label>
@@ -158,6 +171,7 @@ import { usePayments } from '../composables/usePayments';
 import { formatCurrency } from '../utils/formatters';
 import type { PaymentMethod } from '../types/payment';
 import type { BookingResponse } from '../types/booking';
+import { generateTicketPDF } from '../utils/ticketGenerator';
 
 // Props
 const props = defineProps<{
@@ -178,6 +192,7 @@ const cardHolder = ref('');
 const expiryMonth = ref('');
 const expiryYear = ref('');
 const cvv = ref('');
+const installments = ref('1');
 
 // Composable
 const { currentPayment, loading, error, processPayment, clearMessages } = usePayments();
@@ -187,7 +202,7 @@ const isCardMethod = computed(() =>
   selectedMethod.value === 'TARJETA_CREDITO' || selectedMethod.value === 'TARJETA_DEBITO'
 );
 
-const paymentComplete = computed(() => currentPayment.value?.status === 'COMPLETADO');
+const paymentComplete = computed(() => currentPayment.value?.status === 'APROBADO');
 
 // Watch para limpiar cuando se abre el modal
 watch(() => props.isOpen, (isOpen) => {
@@ -204,6 +219,7 @@ const resetForm = () => {
   expiryMonth.value = '';
   expiryYear.value = '';
   cvv.value = '';
+  installments.value = '1';
   currentPayment.value = null;
   clearMessages();
 };
@@ -221,10 +237,23 @@ const handlePayment = async () => {
 };
 
 const handleComplete = () => {
-  if (currentPayment.value?.transactionId) {
-    emit('payment-complete', currentPayment.value.transactionId);
-  }
-  emit('close');
+    if (currentPayment.value?.transactionId) {
+        // Generate PDF before closing
+        if (props.booking) {
+            try {
+                // Ensure booking has updated status if needed, but for PDF we just need details
+                generateTicketPDF({
+                    ...props.booking,
+                    status: 'CONFIRMED',
+                    paymentReference: currentPayment.value.transactionId
+                });
+            } catch (e) {
+                console.error('Error generating PDF:', e);
+            }
+        }
+        emit('payment-complete', currentPayment.value.transactionId);
+    }
+    emit('close');
 };
 </script>
 
@@ -444,6 +473,28 @@ const handleComplete = () => {
   color: white;
   font-size: 0.95rem;
   box-sizing: border-box;
+}
+
+.select-css {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.95rem;
+}
+
+.method-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.badge-disabled {
+  font-size: 0.6rem;
+  background: #333;
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-top: 2px;
 }
 
 .form-group input::placeholder {

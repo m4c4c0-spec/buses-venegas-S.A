@@ -40,13 +40,13 @@ public class CreateBookingUseCase {
 
   @Transactional
   public Booking execute(CreateBookingCommand command) {
-    log.info("Iniciando creación de reserva: tripId={}, userId={}, seatNumber={}",
-        command.tripId(), command.userId(), command.seatNumber());
+    log.info("Iniciando creación de reserva: tripId={}, userId={}, seatsCount={}",
+        command.tripId(), command.userId(), command.seats().size());
 
     Long tripId = command.tripId();
     Long userId = command.userId();
-    List<String> seats = List.of(command.seatNumber());
-    List<Passenger> passengers = List.of(command.passenger());
+    List<String> seats = command.seats();
+    List<Passenger> passengers = command.passengers();
 
     Trip trip = tripRepository.findById(tripId)
         .orElseThrow(() -> {

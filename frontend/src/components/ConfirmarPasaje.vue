@@ -170,6 +170,7 @@ const bookingForPayment = ref<BookingResponse>({
   seats: [],
   status: 'PENDING',
   totalAmount: 0,
+  passengers: [],
   createdAt: '',
   expiresAt: '',
 });
@@ -204,6 +205,7 @@ const confirmarPasaje = async () => {
     seats: ['A1', 'A2'],
     status: 'PENDING',
     totalAmount: 25000,
+    passengers: [],
     createdAt: new Date().toISOString(),
     expiresAt: new Date(Date.now() + 3600000).toISOString(),
   };

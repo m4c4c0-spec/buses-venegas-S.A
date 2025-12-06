@@ -9,6 +9,7 @@ export interface TripResponse {
     arrivalTime: string;   // ISO 8601 format: "yyyy-MM-dd'T'HH:mm:ss"
     basePrice: number;
     availableSeats: number;
+    busInfo?: string;
 }
 
 /**

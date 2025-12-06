@@ -54,8 +54,8 @@ public class BookingsController {
     public ResponseEntity<BookingResponse> createBooking(
             @RequestBody @Validated CreateBookingRequest request) {
 
-        log.info("Recibido POST /api/v1/bookings: tripId={}, userId={}, seatNumber={}",
-                request.tripId(), request.userId(), request.seatNumber());
+        log.info("Recibido POST /api/v1/bookings: tripId={}, userId={}, seatsCount={}",
+                request.tripId(), request.userId(), request.seats().size());
 
         try {
             CreateBookingCommand command = mapper.toCreateCommand(request);

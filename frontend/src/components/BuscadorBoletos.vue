@@ -70,44 +70,12 @@
           <p>{{ trips.length }} buses disponibles para tu ruta</p>
         </div>
 
-        <div class="buses-list">
-          <div 
-            v-for="trip in trips" 
-            :key="trip.id" 
-            class="bus-card"
-            :class="{ selected: selectedTrip?.id === trip.id }"
-            @click="selectTrip(trip)"
-          >
-            <div class="bus-info">
-              <div class="bus-route">
-                <span class="city">{{ trip.origin }}</span>
-                <i class="fas fa-arrow-right"></i>
-                <span class="city">{{ trip.destination }}</span>
-              </div>
-              <div class="bus-times">
-                <div class="time-item">
-                  <i class="fas fa-clock"></i>
-                  <span>Salida: {{ formatTime(trip.departureTime) }}</span>
-                </div>
-                <div class="time-item">
-                  <i class="fas fa-clock"></i>
-                  <span>Llegada: {{ formatTime(trip.arrivalTime) }}</span>
-                </div>
-              </div>
-              <div class="bus-seats">
-                <i class="fas fa-chair"></i>
-                <span>{{ trip.availableSeats }} asientos disponibles</span>
-              </div>
-            </div>
-            <div class="bus-price">
-              <span class="price">{{ formatCurrency(trip.basePrice) }}</span>
-              <span class="per-person">/persona</span>
-            </div>
-            <div class="select-indicator">
-              <i :class="selectedTrip?.id === trip.id ? 'fas fa-check-circle' : 'far fa-circle'"></i>
-            </div>
-          </div>
-        </div>
+        <BusResults
+          :trips="trips"
+          :loading="loading"
+          :selected-trip-id="selectedTrip?.id"
+          @select-trip="selectTrip"
+        />
 
         <div class="step-actions">
           <button class="btn-secondary" @click="prevStep">
@@ -128,47 +96,13 @@
         </div>
 
         <div class="seat-selection">
-          <div class="bus-layout">
-            <div class="bus-front">
-              <i class="fas fa-steering-wheel"></i>
-              <span>Conductor</span>
-            </div>
-            <div class="seats-grid">
-              <div 
-                v-for="seat in currentSeats" 
-                :key="seat.number"
-                class="seat"
-                :class="{ 
-                  occupied: seat.occupied, 
-                  selected: selectedSeats.includes(seat.number),
-                  aisle: seat.isAisle
-                }"
-                @click="!seat.occupied && !seat.isAisle && toggleSeat(seat.number)"
-              >
-                <span v-if="!seat.isAisle">{{ seat.number }}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="seat-legend">
-            <div class="legend-item">
-              <div class="seat-sample available"></div>
-              <span>Disponible</span>
-            </div>
-            <div class="legend-item">
-              <div class="seat-sample selected"></div>
-              <span>Seleccionado</span>
-            </div>
-            <div class="legend-item">
-              <div class="seat-sample occupied"></div>
-              <span>Ocupado</span>
-            </div>
-          </div>
-
-          <div class="selection-summary">
-            <p><strong>Asientos seleccionados:</strong> {{ selectedSeats.length > 0 ? selectedSeats.join(', ') : 'Ninguno' }}</p>
-            <p><strong>Total:</strong> {{ formatCurrency(calculateTotal()) }}</p>
-          </div>
+          <SeatSelector
+            :seats="currentSeats"
+            :selected-seats="selectedSeats"
+            :max-seats="searchForm.pasajeros"
+            :price-per-seat="selectedTrip?.basePrice || 0"
+            @update:selectedSeats="(val: string[]) => selectedSeats = val"
+          />
         </div>
 
         <!-- Error de reserva -->
@@ -177,11 +111,34 @@
           {{ bookingError }}
         </div>
 
+      <div class="step-actions" style="display: none;">
+          <!-- Hidden actions for merged step -->
+      </div>
+      </div>
+
+
+      <!-- PASO 3: Datos de Pasajeros -->
+      <div v-if="currentStep === 2" class="step-container">
+        <div class="step-header">
+          <i class="fas fa-users"></i>
+          <h2>Datos de los Pasajeros</h2>
+          <p>Ingresa los datos para cada asiento seleccionado</p>
+        </div>
+
+        <div class="passengers-forms">
+          <PassengerForm
+            v-for="(seat, index) in selectedSeats"
+            :key="seat"
+            :seat-number="seat"
+            v-model="passengersData[index]"
+          />
+        </div>
+
         <div class="step-actions">
           <button class="btn-secondary" @click="prevStep" :disabled="creatingBooking">
             <i class="fas fa-arrow-left"></i> Volver
           </button>
-          <button class="btn-primary" @click="goToPayment" :disabled="selectedSeats.length !== searchForm.pasajeros || creatingBooking">
+          <button class="btn-primary" @click="goToPayment" :disabled="!areAllPassengersValid || creatingBooking">
             <i :class="creatingBooking ? 'fas fa-spinner fa-spin' : 'fas fa-credit-card'"></i>
             {{ creatingBooking ? 'Creando reserva...' : 'Ir a Pagar' }}
           </button>
@@ -254,10 +211,13 @@ import { bookingService } from '../services/bookingService';
 import type { TripResponse } from '../types/trip';
 import type { BookingResponse } from '../types/booking';
 import PaymentModal from './PaymentModal.vue';
+import BusResults from './BusResults.vue';
+import SeatSelector from './SeatSelector.vue';
+import PassengerForm from './PassengerForm.vue';
 import "../assets/BusacadorBoletos.css";
 
 // Steps
-const steps = ['Buscar', 'Seleccionar Bus', 'Elegir Asientos', 'Confirmación'];
+const steps = ['Buscar', 'Seleccionar Bus', 'Asientos y Pasajeros', 'Confirmación'];
 const currentStep = ref(0);
 
 // Composable
@@ -282,6 +242,45 @@ const selectedTrip = ref<TripResponse | null>(null);
 const selectedSeats = ref<string[]>([]);
 const currentSeats = ref<any[]>([]);
 
+// Passengers Data
+interface PassengerData {
+  firstName: string;
+  lastName: string;
+  documentType: string;
+  documentNumber: string;
+  email: string;
+  phone: string;
+}
+
+const passengersData = ref<PassengerData[]>([]);
+
+// Watch selected seats to init passenger forms
+watch(selectedSeats, (newSeats) => {
+  // Adjust array size
+  if (newSeats.length > passengersData.value.length) {
+    const toAdd = newSeats.length - passengersData.value.length;
+    for (let i = 0; i < toAdd; i++) {
+        passengersData.value.push({
+            firstName: '',
+            lastName: '',
+            documentType: 'RUT',
+            documentNumber: '',
+            email: '',
+            phone: ''
+        });
+    }
+  } else if (newSeats.length < passengersData.value.length) {
+      passengersData.value = passengersData.value.slice(0, newSeats.length);
+  }
+}, { deep: true });
+
+const areAllPassengersValid = computed(() => {
+    return passengersData.value.length > 0 && passengersData.value.every(p => 
+        p.firstName && p.lastName && p.documentNumber && p.email
+    );
+});
+
+
 // Payment state
 const showPaymentModal = ref(false);
 const bookingCode = ref('');
@@ -294,6 +293,7 @@ const bookingForPayment = ref<BookingResponse>({
   seats: [],
   status: 'PENDING',
   totalAmount: 0,
+  passengers: [],
   createdAt: '',
   expiresAt: '',
 });
@@ -357,15 +357,6 @@ const generateSeats = (total: number, availableCount: number = 40) => {
   return seats.slice(0, 50); // Limit to grid
 };
 
-const toggleSeat = (seatNumber: string) => {
-  const index = selectedSeats.value.indexOf(seatNumber);
-  if (index > -1) {
-    selectedSeats.value.splice(index, 1);
-  } else if (selectedSeats.value.length < searchForm.value.pasajeros) {
-    selectedSeats.value.push(seatNumber);
-  }
-};
-
 const calculateTotal = () => {
   if (!selectedTrip.value) return 0;
   return selectedTrip.value.basePrice * selectedSeats.value.length;
@@ -379,19 +370,12 @@ const goToPayment = async () => {
   
   try {
     
-    // Crear booking real en el backend
+    // Crear booking real en el backend con LISTA de asientos y pasajeros
     const bookingRequest = {
       tripId: selectedTrip.value.id.toString(),
       userId: '1', // En producción vendría del usuario autenticado
-      seatNumber: selectedSeats.value[0], // Backend espera un asiento, los demás se agregan
-      passenger: {
-        firstName: 'Juan',
-        lastName: 'Pérez',
-        documentNumber: '12345678-9',
-        documentType: 'RUT',
-        email: 'juan.perez@email.com',
-        phone: '+56912345678'
-      },
+      seats: selectedSeats.value,
+      passengers: passengersData.value
     };
     
     // Llamar al API para crear la reserva
@@ -404,11 +388,13 @@ const goToPayment = async () => {
       id: createdBooking.id,
       tripId: createdBooking.tripId,
       userId: createdBooking.userId,
-      seats: selectedSeats.value, // Usar los asientos seleccionados en el frontend
+      seats: createdBooking.seats,
       status: createdBooking.status,
       totalAmount: calculateTotal(),
+      passengers: createdBooking.passengers || passengersData.value,
       createdAt: createdBooking.createdAt,
       expiresAt: createdBooking.expiresAt,
+      trip: selectedTrip.value || undefined
     };
     
     bookingCode.value = `BV-${createdBooking.id.toString().padStart(8, '0')}`;

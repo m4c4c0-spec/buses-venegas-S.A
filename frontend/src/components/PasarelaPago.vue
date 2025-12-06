@@ -75,15 +75,17 @@
               <i class="fas fa-credit-card"></i>
               <span>Tarjeta de Débito</span>
             </label>
-            <label class="method-option" :class="{ active: selectedMethod === 'WEBPAY' }">
-              <input type="radio" v-model="selectedMethod" value="WEBPAY" />
+            <label class="method-option disabled" :class="{ active: selectedMethod === 'WEBPAY' }">
+              <input type="radio" v-model="selectedMethod" value="WEBPAY" disabled />
               <i class="fas fa-globe"></i>
               <span>Webpay</span>
+              <span class="coming-soon">Próximamente</span>
             </label>
-            <label class="method-option" :class="{ active: selectedMethod === 'MERCADOPAGO' }">
-              <input type="radio" v-model="selectedMethod" value="MERCADOPAGO" />
+            <label class="method-option disabled" :class="{ active: selectedMethod === 'MERCADOPAGO' }">
+              <input type="radio" v-model="selectedMethod" value="MERCADOPAGO" disabled />
               <i class="fas fa-money-bill-wave"></i>
               <span>MercadoPago</span>
+              <span class="coming-soon">Próximamente</span>
             </label>
           </div>
 
@@ -108,6 +110,18 @@
                   placeholder="NOMBRE APELLIDO"
                   required
                 />
+              </div>
+            </div>
+            
+            <div v-if="selectedMethod === 'TARJETA_CREDITO'" class="form-row">
+              <div class="form-group">
+                <label><i class="fas fa-layers-group"></i> Cuotas</label>
+                <select v-model="installments" class="select-input">
+                  <option value="1">1 Cuota (Sin interés)</option>
+                  <option value="3">3 Cuotas</option>
+                  <option value="6">6 Cuotas</option>
+                  <option value="12">12 Cuotas</option>
+                </select>
               </div>
             </div>
             <div class="form-row">
@@ -199,6 +213,7 @@ import { formatCurrency } from '../utils/formatters';
 import type { PaymentMethod, CardInfo } from '../types/payment';
 import type { BookingResponse, BookingStatus } from '../types/booking';
 import { bookingService } from '../services/bookingService';
+import { generateTicketPDF } from '../utils/ticketGenerator';
 
 // Estado
 const bookingIdInput = ref<number | null>(null);
@@ -212,14 +227,11 @@ const cardInfo = ref<CardInfo>({
   expiryYear: '',
   cvv: '',
 });
-
-// Composable de pagos
+const installments = ref('1');
 const { currentPayment, loading, error, processPayment, clearMessages } = usePayments();
 
-// Computed
-const paymentComplete = computed(() => currentPayment.value?.status === 'COMPLETADO');
+const paymentComplete = computed(() => currentPayment.value?.status === 'APROBADO');
 
-// Buscar reserva
 const buscarReserva = async () => {
   if (!bookingIdInput.value) return;
   
@@ -242,6 +254,7 @@ const buscarReserva = async () => {
       seats: ['A1', 'A2'],
       status: 'PENDING',
       totalAmount: 25000,
+      passengers: [],
       createdAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + 3600000).toISOString(),
     };
@@ -255,6 +268,18 @@ const procesarPago = async () => {
   if (!currentBooking.value || !selectedMethod.value) return;
   
   await processPayment(currentBooking.value.id, selectedMethod.value);
+  
+  if (currentPayment.value?.status === 'APROBADO') {
+      try {
+          generateTicketPDF({
+              ...currentBooking.value,
+              status: 'CONFIRMED',
+              paymentReference: currentPayment.value.transactionId
+          });
+      } catch (e) {
+          console.error("Error PDF", e);
+      }
+  }
 };
 
 // Resetear
@@ -263,6 +288,7 @@ const resetear = () => {
   currentPayment.value = null;
   bookingIdInput.value = null;
   selectedMethod.value = 'TARJETA_CREDITO';
+  installments.value = '1';
   cardInfo.value = {
     cardNumber: '',
     cardHolder: '',
@@ -364,6 +390,22 @@ const getMethodText = (method?: PaymentMethod): string => {
   outline: none;
   border-color: #ffeb3b;
   box-shadow: 0 0 0 3px rgba(255, 235, 59, 0.2);
+}
+
+.select-input {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  color: #333;
+  cursor: pointer;
+}
+
+.select-input:focus {
+  outline: none;
+  border-color: #ffeb3b;
 }
 
 .form-group small {
@@ -540,6 +582,28 @@ const getMethodText = (method?: PaymentMethod): string => {
 .method-option.active {
   border-color: #ffeb3b;
   background: rgba(255, 235, 59, 0.2);
+}
+
+.method-option.active i {
+  color: #ffeb3b;
+}
+
+.method-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.method-option.disabled:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.coming-soon {
+  font-size: 0.65rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
 }
 
 .method-option.active i {

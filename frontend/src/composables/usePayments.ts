@@ -30,7 +30,7 @@ export function usePayments() {
             const payment = await paymentService.processPayment({ bookingId, method });
             currentPayment.value = payment;
 
-            if (payment.status === 'COMPLETADO') {
+            if (payment.status === 'APROBADO') {
                 success.value = `¡Pago procesado exitosamente! Transacción: ${payment.transactionId}`;
             } else {
                 error.value = 'El pago no pudo ser procesado. Intenta nuevamente.';
