@@ -13,55 +13,50 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
+@SuppressWarnings("null")
 public class SeatHoldRepositoryJpa implements SeatHoldRepository {
     private final SeatHoldJpaRepository repo;
 
-    public SeatHoldRepositoryJpa(SeatHoldJpaRepository repo) { 
-        this.repo = repo; 
+    public SeatHoldRepositoryJpa(SeatHoldJpaRepository repo) {
+        this.repo = repo;
     }
 
-    @Override 
+    @Override
     @Transactional
-    public SeatHold hold(Long tripId, String seat, Long userId, LocalDateTime expiresAt) { 
+    public SeatHold hold(Long tripId, String seat, Long userId, LocalDateTime expiresAt) {
         try {
             SeatHold seatHold = new SeatHold(null, tripId, seat, userId, expiresAt);
             SeatHoldJpa jpa = SeatHoldJpa.fromDomain(seatHold);
             SeatHoldJpa saved = repo.save(jpa);
             return saved.toDomain();
         } catch (DataIntegrityViolationException e) {
-           
+
             throw new SeatAlreadyHeldException(
-                "El asiento " + seat + " ya está reservado para el viaje " + tripId, e
-            );
+                    "El asiento " + seat + " ya está reservado para el viaje " + tripId, e);
         }
     }
-  
+
     @Override
     public SeatHold save(SeatHold seatHold) {
         SeatHoldJpa jpa = SeatHoldJpa.fromDomain(seatHold);
         SeatHoldJpa saved = repo.save(jpa);
         return saved.toDomain();
-    } 
-  
-    @Override
-    public List<SeatHold> findByTripIdAndSeatIn(Long tripId, List<String> seatNumbers) {
-        return repo.findByTripIdAndSeatIn(tripId, seatNumbers)
-                   .stream()
-                   .map(SeatHoldJpa::toDomain)
-                   .toList();
     }
-  
+
     @Override
     public List<SeatHold> findByTripIdAndSeatNumberIn(Long tripId, List<String> seatNumbers) {
-        return findByTripIdAndSeatIn(tripId, seatNumbers);
+        return repo.findByTripIdAndSeatNumberIn(tripId, seatNumbers)
+                .stream()
+                .map(SeatHoldJpa::toDomain)
+                .toList();
     }
-  
+
     @Override
     @Transactional
     public void deleteAll(List<SeatHold> seatHolds) {
         List<SeatHoldJpa> jpaList = seatHolds.stream()
-                                             .map(SeatHoldJpa::fromDomain)
-                                             .toList();
+                .map(SeatHoldJpa::fromDomain)
+                .toList();
         repo.deleteAll(jpaList);
     }
 

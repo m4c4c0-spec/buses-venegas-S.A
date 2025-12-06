@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ import cl.venegas.buses_api.domain.repository.SeatHoldRepository;
 import cl.venegas.buses_api.domain.repository.TripRepository;
 
 @Service
+@Slf4j
 public class CreateBookingUseCase {
 
   private final BookingRepository bookingRepository;
@@ -37,16 +40,22 @@ public class CreateBookingUseCase {
 
   @Transactional
   public Booking execute(CreateBookingCommand command) {
+    log.info("Iniciando creación de reserva: tripId={}, userId={}, seatsCount={}",
+        command.tripId(), command.userId(), command.seats().size());
 
     Long tripId = command.tripId();
     Long userId = command.userId();
-    List<String> seats = List.of(command.seatNumber());
-    List<Passenger> passengers = List.of(command.passenger());
+    List<String> seats = command.seats();
+    List<Passenger> passengers = command.passengers();
 
     Trip trip = tripRepository.findById(tripId)
-        .orElseThrow(() -> new IllegalArgumentException("Viaje no encontrado por la id " + tripId));
+        .orElseThrow(() -> {
+          log.error("Viaje no encontrado: tripId={}", tripId);
+          return new IllegalArgumentException("Viaje no encontrado por la id " + tripId);
+        });
 
     if (passengers.size() != seats.size()) {
+      log.error("Mismatch pasajeros/asientos: pasajeros={}, asientos={}", passengers.size(), seats.size());
       throw new IllegalArgumentException("el numero de pasajeros no coincide con el de los asientos ");
     }
 
@@ -54,6 +63,7 @@ public class CreateBookingUseCase {
 
     LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(HOLD_DURATION_MINUTES);
     List<SeatHold> seatHolds = new ArrayList<>();
+    log.debug("Reteniendo asientos: {}", seats);
     for (String seat : seats) {
       SeatHold hold = new SeatHold(null, tripId, seat, userId, expiresAt);
       seatHolds.add(seatHoldRepository.save(hold));
@@ -65,11 +75,19 @@ public class CreateBookingUseCase {
     booking.setSeats(seats);
     booking.setPassengers(passengers);
     booking.setStatus(BookingStatus.PENDIENTE);
-    BigDecimal totalAmount = null;
+
+    // Calculate total amount
+    BigDecimal pricePerSeat = BigDecimal.valueOf(trip.basePriceClp());
+    BigDecimal totalAmount = pricePerSeat.multiply(BigDecimal.valueOf(seats.size()));
     booking.setTotalAmount(totalAmount);
+
     booking.setCreatedAt(LocalDateTime.now());
     booking.setExpiresAt(expiresAt);
 
-    return bookingRepository.save(booking);
+    Booking savedBooking = bookingRepository.save(booking);
+    log.info("Reserva creada exitosamente: bookingId={}, status={}, expiresAt={}",
+        savedBooking.getId(), savedBooking.getStatus(), savedBooking.getExpiresAt());
+
+    return savedBooking;
   }
 }

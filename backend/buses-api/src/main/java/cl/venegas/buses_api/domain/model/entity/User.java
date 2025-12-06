@@ -5,12 +5,12 @@ import java.time.LocalDateTime;
 import cl.venegas.buses_api.domain.model.valueobject.UserRole;
 
 public record User(
-        Long id,
-        String email,
-        String firstName,
-        String lastName,
-        String phone,
-        UserRole role,
-        LocalDateTime createdAt
-) {
+                Long id,
+                String email,
+                String password,
+                String firstName,
+                String lastName,
+                String phone,
+                UserRole role,
+                LocalDateTime createdAt) {
 }

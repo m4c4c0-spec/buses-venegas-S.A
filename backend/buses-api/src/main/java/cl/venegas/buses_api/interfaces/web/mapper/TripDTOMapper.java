@@ -23,6 +23,6 @@ public class TripDTOMapper {
                 trip.departureTs(),
                 trip.arrivalTs(),
                 java.math.BigDecimal.valueOf(trip.basePriceClp()),
-                0);
+                40);
     }
 }
