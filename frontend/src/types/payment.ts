@@ -11,7 +11,7 @@ export type PaymentMethod =
 /**
  * Estado del pago
  */
-export type PaymentStatus = 'PENDIENTE' | 'COMPLETADO' | 'FALLIDO' | 'REEMBOLSADO';
+export type PaymentStatus = 'PENDIENTE' | 'APROBADO' | 'RECHAZADO' | 'REEMBOLSADO';
 
 /**
  * Solicitud para procesar un pago

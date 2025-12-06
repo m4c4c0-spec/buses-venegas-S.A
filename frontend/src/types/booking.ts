@@ -21,9 +21,14 @@ export interface PassengerRequest {
 export interface CreateBookingRequest {
     tripId: string;
     userId: string;
-    seatNumber: string;
-    passenger: PassengerRequest;
+    seats: string[];
+    passengers: PassengerRequest[];
 }
+
+/**
+ * Respuesta del backend para una reserva
+ */
+import type { TripResponse } from './trip';
 
 /**
  * Respuesta del backend para una reserva
@@ -35,6 +40,9 @@ export interface BookingResponse {
     seats: string[];
     status: BookingStatus;
     totalAmount: number;
+    paymentReference?: string;
+    passengers: PassengerRequest[];
     createdAt: string; // ISO 8601 format
     expiresAt: string; // ISO 8601 format
+    trip?: TripResponse;
 }
