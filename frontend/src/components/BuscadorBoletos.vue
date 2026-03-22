@@ -9,6 +9,7 @@
           <input
               type="text"
               id="origen"
+              list="ciudades-lista"
               placeholder="¿Desde dónde viajas?"
               v-model="form.origen"
               required
@@ -22,11 +23,17 @@
           <input
               type="text"
               id="destino"
+              list="ciudades-lista"
               placeholder="¿A dónde vas?"
               v-model="form.destino"
               required
           />
         </div>
+        
+        <!-- Autocomplete Datalist -->
+        <datalist id="ciudades-lista">
+          <option v-for="ciudad in sugerenciasCiudades" :key="ciudad" :value="ciudad"></option>
+        </datalist>
 
         <div class="form-group">
           <label for="fechaIda">
@@ -41,16 +48,16 @@
           />
         </div>
 
-        <div class="form-group">
+        <div class="form-group" v-if="form.idaYVuelta">
           <label for="fechaVuelta">
             <i class="fas fa-calendar-alt"></i> Fecha de vuelta
-            <span class="opcional">(Opcional)</span>
           </label>
           <input
               type="date"
               id="fechaVuelta"
               v-model="form.fechaVuelta"
               :min="form.fechaIda || fechaMinima"
+              required
           />
         </div>
 
@@ -59,7 +66,7 @@
             <i class="fas fa-users"></i> Pasajeros
           </label>
           <select id="pasajeros" v-model="form.pasajeros">
-            <option v-for="n in 10" :key="n" :value="n">{{ n }} {{ n === 1 ? 'pasajero' : 'pasajeros' }}</option>
+            <option v-for="n in 6" :key="n" :value="n">{{ n }} {{ n === 1 ? 'pasajero' : 'pasajeros' }}</option>
           </select>
         </div>
       </div>
@@ -73,10 +80,6 @@
       <label class="checkbox-container">
         <input type="checkbox" v-model="form.idaYVuelta">
         <span>Viaje ida y vuelta</span>
-      </label>
-      <label class="checkbox-container">
-        <input type="checkbox" v-model="form.flexible">
-        <span>Fechas flexibles</span>
       </label>
     </div>
   </div>
@@ -96,14 +99,33 @@ export default {
         idaYVuelta: false,
         flexible: false,
       },
-      fechaMinima: new Date().toISOString().split('T')[0]
+      fechaMinima: new Date().toISOString().split('T')[0],
+      sugerenciasCiudades: [
+        "Santiago", "Temuco", "Victoria", "Valparaíso", "Concepción", "Puerto Montt",
+        "Valdivia", "Chillán", "Osorno", "Los Ángeles", "Talca",
+        "Rancagua", "La Serena", "Curicó", "Antofagasta"
+      ]
     };
   },
   methods: {
     buscarPasajes() {
-      console.log("Buscando pasajes:", this.form);
-      // Aquí se conectará con el backend
-      alert(`Buscando pasajes de ${this.form.origen} a ${this.form.destino}`);
+      if (this.form.origen === this.form.destino) {
+        alert("El origen y el destino no pueden ser la misma ciudad.");
+        return;
+      }
+      
+      console.log("Iniciando flujo de pasajes:", this.form);
+      const precioBase = this.form.pasajeros * 15000;
+      const precioTotal = this.form.idaYVuelta ? precioBase * 2 : precioBase;
+      this.$emit('iniciar-flujo', {
+        origen: this.form.origen,
+        destino: this.form.destino,
+        fechaIda: this.form.fechaIda,
+        fechaVuelta: this.form.idaYVuelta ? this.form.fechaVuelta : null,
+        idaYVuelta: this.form.idaYVuelta,
+        pasajeros: this.form.pasajeros,
+        precioTotal: precioTotal
+      });
     },
   },
 };
