@@ -1,20 +1,36 @@
 <template>
   <div id="app">
     <header class="header">
-      <div class="logo-container" @click="activeModal = null" style="cursor: pointer;">
-        <img src="/src/assets/logo_buses_venegas_sa.jpg" alt="Logo Buses Venegas" class="logo" />
+      <div class="logo-container">
+        <img src="/src/assets/logo.png" alt="Logo Buses Bio Bío" class="logo" />
       </div>
       <nav class="nav-links">
-        <a href="#" @click.prevent="activeModal = 'prepara'">¡PREPARA TU VIAJE! <i class="fas fa-chevron-down"></i></a>
-        <a href="#" @click.prevent="activeModal = 'ahorra'">AHORRA <i class="fas fa-chevron-down"></i></a>
-        <a href="#" @click.prevent="activeModal = 'servicios'">SERVICIOS <i class="fas fa-chevron-down"></i></a>
-        <a href="#" @click.prevent="activeModal = 'ayuda'">AYUDA <i class="fas fa-chevron-down"></i></a>
-        <a href="#" @click.prevent="activeModal = 'login'"><i class="fas fa-user-circle"></i></a>
+        <a href="#" @click.prevent="showQuienesSomos = true">¿QUIÉNES SOMOS?</a>
+        <a href="#" @click.prevent="showInscribete = true">INSCRÍBETE CON NOSOTROS</a>
+        <a href="about:blank" target="_blank">AYUDA <i class="fas fa-chevron-down"></i></a>
+        <a href="about:blank" target="_blank"><i class="fas fa-user-circle"></i></a>
       </nav>
     </header>
 
-    <!-- Main Content Background (Always Visible) -->
-    <div class="header-banner" @click="activeModal = 'banner'" style="cursor: pointer;">
+    <!-- Popups -->
+    <div v-if="showQuienesSomos" class="popup-overlay" @click.self="showQuienesSomos = false">
+      <div class="popup-content">
+        <h2>¿Quiénes Somos?</h2>
+        <p>Somos Buses Venegas S.A., una empresa sólida y comprometida con acercar a nuestra gente y unir las distintas regiones de Chile. Llevamos años entregando un servicio de transporte terrestre caracterizado por la comodidad, puntualidad y seguridad total hacia nuestros pasajeros.</p>
+        <button class="btn-cerrar" @click="showQuienesSomos = false">Cerrar</button>
+      </div>
+    </div>
+
+    <div v-if="showInscribete" class="popup-overlay" @click.self="showInscribete = false">
+      <div class="popup-content">
+        <i class="fas fa-tools icon-mantenimiento"></i>
+        <h2>Inscríbete con Nosotros</h2>
+        <p>Este sitio se encuentra actualmente en mantenimiento temporal. ¡Vuelve pronto para descubrir nuestras nuevas ofertas!</p>
+        <button class="btn-cerrar" @click="showInscribete = false">Entendido</button>
+      </div>
+    </div>
+
+    <div class="header-banner">
       <div class="header-overlay">
         <h1 class="main-title">Acercamos a nuestra gente, uniendo regiones</h1>
         <p class="subtitle">Viaja cómodo y seguro por todo Chile</p>
@@ -24,173 +40,69 @@
     <div class="servicios-nav">
       <button
           class="servicio-btn"
-          :class="{ active: activeModal === 'compra' }"
-          @click="activeModal = 'compra'"
+          :class="{ active: seccionActiva === 'compra' }"
+          @click="seccionActiva = 'compra'"
       >
         <i class="fas fa-ticket-alt"></i>
         <span>Compra tu pasaje</span>
       </button>
       <button
           class="servicio-btn"
-          :class="{ active: activeModal === 'cambia' }"
-          @click="activeModal = 'cambia'"
+          :class="{ active: seccionActiva === 'cambia' }"
+          @click="seccionActiva = 'cambia'"
       >
         <i class="fas fa-exchange-alt"></i>
         <span>Cambia tu pasaje</span>
       </button>
       <button
           class="servicio-btn"
-          :class="{ active: activeModal === 'confirma' }"
-          @click="activeModal = 'confirma'"
+          :class="{ active: seccionActiva === 'anula' }"
+          @click="seccionActiva = 'anula'"
       >
-        <i class="fas fa-check-circle"></i>
-        <span>Confirma tu pasaje</span>
+        <i class="fas fa-times-circle"></i>
+        <span>Anula tu pasaje</span>
+      </button>
+      <button
+          class="servicio-btn"
+          :class="{ active: seccionActiva === 'seguimiento' }"
+          @click="seccionActiva = 'seguimiento'"
+      >
+        <i class="fas fa-search"></i>
+        <span>Seguimiento</span>
       </button>
     </div>
 
-    <!-- Main Content Background (Always Visible) -->
-    <section class="info-section">
-      <div class="info-container">
-        <div class="info-card">
-          <i class="fas fa-shield-alt info-icon"></i>
-          <h3>Viaja Seguro</h3>
-          <p>Cumplimos con todos los protocolos de seguridad para tu tranquilidad</p>
-        </div>
-        <div class="info-card">
-          <i class="fas fa-clock info-icon"></i>
-          <h3>Puntualidad</h3>
-          <p>Salidas y llegadas a tiempo, respetando tu horario</p>
-        </div>
-        <div class="info-card">
-          <i class="fas fa-wifi info-icon"></i>
-          <h3>Conectividad</h3>
-          <p>Wi-Fi gratuito en todos nuestros buses</p>
-        </div>
-        <div class="info-card">
-          <i class="fas fa-star info-icon"></i>
-          <h3>Comodidad</h3>
-          <p>Asientos reclinables y espaciosos para tu comodidad</p>
-        </div>
-      </div>
-    </section>
+    <BuscadorBoletos v-if="seccionActiva === 'compra'" @iniciar-flujo="irAHorarios" />
+    <SeleccionHorario v-else-if="seccionActiva === 'horarios'" :detallesReserva="detallesReserva" @horario-seleccionado="irAAsientos" @volver="seccionActiva = 'compra'" />
+    <SeleccionAsientos v-else-if="seccionActiva === 'asientos'" :detallesReserva="detallesReserva" @asientos-seleccionados="irADatosPasajero" @volver="seccionActiva = 'horarios'" />
+    <DatosPasajero v-else-if="seccionActiva === 'datos_pasajero'" :detallesReserva="detallesReserva" @datos-ingresados="irSiguientePaso" @volver="seccionActiva = 'asientos'" />
+    
+    <!-- Vuelta steps (reuse same components with esVuelta flag) -->
+    <SeleccionHorario v-else-if="seccionActiva === 'horarios_vuelta'" :detallesReserva="detallesReserva" :esVuelta="true" @horario-seleccionado="irAAsientosVuelta" @volver="seccionActiva = 'datos_pasajero'" />
+    <SeleccionAsientos v-else-if="seccionActiva === 'asientos_vuelta'" :detallesReserva="detallesReserva" @asientos-seleccionados="irADatosPasajeroVuelta" @volver="seccionActiva = 'horarios_vuelta'" />
+    
+    <PagoPasaje v-else-if="seccionActiva === 'pago'" :detallesReserva="detallesReserva" @pago-exitoso="irAExito" @volver="volverDesdePago" />
+    <div v-else-if="seccionActiva === 'pago_cargando'" class="loading-full">
+      <div class="spinner"></div>
+      <h2>Confirmando tu pago...</h2>
+    </div>
+    <ComprobanteExito v-else-if="seccionActiva === 'exito'" :detallesReserva="detallesReserva" @volver-inicio="volverAlInicio" />
 
-    <!-- Modals -->
-    <BaseModal 
-      :is-open="activeModal === 'banner'" 
-      title="Nuestra Filosofía" 
-      @close="activeModal = null"
-    >
-      <div style="padding: 20px; color: white;">
-        <h3>Acercamos a nuestra gente, uniendo regiones</h3>
-        <p>En Buses Venegas S.A., nos dedicamos a conectar cada rincón de Chile con seguridad y confort.</p>
-        <p>Desde 1980 brindando el mejor servicio a nuestros pasajeros.</p>
-        <ul style="margin-top: 15px; padding-left: 20px;">
-            <li>Flota moderna y segura</li>
-            <li>Conductores profesionales</li>
-            <li>Puntualidad garantizada</li>
-        </ul>
-      </div>
-    </BaseModal>
+    <CambiaPasaje v-if="seccionActiva === 'cambia'" @iniciar-cambio="iniciarCambioDeViaje" />
+    <AnulaPasaje v-if="seccionActiva === 'anula'" />
+    <SeguimientoPasaje v-if="seccionActiva === 'seguimiento'" />
 
-    <!-- Header Link Modals -->
-    <BaseModal 
-      :is-open="activeModal === 'prepara'" 
-      title="Prepara tu Viaje" 
-      @close="activeModal = null"
-    >
-      <div style="padding: 20px; color: white;">
-        <h3>Todo lo que necesitas saber</h3>
-        <p>Información sobre equipaje, documentos necesarios y recomendaciones para tu viaje.</p>
-        <ul>
-          <li>Llega 30 minutos antes.</li>
-          <li>Lleva tu cédula de identidad.</li>
-          <li>Equipaje permitido: hasta 30kg en bodega.</li>
-        </ul>
-      </div>
-    </BaseModal>
 
-    <BaseModal 
-      :is-open="activeModal === 'ahorra'" 
-      title="Club de Ahorro" 
-      @close="activeModal = null"
-    >
-      <div style="padding: 20px; color: white;">
-        <h3>¡Únete y Ahorra!</h3>
-        <p>Acumula puntos en cada viaje y canjéalos por pasajes gratis.</p>
-        <button class="btn-primary" style="margin-top: 10px;">Inscribirse</button>
-      </div>
-    </BaseModal>
-
-    <BaseModal 
-      :is-open="activeModal === 'servicios'" 
-      title="Nuestros Servicios" 
-      @close="activeModal = null"
-    >
-      <div style="padding: 40px; text-align: center; color: #64748b;">
-        <i class="fas fa-tools" style="font-size: 3rem; margin-bottom: 20px; color: #3b82f6;"></i>
-        <h3 style="color: #1e293b; margin-bottom: 10px;">En Mantenimiento</h3>
-        <p>Estamos trabajando para mejorar esta sección. Vuelve pronto.</p>
-      </div>
-    </BaseModal>
-
-    <BaseModal 
-      :is-open="activeModal === 'ayuda'" 
-      title="Centro de Ayuda" 
-      @close="activeModal = null"
-    >
-      <div style="padding: 20px; color: white;">
-        <h3>¿Necesitas ayuda?</h3>
-        <p>Contáctanos a través de nuestros canales oficiales.</p>
-        <p><i class="fas fa-phone"></i> +56 9 1234 5678</p>
-        <p><i class="fas fa-envelope"></i> ayuda@busesvenegas.cl</p>
-      </div>
-    </BaseModal>
-
-    <BaseModal 
-      :is-open="activeModal === 'login'" 
-      title="Acceso Usuarios" 
-      @close="activeModal = null"
-    >
-      <div style="padding: 40px; text-align: center; color: #64748b;">
-        <i class="fas fa-user-lock" style="font-size: 3rem; margin-bottom: 20px; color: #3b82f6;"></i>
-        <h3 style="color: #1e293b; margin-bottom: 10px;">En Mantenimiento</h3>
-        <p>El acceso a usuarios está temporalmente deshabilitado.</p>
-      </div>
-    </BaseModal>
-
-    <BaseModal 
-      :is-open="activeModal === 'compra'" 
-      title="Comprar Pasaje" 
-      @close="activeModal = null"
-    >
-      <BuscadorBoletos />
-    </BaseModal>
-
-    <BaseModal 
-      :is-open="activeModal === 'cambia'" 
-      title="Cambiar Pasaje" 
-      @close="activeModal = null"
-    >
-      <CambiaPasaje />
-    </BaseModal>
-
-    <BaseModal 
-      :is-open="activeModal === 'confirma'" 
-      title="Confirmar Pasaje" 
-      @close="activeModal = null"
-    >
-      <ConfirmaPasaje />
-    </BaseModal>
 
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-section">
-          <h4>Buses Venegas S.A.</h4>
-          <p>Conectando Chile desde 1980</p>
+          <h4>Buses Venegas S.A</h4>
+          <p>Conectando a nuestra gente desde 1995</p>
         </div>
         <div class="footer-section">
           <h4>Contacto</h4>
-          <p><i class="fas fa-phone"></i> +56 9 1234 5678</p>
+          <p><i class="fas fa-phone"></i> +56 9 8765 4321</p>
           <p><i class="fas fa-envelope"></i> contacto@busesvenegas.cl</p>
         </div>
         <div class="footer-section">
@@ -210,25 +122,550 @@
 </template>
 
 <script>
-import "./assets/App.css";
 import BuscadorBoletos from "./components/BuscadorBoletos.vue";
 import CambiaPasaje from "./components/CambiarPasaje.vue";
-import ConfirmaPasaje from "./components/ConfirmarPasaje.vue";
-import BaseModal from "./components/common/BaseModal.vue";
+import AnulaPasaje from "./components/AnularPasaje.vue";
+import SeguimientoPasaje from "./components/SeguimientoPasaje.vue";
+import PagoPasaje from "./components/PagoPasaje.vue";
+import SeleccionHorario from "./components/SeleccionHorario.vue";
+import SeleccionAsientos from "./components/SeleccionAsientos.vue";
+import DatosPasajero from "./components/DatosPasajero.vue";
+import ComprobanteExito from "./components/ComprobanteExito.vue";
 
 export default {
   name: "App",
   components: {
     BuscadorBoletos,
     CambiaPasaje,
-    ConfirmaPasaje,
-    BaseModal,
+    AnulaPasaje,
+    SeguimientoPasaje,
+    SeleccionHorario,
+    PagoPasaje,
+    SeleccionAsientos,
+    DatosPasajero,
+    ComprobanteExito,
   },
   data() {
     return {
       currentYear: new Date().getFullYear(),
-      activeModal: null, // 'compra', 'cambia', 'confirma', 'prepara', 'ahorra', 'servicios', 'ayuda', 'login', 'banner' or null
+      seccionActiva: "compra",
+      detallesReserva: null,
+      showQuienesSomos: false,
+      showInscribete: false,
     };
   },
+  mounted() {
+    // Intercepción de redirección de Mercado Pago (por ej. Webpay 3DS)
+    const params = new URLSearchParams(window.location.search);
+    const paymentId = params.get('payment_id');
+    const status = params.get('status');
+
+    if (paymentId && status === 'approved') {
+      const storedReserva = localStorage.getItem('reservaPendiente');
+      if (storedReserva) {
+        this.detallesReserva = JSON.parse(storedReserva);
+        this.seccionActiva = 'pago_cargando';
+        
+        // Notificar al backend de la compra confirmada (envía el correo y registra)
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/payments/confirm`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            detalles: this.detallesReserva,
+            paymentId: paymentId
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.idReserva) {
+                this.detallesReserva.idReserva = data.idReserva;
+            }
+            this.seccionActiva = 'exito';
+            window.history.replaceState({}, document.title, window.location.pathname);
+            localStorage.removeItem('reservaPendiente');
+        })
+        .catch(err => {
+            console.error("Error confirmando envío de correo de boleta:", err);
+            this.seccionActiva = 'exito';
+            window.history.replaceState({}, document.title, window.location.pathname);
+            localStorage.removeItem('reservaPendiente');
+        });
+      }
+    }
+  },
+  methods: {
+    irAHorarios(detalles) {
+      this.detallesReserva = detalles;
+      this.seccionActiva = 'horarios';
+    },
+    irAAsientos(horario) {
+      this.detallesReserva.horarioViaje = horario;
+      this.seccionActiva = 'asientos';
+    },
+    irADatosPasajero(asientosSeleccionados) {
+      this.detallesReserva.asientos = asientosSeleccionados;
+      
+      if (this.detallesReserva.modoCambio) {
+        // Ejecutar cambio de pasaje (Horario + Asiento)
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/reservas/${this.detallesReserva.idReservaOriginal}/cambiar`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nuevaFecha: this.detallesReserva.fechaIda,
+            nuevoHorarioSalida: this.detallesReserva.horarioViaje.salida,
+            nuevoHorarioLlegada: this.detallesReserva.horarioViaje.llegada,
+            nuevosAsientos: asientosSeleccionados
+          })
+        }).then(res => {
+          if(res.ok) {
+            alert('¡Tu pasaje ha sido cambiado con éxito! Te hemos enviado un nuevo comprobante a tu correo.');
+            this.volverAlInicio();
+          } else {
+            alert('Hubo un error al cambiar el pasaje.');
+          }
+        }).catch(err => console.error(err));
+        return;
+      }
+      
+      this.seccionActiva = 'datos_pasajero';
+    },
+    irSiguientePaso(datosPasajeros) {
+      this.detallesReserva.pasajerosData = datosPasajeros;
+      // If round-trip, go to return trip flow
+      if (this.detallesReserva.idaYVuelta) {
+        this.seccionActiva = 'horarios_vuelta';
+      } else {
+        this.seccionActiva = 'pago';
+      }
+    },
+    irAAsientosVuelta(horario) {
+      if (!this.detallesReserva.vuelta) {
+        this.detallesReserva.vuelta = {};
+      }
+      this.detallesReserva.vuelta.horarioViaje = horario;
+      this.seccionActiva = 'asientos_vuelta';
+    },
+    irADatosPasajeroVuelta(asientosSeleccionados) {
+      this.detallesReserva.vuelta.asientos = asientosSeleccionados;
+      // For return trip, reuse the same passenger data (no need to re-enter)
+      this.seccionActiva = 'pago';
+    },
+    volverDesdePago() {
+      if (this.detallesReserva.idaYVuelta) {
+        this.seccionActiva = 'asientos_vuelta';
+      } else {
+        this.seccionActiva = 'datos_pasajero';
+      }
+    },
+    irAExito() {
+      this.seccionActiva = 'exito';
+    },
+    volverAlInicio() {
+      this.detallesReserva = null;
+      this.seccionActiva = 'compra';
+    },
+    iniciarCambioDeViaje(reserva) {
+      if (!reserva) return;
+      this.detallesReserva = {
+        modoCambio: true,
+        idReservaOriginal: reserva.id,
+        origen: reserva.origen,
+        destino: reserva.destino,
+        fechaIda: reserva.fechaViaje,
+        horarioOriginal: reserva.horarioSalida, 
+        pasajerosData: JSON.parse(reserva.pasajerosJson || '[]'),
+        emailContacto: reserva.emailContacto,
+        idaYVuelta: false
+      };
+      this.seccionActiva = 'horarios';
+    }
+  }
 };
 </script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+
+.popup-content {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  max-width: 450px;
+  text-align: center;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  animation: scaleIn 0.3s ease-out;
+}
+
+.popup-content h2 {
+  color: #0d286d;
+  margin-bottom: 15px;
+}
+
+.popup-content p {
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.icon-mantenimiento {
+  font-size: 3rem;
+  color: #ffc107;
+  margin-bottom: 15px;
+}
+
+.btn-cerrar {
+  background-color: #0d286d;
+  color: white;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.btn-cerrar:hover {
+  background-color: #174291;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background-color: #0d286d;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  height: 50px;
+  transition: transform 0.3s;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.nav-links a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: opacity 0.3s;
+}
+
+.nav-links a:hover {
+  opacity: 0.8;
+}
+
+.header-banner {
+  background-image: url("https://i.imgur.com/K1LgO3u.jpeg");
+  background-size: cover;
+  background-position: center;
+  height: 500px;
+  position: relative;
+}
+
+.header-overlay {
+  background: linear-gradient(135deg, rgba(13, 40, 109, 0.95) 0%, rgba(23, 66, 145, 0.85) 100%);
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 10%;
+}
+
+.main-title {
+  color: white;
+  font-size: 3rem;
+  line-height: 1.2;
+  margin-bottom: 15px;
+  animation: fadeInUp 1s ease-out;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.3rem;
+  font-weight: 300;
+  animation: fadeInUp 1s ease-out 0.2s backwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.servicios-nav {
+  display: flex;
+  justify-content: center;
+  background-color: #174291;
+  width: 90%;
+  max-width: 1200px;
+  margin: -50px auto 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  position: relative;
+  overflow: hidden;
+}
+
+.servicio-btn {
+  background-color: transparent;
+  border: none;
+  color: white;
+  padding: 20px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  flex: 1;
+  position: relative;
+}
+
+.servicio-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #ffeb3b;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.servicio-btn:hover {
+  opacity: 0.9;
+  background-color: rgba(13, 40, 109, 0.3);
+}
+
+.servicio-btn.active {
+  background-color: #0d286d;
+  opacity: 1;
+}
+
+.servicio-btn.active::after {
+  transform: scaleX(1);
+}
+
+.servicio-btn i {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.servicio-btn span {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+
+.footer {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 40px 20px 0;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
+  padding-bottom: 30px;
+}
+
+.footer-section h4 {
+  color: #ffeb3b;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.footer-section p {
+  color: #ccc;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.social-links {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.social-links a {
+  color: white;
+  font-size: 1.5rem;
+  transition: color 0.3s;
+}
+
+.social-links a:hover {
+  color: #ffeb3b;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding: 20px 0;
+  border-top: 1px solid #333;
+  color: #888;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .logo {
+    height: 50px;
+  }
+
+  .nav-links {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .nav-links a {
+    margin-left: 0;
+    font-size: 0.78rem;
+    padding: 4px 8px;
+  }
+
+  .header-banner {
+    height: 320px;
+  }
+
+  .header-overlay {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .main-title {
+    font-size: 1.8rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .servicios-nav {
+    flex-wrap: wrap;
+    margin: -25px auto 15px auto;
+    width: 95%;
+  }
+
+  .servicio-btn {
+    padding: 14px 8px;
+    flex: 1 1 45%;
+  }
+
+  .servicio-btn i {
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+  }
+
+  .servicio-btn span {
+    font-size: 0.72rem;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    padding-bottom: 20px;
+  }
+
+  .footer {
+    padding: 30px 16px 0;
+  }
+
+  .footer-section h4 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-banner {
+    height: 260px;
+  }
+
+  .main-title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .servicio-btn {
+    flex: 1 1 100%;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+    padding: 12px 10px;
+  }
+
+  .servicio-btn i {
+    margin-bottom: 0;
+    font-size: 1.2rem;
+  }
+}
+</style>
+
