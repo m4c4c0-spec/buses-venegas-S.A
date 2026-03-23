@@ -5,8 +5,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: busesvenegassa@gmail.com
-    password: trpfjnxogwmytgit
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -14,9 +14,9 @@ spring:
           starttls:
             enable: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/buses
-    username: buses
-    password: buses
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/buses}
+    username: ${SPRING_DATASOURCE_USERNAME:buses}
+    password: ${SPRING_DATASOURCE_PASSWORD:buses}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -30,4 +30,4 @@ spring:
 management.endpoints.web.exposure.include: health,info
 
 mercadopago:
-  access-token: APP_USR-7238479622445790-032118-3709446eeac94e8501a6672bb60e2308-3283381858
+  access-token: ${MERCADOPAGO_ACCESS_TOKEN}

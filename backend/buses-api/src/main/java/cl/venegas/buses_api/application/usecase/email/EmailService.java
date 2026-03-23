@@ -57,6 +57,92 @@ public class EmailService {
         }
     }
 
+    public void sendChangeReceiptEmail(cl.venegas.buses_api.domain.model.entity.Reserva reserva) {
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            List<Map<String, Object>> pasajeros = mapper.readValue(
+                reserva.getPasajerosJson(), 
+                new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() {}
+            );
+            
+            for (Map<String, Object> pasajero : pasajeros) {
+                String email = (String) pasajero.get("email");
+                String nombre = (String) pasajero.get("nombre");
+                String apellidos = (String) pasajero.getOrDefault("apellidos", "");
+                String rut = (String) pasajero.getOrDefault("rut", "");
+                String asiento = String.valueOf(pasajero.getOrDefault("asiento", ""));
+
+                if (email == null || email.isEmpty()) continue;
+
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                helper.setFrom("busesvenegassa@gmail.com", "Buses Venegas S.A.");
+                helper.setTo(email);
+                helper.setSubject("🔄 Actualización de Pasaje #" + reserva.getId() + " - Buses Venegas S.A.");
+
+                String htmlBody = buildEmailHtml(nombre, apellidos, rut, asiento, reserva.getOrigen(), reserva.getDestino(), reserva.getFechaViaje(), reserva.getHorarioSalida(), String.valueOf(reserva.getPrecioTotal()), reserva.getId());
+                // Podríamos cambiar el header del HTML, pero por ahora reusamos el template.
+                helper.setText(htmlBody, true);
+
+                mailSender.send(message);
+                System.out.println("✅ Correo de cambio enviado exitosamente a: " + email);
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error enviando el correo de cambio: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void sendCancellationEmail(cl.venegas.buses_api.domain.model.entity.Reserva reserva) {
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            List<Map<String, Object>> pasajeros = mapper.readValue(
+                reserva.getPasajerosJson(), 
+                new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() {}
+            );
+            
+            for (Map<String, Object> pasajero : pasajeros) {
+                String email = (String) pasajero.get("email");
+                String nombre = (String) pasajero.get("nombre");
+                String apellidos = (String) pasajero.getOrDefault("apellidos", "");
+
+                if (email == null || email.isEmpty()) continue;
+
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                helper.setFrom("busesvenegassa@gmail.com", "Buses Venegas S.A.");
+                helper.setTo(email);
+                helper.setSubject("⚠️ Anulación de Pasaje #" + reserva.getId() + " Confirmada");
+
+                String htmlBody = "<!DOCTYPE html><html><head><meta charset='UTF-8'></head>"
+                    + "<body style='margin:0; padding:0; font-family:Arial,sans-serif; background-color:#f4f4f4;'>"
+                    + "<table width='100%' cellpadding='0' cellspacing='0' style='padding:30px 0;'>"
+                    + "<tr><td align='center'>"
+                    + "<table width='600' cellpadding='0' cellspacing='0' style='background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.1);'>"
+                    + "<tr><td style='background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%); padding:30px; text-align:center;'>"
+                    + "<h1 style='color:#ffffff; margin:0; font-size:24px;'>Pasaje Anulado Exitosamente</h1>"
+                    + "</td></tr>"
+                    + "<tr><td style='padding:30px;'>"
+                    + "<p style='color:#333; font-size:16px;'>Estimado/a <strong>" + nombre + " " + apellidos + "</strong>,</p>"
+                    + "<p style='color:#555; line-height:1.6;'>Te confirmamos que hemos procesado la anulación de tu reserva <strong>#" + reserva.getId() + "</strong> (Origen: " + reserva.getOrigen() + " - Destino: " + reserva.getDestino() + ").</p>"
+                    + "<p style='color:#555; line-height:1.6;'>De acuerdo a nuestras políticas de anulación, si tienes derecho a un reembolso porcentual basado en las horas de anticipación, este será procesado hacia el método de devolución en <strong style='color:#d32f2f;'>5 a 10 días hábiles</strong>.</p>"
+                    + "<hr style='border:none; border-top:1px solid #eee; margin:20px 0;'>"
+                    + "<p style='color:#888; font-size:12px; text-align:center;'>Gracias por preferir Buses Venegas S.A., ¡esperamos verte pronto en un próximo viaje!</p>"
+                    + "</td></tr>"
+                    + "</table></td></tr></table></body></html>";
+
+                helper.setText(htmlBody, true);
+                mailSender.send(message);
+                System.out.println("✅ Correo de anulación enviado exitosamente a: " + email);
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error enviando el correo de anulación: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     private String buildEmailHtml(String nombre, String apellidos, String rut, String asiento,
                                    String origen, String destino, String fecha, String horario,
                                    String precioTotal, String numReserva) {

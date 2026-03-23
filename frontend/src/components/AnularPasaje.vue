@@ -158,10 +158,30 @@ export default {
     };
   },
   methods: {
-    anularPasaje() {
-      console.log("Anulando pasaje:", this.form);
-      alert(`Solicitud de anulación recibida para la reserva ${this.form.codigoReserva}`);
-      // Aquí se conectará con el backend
+    async anularPasaje() {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/reservas/${this.form.codigoReserva}?rutOrEmail=${this.form.email}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          alert(`¡Reserva ${this.form.codigoReserva} anulada con éxito! El reembolso se procesará según el método seleccionado.`);
+          this.form.codigoReserva = "";
+          this.form.rut = "";
+          this.form.email = "";
+          this.form.motivoAnulacion = "";
+          this.form.detalles = "";
+          this.form.metodoDevolución = "";
+          this.form.cuentaBancaria = "";
+          this.form.aceptaPoliticas = false;
+          this.form.confirmaAnulacion = false;
+        } else {
+          const errMsg = await response.text();
+          alert(`Error al anular: ${errMsg}`);
+        }
+      } catch (err) {
+        alert("Error de conexión al intentar anular el pasaje.");
+      }
     },
   },
 };
@@ -348,7 +368,8 @@ small {
 
 @media (max-width: 768px) {
   .form-card {
-    padding: 30px 20px;
+    padding: 25px 16px;
+    width: 95%;
   }
 
   .form-header h2 {
@@ -358,5 +379,24 @@ small {
   .form-row {
     grid-template-columns: 1fr;
   }
+
+  .btn-submit {
+    width: 100%;
+    font-size: 1rem;
+  }
 }
-</style>
+
+@media (max-width: 480px) {
+  .form-card {
+    padding: 20px 12px;
+    border-radius: 12px;
+  }
+
+  input, select, textarea {
+    font-size: 16px; /* Prevents iOS auto-zoom */
+  }
+
+  .form-header h2 {
+    font-size: 1.3rem;
+  }
+}

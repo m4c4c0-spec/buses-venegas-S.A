@@ -255,8 +255,9 @@ input::placeholder {
 
 @media (max-width: 768px) {
   .form-card {
-    padding: 25px 20px;
+    padding: 25px 16px;
     top: -20px;
+    width: 95%;
   }
 
   .form-row {
@@ -265,13 +266,26 @@ input::placeholder {
   }
 
   .btn-buscar {
-    padding: 14px 30px;
+    padding: 14px 20px;
     font-size: 1rem;
+    width: 100%;
   }
 
   .opciones-adicionales {
     flex-direction: column;
     gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-card {
+    padding: 20px 14px;
+    top: -15px;
+    border-radius: 12px;
+  }
+
+  input, select {
+    font-size: 16px; /* Prevents iOS auto-zoom on focus */
   }
 }
 </style>

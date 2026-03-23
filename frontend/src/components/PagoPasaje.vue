@@ -70,7 +70,7 @@ export default {
   async mounted() {
     try {
       // 1. Fetch Preference ID from Spring Boot Backend
-      const response = await fetch('http://localhost:8081/api/payments/create-payment-intent', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/payments/create-payment-intent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: this.amount })
@@ -130,7 +130,7 @@ export default {
       this.testLoading = true;
       this.error = null;
       try {
-        const response = await fetch('http://localhost:8081/api/payments/confirm', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/payments/confirm`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -140,7 +140,9 @@ export default {
         });
         
         if (response.ok) {
-          this.$emit('pagoExitoso', { status: 'approved', payment_id: 'TEST-' + Date.now() });
+          const data = await response.json();
+          this.detallesReserva.idReserva = data.idReserva;
+          this.$emit('pago-exitoso', { status: 'approved', payment_id: 'TEST-' + Date.now() });
         } else {
           this.error = 'Error al simular el pago. Revisa el backend.';
         }
