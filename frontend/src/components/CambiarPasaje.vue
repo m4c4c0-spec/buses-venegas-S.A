@@ -74,7 +74,7 @@ export default {
       this.cargando = true;
       this.errorMsg = "";
       try {
-        const response = await fetch(`http://localhost:8081/api/reservas/${this.form.codigoReserva}?rutOrEmail=${this.form.email}`);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/reservas/${this.form.codigoReserva}?rutOrEmail=${this.form.email}`);
         if (!response.ok) {
           throw new Error("Reserva no encontrada o datos incorrectos.");
         }
@@ -236,7 +236,8 @@ small {
 
 @media (max-width: 768px) {
   .form-card {
-    padding: 30px 20px;
+    padding: 25px 16px;
+    width: 95%;
   }
 
   .form-header h2 {
@@ -245,6 +246,21 @@ small {
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .btn-submit {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-card {
+    padding: 20px 12px;
+    border-radius: 12px;
+  }
+
+  input, select {
+    font-size: 16px;
   }
 }
 </style>

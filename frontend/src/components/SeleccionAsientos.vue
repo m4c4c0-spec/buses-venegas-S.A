@@ -17,6 +17,7 @@
           class="asiento"
           :class="{ 
             'seleccionado': seleccionados.includes(asiento),
+            'ocupado': ocupados.includes(asiento),
             'pasillo': asiento % 4 === 2,
             'ventana-izq': asiento % 4 === 1,
             'ventana-der': asiento % 4 === 0
@@ -61,7 +62,8 @@ export default {
   },
   data() {
     return {
-      seleccionados: []
+      seleccionados: [],
+      ocupados: []
     }
   },
   computed: {
@@ -71,6 +73,8 @@ export default {
   },
   methods: {
     toggleAsiento(n) {
+      if (this.ocupados.includes(n)) return; // No hacer nada si está ocupado
+      
       if (this.seleccionados.includes(n)) {
         this.seleccionados = this.seleccionados.filter(a => a !== n);
       } else if (this.seleccionados.length < this.totalPasajeros) {
@@ -81,6 +85,34 @@ export default {
     continuar() {
       if (this.seleccionados.length === this.totalPasajeros) {
         this.$emit('asientos-seleccionados', this.seleccionados);
+      }
+    }
+  },
+  mounted() {
+    // Generar asientos ocupados aleatorios para simular el requerimiento
+    const numOcupados = Math.floor(Math.random() * 10) + 5; // Entre 5 y 15 asientos ocupados
+    while(this.ocupados.length < numOcupados) {
+      const rnd = Math.floor(Math.random() * 40) + 1;
+      if (!this.ocupados.includes(rnd)) {
+        this.ocupados.push(rnd);
+      }
+    }
+    
+    // Si es cambio de boleto, intentar pre-seleccionar los asientos originales
+    if (this.detallesReserva && this.detallesReserva.modoCambio && this.detallesReserva.asientos) {
+      let asientosAlerta = [];
+      this.detallesReserva.asientos.forEach(asientoOrig => {
+        // Asegurarse de quitarlo de ocupados temporalmente para este test, 
+        // o si coincide, informar que no está disponible
+        if (this.ocupados.includes(asientoOrig)) {
+           asientosAlerta.push(asientoOrig);
+        } else {
+           this.seleccionados.push(asientoOrig);
+        }
+      });
+      
+      if (asientosAlerta.length > 0) {
+        alert("Algunos de tus asientos originales (" + asientosAlerta.join(', ') + ") ya están ocupados en el nuevo horario. Por favor selecciona unos nuevos.");
       }
     }
   }
@@ -236,6 +268,21 @@ h2 {
 
 .asiento.seleccionado .apoyabrazos-izq, .asiento.seleccionado .apoyabrazos-der {
   background-color: #f57c00;
+}
+
+.asiento.ocupado {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.asiento.ocupado .asiento-body {
+  background-color: #cfd8dc; /* Gray out */
+  color: #90a4ae;
+  box-shadow: none;
+}
+
+.asiento.ocupado .asiento-top, .asiento.ocupado .apoyabrazos-izq, .asiento.ocupado .apoyabrazos-der {
+  background-color: #b0bec5;
 }
 
 .asiento.pasillo {

@@ -92,30 +92,7 @@
     <AnulaPasaje v-if="seccionActiva === 'anula'" />
     <SeguimientoPasaje v-if="seccionActiva === 'seguimiento'" />
 
-    <section class="info-section">
-      <div class="info-container">
-        <div class="info-card">
-          <i class="fas fa-shield-alt info-icon"></i>
-          <h3>Viaja Seguro</h3>
-          <p>Cumplimos con todos los protocolos de seguridad para tu tranquilidad</p>
-        </div>
-        <div class="info-card">
-          <i class="fas fa-clock info-icon"></i>
-          <h3>Puntualidad</h3>
-          <p>Salidas y llegadas a tiempo, respetando tu horario</p>
-        </div>
-        <div class="info-card">
-          <i class="fas fa-wifi info-icon"></i>
-          <h3>Conectividad</h3>
-          <p>Wi-Fi gratuito en todos nuestros buses</p>
-        </div>
-        <div class="info-card">
-          <i class="fas fa-star info-icon"></i>
-          <h3>Comodidad</h3>
-          <p>Asientos reclinables y espaciosos para tu comodidad</p>
-        </div>
-      </div>
-    </section>
+
 
     <footer class="footer">
       <div class="footer-content">
@@ -190,7 +167,7 @@ export default {
         this.seccionActiva = 'pago_cargando';
         
         // Notificar al backend de la compra confirmada (envía el correo y registra)
-        fetch('http://localhost:8081/api/payments/confirm', {
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/payments/confirm`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -222,19 +199,26 @@ export default {
       this.seccionActiva = 'horarios';
     },
     irAAsientos(horario) {
+      this.detallesReserva.horarioViaje = horario;
+      this.seccionActiva = 'asientos';
+    },
+    irADatosPasajero(asientosSeleccionados) {
+      this.detallesReserva.asientos = asientosSeleccionados;
+      
       if (this.detallesReserva.modoCambio) {
-        // Ejecutar cambio de pasaje directamente sin pedir asientos ni datos
-        fetch(`http://localhost:8081/api/reservas/${this.detallesReserva.idReservaOriginal}/cambiar`, {
+        // Ejecutar cambio de pasaje (Horario + Asiento)
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/reservas/${this.detallesReserva.idReservaOriginal}/cambiar`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            nuevaFecha: this.detallesReserva.fechaIda, // Asumimos misma fecha por ahora o la seleccionada
-            nuevoHorarioSalida: horario.salida,
-            nuevoHorarioLlegada: horario.llegada
+            nuevaFecha: this.detallesReserva.fechaIda,
+            nuevoHorarioSalida: this.detallesReserva.horarioViaje.salida,
+            nuevoHorarioLlegada: this.detallesReserva.horarioViaje.llegada,
+            nuevosAsientos: asientosSeleccionados
           })
         }).then(res => {
           if(res.ok) {
-            alert('¡Tu pasaje ha sido cambiado con éxito!');
+            alert('¡Tu pasaje ha sido cambiado con éxito! Te hemos enviado un nuevo comprobante a tu correo.');
             this.volverAlInicio();
           } else {
             alert('Hubo un error al cambiar el pasaje.');
@@ -243,11 +227,6 @@ export default {
         return;
       }
       
-      this.detallesReserva.horarioViaje = horario;
-      this.seccionActiva = 'asientos';
-    },
-    irADatosPasajero(asientosSeleccionados) {
-      this.detallesReserva.asientos = asientosSeleccionados;
       this.seccionActiva = 'datos_pasajero';
     },
     irSiguientePaso(datosPasajeros) {
@@ -530,48 +509,6 @@ body {
   text-align: center;
 }
 
-.info-section {
-  padding: 60px 20px;
-  background-color: white;
-}
-
-.info-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
-}
-
-.info-card {
-  text-align: center;
-  padding: 30px 20px;
-  background-color: #f9f9f9;
-  border-radius: 12px;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.info-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-}
-
-.info-icon {
-  font-size: 3rem;
-  color: #0d286d;
-  margin-bottom: 15px;
-}
-
-.info-card h3 {
-  color: #0d286d;
-  margin-bottom: 10px;
-  font-size: 1.3rem;
-}
-
-.info-card p {
-  color: #666;
-  line-height: 1.6;
-}
 
 .footer {
   background-color: #1a1a1a;
@@ -629,29 +566,40 @@ body {
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
-    padding: 15px 20px;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .logo {
+    height: 50px;
   }
 
   .nav-links {
-    margin-top: 15px;
+    margin-top: 8px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
   }
 
   .nav-links a {
     margin-left: 0;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    padding: 4px 8px;
+  }
+
+  .header-banner {
+    height: 320px;
   }
 
   .header-overlay {
     width: 100%;
     padding: 20px;
+    box-sizing: border-box;
   }
 
   .main-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .subtitle {
@@ -660,15 +608,63 @@ body {
 
   .servicios-nav {
     flex-wrap: wrap;
-    margin: -30px auto 20px auto;
+    margin: -25px auto 15px auto;
+    width: 95%;
   }
 
   .servicio-btn {
-    padding: 15px 10px;
+    padding: 14px 8px;
+    flex: 1 1 45%;
+  }
+
+  .servicio-btn i {
+    font-size: 1.4rem;
+    margin-bottom: 5px;
   }
 
   .servicio-btn span {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    padding-bottom: 20px;
+  }
+
+  .footer {
+    padding: 30px 16px 0;
+  }
+
+  .footer-section h4 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-banner {
+    height: 260px;
+  }
+
+  .main-title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .servicio-btn {
+    flex: 1 1 100%;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+    padding: 12px 10px;
+  }
+
+  .servicio-btn i {
+    margin-bottom: 0;
+    font-size: 1.2rem;
   }
 }
 </style>
