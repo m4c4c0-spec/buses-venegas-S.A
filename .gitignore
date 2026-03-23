@@ -14,4 +14,7 @@
 
 #Herramientas para los test
 backend/buses-api/tools/*.jar
-backend/buses-api/logs/application.log
+
+# Logs de Spring Boot y otros
+*.log
+backend/buses-api/bootrun.log
