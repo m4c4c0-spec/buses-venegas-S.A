@@ -1,7 +1,18 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: busesvenegassa@gmail.com
+    password: trpfjnxogwmytgit
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
     url: jdbc:postgresql://localhost:5432/buses
     username: buses
@@ -9,13 +20,14 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
       hibernate.format_sql: true
   flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
+    enabled: false
 
 management.endpoints.web.exposure.include: health,info
+
+mercadopago:
+  access-token: APP_USR-7238479622445790-032118-3709446eeac94e8501a6672bb60e2308-3283381858
