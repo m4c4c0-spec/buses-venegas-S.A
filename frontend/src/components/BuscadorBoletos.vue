@@ -6,34 +6,29 @@
           <label for="origen">
             <i class="fas fa-map-marker-alt"></i> Origen
           </label>
-          <input
-              type="text"
+          <select
               id="origen"
-              list="ciudades-lista"
-              placeholder="¿Desde dónde viajas?"
               v-model="form.origen"
               required
-          />
+          >
+            <option value="" disabled selected>¿Desde dónde viajas?</option>
+            <option v-for="ciudad in sugerenciasCiudades" :key="'origen-'+ciudad" :value="ciudad">{{ ciudad }}</option>
+          </select>
         </div>
 
         <div class="form-group">
           <label for="destino">
             <i class="fas fa-map-marker-alt"></i> Destino
           </label>
-          <input
-              type="text"
+          <select
               id="destino"
-              list="ciudades-lista"
-              placeholder="¿A dónde vas?"
               v-model="form.destino"
               required
-          />
+          >
+            <option value="" disabled selected>¿A dónde vas?</option>
+            <option v-for="ciudad in sugerenciasCiudades" :key="'destino-'+ciudad" :value="ciudad">{{ ciudad }}</option>
+          </select>
         </div>
-        
-        <!-- Autocomplete Datalist -->
-        <datalist id="ciudades-lista">
-          <option v-for="ciudad in sugerenciasCiudades" :key="ciudad" :value="ciudad"></option>
-        </datalist>
 
         <div class="form-group">
           <label for="fechaIda">
@@ -101,9 +96,13 @@ export default {
       },
       fechaMinima: new Date().toISOString().split('T')[0],
       sugerenciasCiudades: [
-        "Santiago", "Temuco", "Victoria", "Valparaíso", "Concepción", "Puerto Montt",
-        "Valdivia", "Chillán", "Osorno", "Los Ángeles", "Talca",
-        "Rancagua", "La Serena", "Curicó", "Antofagasta"
+        "Ancud (Terminal Municipal)", "Chacao", "Pargua", "Puerto Montt (Terminal de Buses)", 
+        "Puerto Varas", "Llanquihue", "Frutillar", "Purranque", "Osorno", "Río Bueno", 
+        "La Unión", "Paillaco", "Valdivia (Terminal)", "San José de la Mariquina", 
+        "Lanco", "Loncoche", "Pitrufquén", "Freire", "Temuco (Terminal Araucanía)", 
+        "Victoria", "Collipulli", "Mulchén", "Los Ángeles", "Cabrero", 
+        "Chillán (Terminal María Teresa)", "San Carlos", "Parral", "Linares", "Talca", 
+        "Curicó", "San Fernando", "Rengo", "Rancagua", "Santiago (Terminal Sur / Estación Central)"
       ]
     };
   },
