@@ -5,11 +5,11 @@ import jakarta.validation.constraints.NotNull;
 
 public record CreateBookingRequest(
 
-                @NotBlank(message = "Id del viaje es requerido") String tripId,
+        @NotBlank(message = "Id del viaje es requerido") String tripId,
 
-                @NotBlank(message = "Id del usuario es requerido") String userId,
+        @NotBlank(message = "Id del usuario es requerido") String userId,
 
-                @NotBlank(message = "Numero de asiento es requerido") String seatNumber,
+        @NotNull(message = "Lista de asientos es requerida") java.util.List<String> seats,
 
-                @NotNull(message = "Informacion del pasajero es requerida") PassengerRequest passenger) {
+        @NotNull(message = "Lista de pasajeros es requerida") java.util.List<PassengerRequest> passengers) {
 }

@@ -2,14 +2,16 @@ CREATE TABLE trip (
   id BIGSERIAL PRIMARY KEY,
   origin        VARCHAR(80) NOT NULL,
   destination   VARCHAR(80) NOT NULL,
-  departure_date DATE       NOT NULL,
-  price         NUMERIC(10,2) NOT NULL,
-  created_at    TIMESTAMP NOT NULL DEFAULT now()
+  departure_ts  TIMESTAMP   NOT NULL,
+  arrival_ts    TIMESTAMP,
+  base_price_clp INTEGER    NOT NULL,
+  created_at    TIMESTAMP   NOT NULL DEFAULT now()
 );
 
 CREATE TABLE seat_hold (
   id BIGSERIAL PRIMARY KEY,
   trip_id     BIGINT NOT NULL REFERENCES trip(id) ON DELETE CASCADE,
+  user_id     BIGINT NOT NULL,
   seat_number VARCHAR(8) NOT NULL,
   status      VARCHAR(16) NOT NULL,      -- HELD | CONFIRMED | RELEASED
   hold_until  TIMESTAMP   NOT NULL,

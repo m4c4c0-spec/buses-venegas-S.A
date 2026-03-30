@@ -12,4 +12,16 @@ public class BusesApiApplication {
 		SpringApplication.run(BusesApiApplication.class, args);
 	}
 
+	@org.springframework.context.annotation.Bean
+	public org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy cleanMigrateStrategy() {
+		return flyway -> {
+			try {
+				flyway.migrate();
+			} catch (org.flywaydb.core.api.FlywayException e) {
+				flyway.clean();
+				flyway.migrate();
+			}
+		};
+	}
+
 }

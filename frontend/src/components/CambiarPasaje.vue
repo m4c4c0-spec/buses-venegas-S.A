@@ -24,22 +24,9 @@
       </div>
 
       <div class="form-row">
-        <div class="form-group">
-          <label for="rut">
-            <i class="fas fa-id-card"></i> RUT del Pasajero
-          </label>
-          <input
-              type="text"
-              id="rut"
-              placeholder="12.345.678-9"
-              v-model="form.rut"
-              required
-          />
-        </div>
-
-        <div class="form-group">
+        <div class="form-group full-width">
           <label for="email">
-            <i class="fas fa-envelope"></i> Email
+            <i class="fas fa-envelope"></i> Email de compra
           </label>
           <input
               type="email"
@@ -51,34 +38,6 @@
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="nuevaFecha">
-            <i class="fas fa-calendar-alt"></i> Nueva Fecha
-          </label>
-          <input
-              type="date"
-              id="nuevaFecha"
-              v-model="form.nuevaFecha"
-              :min="fechaMinima"
-              required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="motivoCambio">
-            <i class="fas fa-comment-alt"></i> Motivo del Cambio
-          </label>
-          <select id="motivoCambio" v-model="form.motivoCambio" required>
-            <option value="">Selecciona un motivo</option>
-            <option value="personal">Motivo Personal</option>
-            <option value="laboral">Motivo Laboral</option>
-            <option value="salud">Motivo de Salud</option>
-            <option value="otro">Otro</option>
-          </select>
-        </div>
-      </div>
-
       <div class="info-box">
         <i class="fas fa-info-circle"></i>
         <div>
@@ -86,8 +45,12 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-submit">
-        <i class="fas fa-exchange-alt"></i> SOLICITAR CAMBIO
+      <div v-if="errorMsg" class="error-msg">
+        {{ errorMsg }}
+      </div>
+
+      <button type="submit" class="btn-submit" :disabled="cargando">
+        <i class="fas fa-search"></i> {{ cargando ? 'BUSCANDO...' : 'BUSCAR PASAJE' }}
       </button>
     </form>
   </div>
@@ -100,18 +63,28 @@ export default {
     return {
       form: {
         codigoReserva: "",
-        rut: "",
         email: "",
-        nuevaFecha: "",
-        motivoCambio: "",
       },
-      fechaMinima: new Date().toISOString().split('T')[0]
+      cargando: false,
+      errorMsg: ""
     };
   },
   methods: {
-    cambiarPasaje() {
-      console.log("Solicitando cambio:", this.form);
-      alert(`Cambio solicitado para la reserva ${this.form.codigoReserva}`);
+    async cambiarPasaje() {
+      this.cargando = true;
+      this.errorMsg = "";
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/reservas/${this.form.codigoReserva}?rutOrEmail=${this.form.email}`);
+        if (!response.ok) {
+          throw new Error("Reserva no encontrada o datos incorrectos.");
+        }
+        const reserva = await response.json();
+        this.$emit('iniciar-cambio', reserva);
+      } catch (e) {
+        this.errorMsg = e.message;
+      } finally {
+        this.cargando = false;
+      }
     },
   },
 };
@@ -217,6 +190,16 @@ small {
   color: white;
 }
 
+.error-msg {
+  color: #ff4d4f;
+  background: rgba(255, 77, 79, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-weight: bold;
+}
+
 .info-box i {
   color: #ffeb3b;
   font-size: 1.5rem;
@@ -253,7 +236,8 @@ small {
 
 @media (max-width: 768px) {
   .form-card {
-    padding: 30px 20px;
+    padding: 25px 16px;
+    width: 95%;
   }
 
   .form-header h2 {
@@ -262,6 +246,21 @@ small {
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .btn-submit {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-card {
+    padding: 20px 12px;
+    border-radius: 12px;
+  }
+
+  input, select {
+    font-size: 16px;
   }
 }
 </style>
