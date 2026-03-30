@@ -13,11 +13,13 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Nombres</label>
-            <input type="text" v-model="pasajeros[index].nombre" required placeholder="Ej. Juan Andrés">
+            <input type="text" v-model="pasajeros[index].nombre" :class="{'input-error': pasajeros[index].errorNombre}" required placeholder="Ej. Juan Andrés">
+            <span v-if="pasajeros[index].errorNombre" class="msj-error">Nombre insuficiente.</span>
           </div>
           <div class="form-group">
             <label>Apellidos</label>
-            <input type="text" v-model="pasajeros[index].apellidos" required placeholder="Ej. Pérez González">
+            <input type="text" v-model="pasajeros[index].apellidos" :class="{'input-error': pasajeros[index].errorApellido}" required placeholder="Ej. Pérez González">
+            <span v-if="pasajeros[index].errorApellido" class="msj-error">Apellido insuficiente.</span>
           </div>
           <div class="form-group">
             <label>RUT / Pasaporte</label>
@@ -68,6 +70,8 @@ export default {
           apellidos: '',
           rut: '',
           email: '',
+          errorNombre: false,
+          errorApellido: false,
           errorRut: false,
           errorEmail: false
         });
@@ -95,7 +99,17 @@ export default {
       this.pasajeros.forEach((p) => {
         p.errorRut = false;
         p.errorEmail = false;
+        p.errorNombre = false;
+        p.errorApellido = false;
         
+        if (!p.nombre || p.nombre.trim().length < 2) {
+          p.errorNombre = true;
+          hayErrores = true;
+        }
+        if (!p.apellidos || p.apellidos.trim().length < 2) {
+          p.errorApellido = true;
+          hayErrores = true;
+        }
         if (!this.validaRut(p.rut)) {
           p.errorRut = true;
           hayErrores = true;
