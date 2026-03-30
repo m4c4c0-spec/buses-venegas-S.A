@@ -399,4 +399,5 @@ small {
   .form-header h2 {
     font-size: 1.3rem;
   }
-}
+}
+</style>
