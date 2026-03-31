@@ -95,17 +95,16 @@ export default {
       });
       
       const bricksBuilder = mp.bricks();
+      
+      // Failsafe de tiempo para esconder el spinner si MP no responde
+      setTimeout(() => { if (this.loading) this.loading = false; }, 8000);
+
       this.brickController = await bricksBuilder.create('wallet', 'wallet_container', {
         initialization: {
           preferenceId: preferenceId,
           redirectMode: 'self'
         },
-        customization: {
-          texts: {
-            action: 'pay',
-            valueProp: 'security_safety'
-          }
-        },
+        customization: { texts: { action: 'pay', valueProp: 'security_safety' } },
         callbacks: {
           onReady: () => {
              this.loading = false;
@@ -130,7 +129,8 @@ export default {
       this.testLoading = true;
       this.error = null;
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/payments/confirm`, {
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || "https://buses-venegas-backend.onrender.com";
+        const response = await fetch(`${apiUrl}/api/payments/confirm`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -144,11 +144,13 @@ export default {
           this.detallesReserva.idReserva = data.idReserva;
           this.$emit('pago-exitoso', { status: 'approved', payment_id: 'TEST-' + Date.now() });
         } else {
-          this.error = 'Error al simular el pago. Revisa el backend.';
+          this.error = 'El servidor Vercel devolvió un problema.';
+          alert("Error: El acceso al servidor ha sido rechazado o no se puede procesar la confirmación.");
         }
       } catch (err) {
         console.error(err);
-        this.error = 'Error de conexión: ' + err.message;
+        this.error = 'Fallo crítico de conexión: ' + err.message;
+        alert("¡Error de conexión en vivo! Por favor verifica el Log. Detalle: " + err.message);
       } finally {
         this.testLoading = false;
       }
