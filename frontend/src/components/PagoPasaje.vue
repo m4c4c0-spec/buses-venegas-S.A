@@ -33,6 +33,15 @@
       <i class="fas fa-exclamation-triangle"></i> {{ error }}
     </div>
 
+    <!-- Modo Demostración (Simulación Rápida de Compra Completa) -->
+    <div class="test-mode">
+      <div class="test-divider"><span>Acceso Libre Universitario</span></div>
+      <button @click="simularPago" class="btn-test" :disabled="testLoading">
+        <i class="fas fa-graduation-cap"></i> 
+        {{ testLoading ? 'Procesando simulación completa...' : 'Bypass Simulado (Sin Tarjeta)' }}
+      </button>
+      <p class="test-note">Este botón emite una factura instantánea gratuita para probar el portal a nivel universitario.</p>
+    </div>
 
   </div>
 </template>
@@ -47,6 +56,7 @@ export default {
     return {
       loading: true,
       error: null,
+      testLoading: false,
       brickController: null
     }
   },
@@ -114,6 +124,39 @@ export default {
       console.error(err);
       this.error = err.message || "Error general del módulo de pago.";
       this.loading = false;
+    }
+  },
+  methods: {
+    async simularPago() {
+      this.testLoading = true;
+      this.error = null;
+      try {
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || "https://buses-venegas-backend.onrender.com";
+        const response = await fetch(`${apiUrl}/api/payments/confirm`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            detalles: this.detallesReserva,
+            paymentId: 'SIMULACRO-' + Date.now()
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          this.detallesReserva.idReserva = data.idReserva;
+          // Emitimos @pago-exitoso para que App.vue inicie la redirección visual
+          this.$emit('pago-exitoso', { status: 'approved', payment_id: 'SIMULACRO-' + Date.now() });
+        } else {
+          this.error = 'El servidor Vercel devolvió un problema.';
+          alert("Error: El acceso al servidor ha sido rechazado.");
+        }
+      } catch (err) {
+        console.error(err);
+        this.error = 'Fallo crítico de conexión: ' + err.message;
+        alert("¡Error de conexión en vivo! Por favor verifica el Log. Detalle: " + err.message);
+      } finally {
+        this.testLoading = false;
+      }
     }
   },
   unmounted() {
