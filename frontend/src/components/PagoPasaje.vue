@@ -130,6 +130,12 @@ export default {
     async simularPago() {
       this.testLoading = true;
       this.error = null;
+      let timeoutRender = setTimeout(() => {
+         if (this.testLoading) {
+             this.error = "Info: Tu servidor gratuito Render en EEUU parece estar Hibernando. ¡Demorará ~60 segundos en despertar el Backend Java por primera vez! Por favor no cierres la ventana...";
+         }
+      }, 7000);
+
       try {
         const apiUrl = import.meta.env.VITE_API_BASE_URL || "https://buses-venegas-backend.onrender.com";
         const response = await fetch(`${apiUrl}/api/payments/confirm`, {
@@ -141,19 +147,21 @@ export default {
           })
         });
         
+        clearTimeout(timeoutRender);
         if (response.ok) {
           const data = await response.json();
           this.detallesReserva.idReserva = data.idReserva;
           // Emitimos @pago-exitoso para que App.vue inicie la redirección visual
           this.$emit('pago-exitoso', { status: 'approved', payment_id: 'SIMULACRO-' + Date.now() });
         } else {
-          this.error = 'El servidor Vercel devolvió un problema.';
-          alert("Error: El acceso al servidor ha sido rechazado.");
+          this.error = 'El servidor Vercel devolvió un problema (Código HTTP diferente a 200).';
+          alert("Error crítico: El acceso al servidor online ha sido rechazado.\nAsegúrate que Vercel tiene su variable VITE_API_BASE_URL bien puesta.");
         }
       } catch (err) {
-        console.error(err);
-        this.error = 'Fallo crítico de conexión: ' + err.message;
-        alert("¡Error de conexión en vivo! Por favor verifica el Log. Detalle: " + err.message);
+        clearTimeout(timeoutRender);
+        console.error("EXCEPCION MORTAL JS EN FETCH:", err);
+        this.error = 'Fallo crítico de Javascript de conexión en Router: ' + err.message;
+        alert("¡Cables Roteados en Vercel! Network Connection Refused:\nProbablemente tienes seteado tu variable VITE_API_BASE_URL a http://localhost:8080 en vez del Render Production URL. \n\nLog: " + err.message);
       } finally {
         this.testLoading = false;
       }
