@@ -63,7 +63,7 @@ class CreateBookingUseCaseTest {
         Trip trip = new Trip(tripId, "Santiago", "Temuco",
                 LocalDateTime.now(), LocalDateTime.now().plusHours(5), 10000);
 
-        CreateBookingCommand command = new CreateBookingCommand(tripId, userId, seatNumber, passenger);
+        CreateBookingCommand command = new CreateBookingCommand(tripId, userId, java.util.List.of(seatNumber), java.util.List.of(passenger));
 
         when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
         when(seatHoldRepository.save(any(SeatHold.class))).thenAnswer(i -> i.getArguments()[0]);
@@ -97,7 +97,7 @@ class CreateBookingUseCaseTest {
         Long tripId = 999L;
         Long userId = 1L;
         Passenger passenger = new Passenger(1L, "John", "Doe", "DNI", "12345678", "john@example.com", "123456789");
-        CreateBookingCommand command = new CreateBookingCommand(tripId, userId, "A1", passenger);
+        CreateBookingCommand command = new CreateBookingCommand(tripId, userId, java.util.List.of("A1"), java.util.List.of(passenger));
 
         when(tripRepository.findById(tripId)).thenReturn(Optional.empty());
 
@@ -119,7 +119,7 @@ class CreateBookingUseCaseTest {
         Trip trip = new Trip(tripId, "Concepción", "Santiago",
                 LocalDateTime.now(), LocalDateTime.now().plusHours(6), 15000);
 
-        CreateBookingCommand command = new CreateBookingCommand(tripId, userId, seatNumber, passenger);
+        CreateBookingCommand command = new CreateBookingCommand(tripId, userId, java.util.List.of(seatNumber), java.util.List.of(passenger));
 
         when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
         when(seatHoldRepository.save(any(SeatHold.class))).thenAnswer(i -> i.getArguments()[0]);
@@ -151,7 +151,7 @@ class CreateBookingUseCaseTest {
         Trip trip = new Trip(tripId, "Temuco", "Valdivia",
                 LocalDateTime.now(), LocalDateTime.now().plusHours(2), 8000);
 
-        CreateBookingCommand command = new CreateBookingCommand(tripId, userId, seatNumber, passenger);
+        CreateBookingCommand command = new CreateBookingCommand(tripId, userId, java.util.List.of(seatNumber), java.util.List.of(passenger));
 
         when(tripRepository.findById(tripId)).thenReturn(Optional.of(trip));
         when(seatHoldRepository.save(any(SeatHold.class))).thenAnswer(i -> i.getArguments()[0]);

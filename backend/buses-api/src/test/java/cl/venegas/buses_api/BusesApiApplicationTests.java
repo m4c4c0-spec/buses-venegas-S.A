@@ -25,7 +25,10 @@ import org.springframework.test.context.TestPropertySource;
     "spring.jpa.hibernate.ddl-auto=create-drop",
     "spring.flyway.enabled=false",
     "spring.data.redis.host=localhost",
-    "spring.data.redis.port=6379"
+    "spring.data.redis.port=6379",
+    "mercadopago.access-token=TEST_TOKEN",
+    "spring.mail.username=test",
+    "spring.mail.password=test"
 })
 class BusesApiApplicationTests {
 

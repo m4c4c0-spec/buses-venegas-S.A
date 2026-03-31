@@ -101,22 +101,28 @@ public class PaymentService {
                 String pasajerosJson = objectMapper.writeValueAsString(pasajeros);
 
                 Map<String, Object> horario = (Map<String, Object>) detalles.get("horarioViaje");
-                String horarioSalida = horario != null ? (String) horario.get("salida") : "";
-                String horarioLlegada = horario != null ? (String) horario.get("llegada") : "";
+                String horarioSalida = horario != null ? String.valueOf(horario.getOrDefault("salida", "")) : "";
+                String horarioLlegada = horario != null ? String.valueOf(horario.getOrDefault("llegada", "")) : "";
 
-                Boolean idaYVuelta = (Boolean) detalles.get("idaYVuelta");
-                String fechaVuelta = (String) detalles.get("fechaVuelta");
+                Boolean idaYVuelta = Boolean.parseBoolean(String.valueOf(detalles.get("idaYVuelta")));
+                String fechaVuelta = detalles.get("fechaVuelta") != null ? String.valueOf(detalles.get("fechaVuelta")) : null;
 
                 Integer precioTotal = 0;
                 if (detalles.get("precioTotal") != null) {
-                    precioTotal = Integer.parseInt(detalles.get("precioTotal").toString());
+                    try {
+                        precioTotal = Integer.parseInt(String.valueOf(detalles.get("precioTotal")).replace(".",""));
+                    } catch (Exception e) {
+                        try {
+                            precioTotal = (int) Double.parseDouble(String.valueOf(detalles.get("precioTotal")));
+                        } catch(Exception ignored){}
+                    }
                 }
 
                 Reserva reserva = Reserva.builder()
                         .id(idReserva)
-                        .origen((String) detalles.get("origen"))
-                        .destino((String) detalles.get("destino"))
-                        .fechaViaje((String) detalles.get("fechaIda"))
+                        .origen(String.valueOf(detalles.getOrDefault("origen", "")))
+                        .destino(String.valueOf(detalles.getOrDefault("destino", "")))
+                        .fechaViaje(String.valueOf(detalles.getOrDefault("fechaIda", "")))
                         .horarioSalida(horarioSalida)
                         .horarioLlegada(horarioLlegada)
                         .emailContacto(emailContacto)
