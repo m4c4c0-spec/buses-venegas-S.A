@@ -118,7 +118,7 @@ public class PaymentService {
                     }
                 }
 
-                Reserva reserva = Reserva.builder()
+                final Reserva reserva = Reserva.builder()
                         .id(idReserva)
                         .origen(String.valueOf(detalles.getOrDefault("origen", "")))
                         .destino(String.valueOf(detalles.getOrDefault("destino", "")))
@@ -126,17 +126,25 @@ public class PaymentService {
                         .horarioSalida(horarioSalida)
                         .horarioLlegada(horarioLlegada)
                         .emailContacto(emailContacto)
-                        .precioTotal(precioTotal)
-                        .idaYVuelta(idaYVuelta != null ? idaYVuelta : false)
+                        .idaYVuelta(idaYVuelta)
                         .fechaVuelta(fechaVuelta)
+                        .precioTotal(precioTotal)
                         .pasajerosJson(pasajerosJson)
                         .build();
 
-                reservaRepository.save(reserva);
+                // ⚡ WORKAROUND: Disparo Asíncrono para que el Frontend regrese el OK en 0ms y no se congele la UI
+                // por culpa de la lentitud de SMTP/Gmail o si PostgreSQL Free-Tier está invernando.
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                    try {
+                        reservaRepository.save(reserva);
+                        emailService.sendReceiptEmail(detalles);
+                        System.out.println("✅ OK: Reserva e email procesados asíncronamente: " + idReserva);
+                    } catch (Exception e) {
+                        System.err.println("❌ ERROR asíncrono en save o email: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                });
 
-                // Update payload response
-                payload.put("idReserva", idReserva);
-                emailService.sendReceiptEmail(detalles);
                 return idReserva;
             }
             return null;
