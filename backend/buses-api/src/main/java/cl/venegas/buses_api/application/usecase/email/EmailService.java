@@ -1,6 +1,7 @@
 package cl.venegas.buses_api.application.usecase.email;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,9 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Value("${spring.mail.username}")
+    private String mailUsername;
 
     @SuppressWarnings("unchecked")
     public void sendReceiptEmail(Map<String, Object> detalles) {
@@ -41,7 +45,7 @@ public class EmailService {
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-                helper.setFrom("busesvenegassa@gmail.com", "Buses Venegas S.A.");
+                helper.setFrom(mailUsername, "Buses Venegas S.A.");
                 helper.setTo(email);
                 helper.setSubject("✅ Confirmación de Pasaje #" + numReserva + " - Buses Venegas S.A.");
 
@@ -77,7 +81,7 @@ public class EmailService {
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-                helper.setFrom("busesvenegassa@gmail.com", "Buses Venegas S.A.");
+                helper.setFrom(mailUsername, "Buses Venegas S.A.");
                 helper.setTo(email);
                 helper.setSubject("🔄 Actualización de Pasaje #" + reserva.getId() + " - Buses Venegas S.A.");
 
@@ -112,7 +116,7 @@ public class EmailService {
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-                helper.setFrom("busesvenegassa@gmail.com", "Buses Venegas S.A.");
+                helper.setFrom(mailUsername, "Buses Venegas S.A.");
                 helper.setTo(email);
                 helper.setSubject("⚠️ Anulación de Pasaje #" + reserva.getId() + " Confirmada");
 
