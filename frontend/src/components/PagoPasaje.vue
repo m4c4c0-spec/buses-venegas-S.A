@@ -33,15 +33,7 @@
       <i class="fas fa-exclamation-triangle"></i> {{ error }}
     </div>
 
-    <!-- Modo Demostración (Universidad) -->
-    <div class="test-mode">
-      <div class="test-divider"><span>Acceso Libre (Demostración)</span></div>
-      <button @click="simularPago" class="btn-test" :disabled="testLoading">
-        <i class="fas fa-graduation-cap"></i> 
-        {{ testLoading ? 'Validando boleto...' : 'Confirmar Compra Universitaria' }}
-      </button>
-      <p class="test-note">Este botón omite la pasarela bancaria y genera un pasaje real gratuito para propósitos de prueba.</p>
-    </div>
+
   </div>
 </template>
 
@@ -55,7 +47,6 @@ export default {
     return {
       loading: true,
       error: null,
-      testLoading: false,
       brickController: null
     }
   },
@@ -90,7 +81,8 @@ export default {
 
       // 3. Load SDK and Initialize Wallet Brick (Checkout Pro)
       await loadMercadoPago();
-      const mp = new window.MercadoPago('APP_USR-c3d6b0b2-ce90-4b34-b647-2c645b971818', {
+      const mpPublicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || 'APP_USR-c3d6b0b2-ce90-4b34-b647-2c645b971818';
+      const mp = new window.MercadoPago(mpPublicKey, {
          locale: 'es-CL'
       });
       
@@ -122,38 +114,6 @@ export default {
       console.error(err);
       this.error = err.message || "Error general del módulo de pago.";
       this.loading = false;
-    }
-  },
-  methods: {
-    async simularPago() {
-      this.testLoading = true;
-      this.error = null;
-      try {
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || "https://buses-venegas-backend.onrender.com";
-        const response = await fetch(`${apiUrl}/api/payments/confirm`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            detalles: this.detallesReserva,
-            paymentId: 'TEST-' + Date.now()
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          this.detallesReserva.idReserva = data.idReserva;
-          this.$emit('pago-exitoso', { status: 'approved', payment_id: 'TEST-' + Date.now() });
-        } else {
-          this.error = 'El servidor Vercel devolvió un problema.';
-          alert("Error: El acceso al servidor ha sido rechazado o no se puede procesar la confirmación.");
-        }
-      } catch (err) {
-        console.error(err);
-        this.error = 'Fallo crítico de conexión: ' + err.message;
-        alert("¡Error de conexión en vivo! Por favor verifica el Log. Detalle: " + err.message);
-      } finally {
-        this.testLoading = false;
-      }
     }
   },
   unmounted() {
