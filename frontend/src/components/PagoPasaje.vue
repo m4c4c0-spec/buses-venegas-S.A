@@ -33,14 +33,14 @@
       <i class="fas fa-exclamation-triangle"></i> {{ error }}
     </div>
 
-    <!-- Test Mode Button (only on localhost) -->
-    <div v-if="isLocalhost" class="test-mode">
-      <div class="test-divider"><span>Modo de Prueba</span></div>
+    <!-- Modo Demostración (Universidad) -->
+    <div class="test-mode">
+      <div class="test-divider"><span>Acceso Libre (Demostración)</span></div>
       <button @click="simularPago" class="btn-test" :disabled="testLoading">
-        <i class="fas fa-flask"></i> 
-        {{ testLoading ? 'Procesando...' : 'Simular Pago Exitoso (Test)' }}
+        <i class="fas fa-graduation-cap"></i> 
+        {{ testLoading ? 'Validando boleto...' : 'Confirmar Compra Universitaria' }}
       </button>
-      <p class="test-note">Este botón simula un pago exitoso y envía el email real al pasajero.</p>
+      <p class="test-note">Este botón omite la pasarela bancaria y genera un pasaje real gratuito para propósitos de prueba.</p>
     </div>
   </div>
 </template>
