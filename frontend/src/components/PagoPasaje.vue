@@ -151,6 +151,9 @@ export default {
         if (response.ok) {
           const data = await response.json();
           this.detallesReserva.idReserva = data.idReserva;
+          if (data.ticketHash) {
+              this.detallesReserva.ticketHash = data.ticketHash;
+          }
           // Emitimos @pago-exitoso para que App.vue inicie la redirección visual
           this.$emit('pago-exitoso', { status: 'approved', payment_id: 'SIMULACRO-' + Date.now() });
         } else {

@@ -180,6 +180,9 @@ export default {
             if (data.idReserva) {
                 this.detallesReserva.idReserva = data.idReserva;
             }
+            if (data.ticketHash) {
+                this.detallesReserva.ticketHash = data.ticketHash;
+            }
             this.seccionActiva = 'exito';
             window.history.replaceState({}, document.title, window.location.pathname);
             localStorage.removeItem('reservaPendiente');
