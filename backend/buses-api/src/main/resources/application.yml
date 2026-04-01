@@ -33,3 +33,8 @@ management.endpoints.web.exposure.include: health,info
 
 mercadopago:
   access-token: ${MERCADOPAGO_ACCESS_TOKEN}
+
+blockchain:
+  rpc-url: ${BLOCKCHAIN_RPC_URL}
+  private-key: ${BLOCKCHAIN_PRIVATE_KEY}
+  contract-address: ${BLOCKCHAIN_CONTRACT_ADDRESS:0x00}

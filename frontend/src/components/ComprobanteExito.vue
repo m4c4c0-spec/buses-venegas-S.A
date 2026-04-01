@@ -82,6 +82,17 @@
       </div>
     </div>
 
+    <!-- START BLOCKCHAIN VERIFICATION -->
+    <div class="info-blockchain" v-if="detallesReserva.ticketHash">
+      <i class="fas fa-link"></i>
+      <div class="text">
+        <h4>Verificado en Blockchain <i class="fas fa-check-circle" style="color: #28a745;"></i></h4>
+        <p>Tu boleto fue registrado de forma inmutable en la red Sepolia.</p>
+        <p class="hash-text">Hash: <span>{{ detallesReserva.ticketHash.substring(0, 15) }}...</span></p>
+      </div>
+    </div>
+    <!-- END BLOCKCHAIN VERIFICATION -->
+
     <button @click="descargarPDF" class="btn-pdf">
       <i class="fas fa-download"></i> Descargar Boleto PDF
     </button>
@@ -131,6 +142,19 @@ export default {
       doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
       doc.text('Detalles del Viaje', 15, 52);
+
+      // Sello Blockchain
+      if (d.ticketHash) {
+        doc.setFillColor(232, 245, 233); // Fondo verde suave
+        doc.rect(pw - 85, 45, 70, 12, 'F');
+        doc.setTextColor(46, 125, 50);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Verificado por Blockchain', pw - 80, 50);
+        doc.setFontSize(6);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Hash: 0x' + String(d.ticketHash).substring(0, 20) + '...', pw - 80, 54);
+      }
 
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
@@ -264,6 +288,13 @@ export default {
         doc.setFont('helvetica', 'normal');
         doc.text('Presentar este documento (impreso o digital) junto con su', 20, 140);
         doc.text('documento de identidad al momento de abordar el bus.', 20, 146);
+
+        // Hash en tarjeta
+        if (d.ticketHash) {
+          doc.setFontSize(6);
+          doc.setTextColor(150, 150, 150);
+          doc.text('Blockchain Hash: 0x' + d.ticketHash, 15, 160);
+        }
       });
 
       doc.save('boletos_buses_venegas_' + this.numReserva + '.pdf');
@@ -439,6 +470,46 @@ h2 {
   margin: 0;
   font-size: 0.9rem;
   opacity: 0.9;
+}
+
+.info-blockchain {
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: #495057;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: left;
+  gap: 20px;
+}
+
+.info-blockchain i.fa-link {
+  font-size: 2.5rem;
+  color: #6f42c1;
+}
+
+.info-blockchain h4 {
+  margin: 0 0 5px 0;
+  color: #343a40;
+}
+
+.info-blockchain p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.info-blockchain .hash-text {
+  margin-top: 5px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #6c757d;
+  background: #e9ecef;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .btn-pdf {

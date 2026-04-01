@@ -72,11 +72,13 @@ public class PaymentServiceTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("[{\"email\":\"test@test.com\",\"nombre\":\"Juan\"}]");
         
         // Act
-        String result = paymentService.confirmPaymentAndSendEmail(payload);
+        java.util.Map<String, String> result = paymentService.confirmPaymentAndSendEmail(payload);
 
         // Assert
         assertNotNull(result);
-        assertTrue(result.startsWith("BB"));
+        assertEquals("RSV-12345", result.get("idReserva"));
+        verify(reservaRepository, times(1)).save(any(Reserva.class));
+        verify(emailService, times(1)).sendReceiptEmail(any());
 
         ArgumentCaptor<Reserva> reservaCaptor = ArgumentCaptor.forClass(Reserva.class);
         verify(reservaRepository, times(1)).save(reservaCaptor.capture());
@@ -88,9 +90,6 @@ public class PaymentServiceTest {
         assertEquals(15000, savedReserva.getPrecioTotal());
         assertEquals("08:00", savedReserva.getHorarioSalida());
         assertTrue(savedReserva.getIdaYVuelta());
-
-        verify(emailService, times(1)).sendReceiptEmail(detalles);
-        assertNotNull(payload.get("idReserva"));
     }
 
     @Test
@@ -106,10 +105,14 @@ public class PaymentServiceTest {
         payload.put("detalles", detalles);
 
         // Act
-        String result = paymentService.confirmPaymentAndSendEmail(payload);
+        java.util.Map<String, String> result = paymentService.confirmPaymentAndSendEmail(payload);
 
         // Assert
         assertNotNull(result);
+        assertTrue(result.get("idReserva").matches("^BB\\d{6}$"));
+        verify(reservaRepository, times(1)).save(any(Reserva.class));
+        verify(emailService, times(1)).sendReceiptEmail(any());
+        
         ArgumentCaptor<Reserva> reservaCaptor = ArgumentCaptor.forClass(Reserva.class);
         verify(reservaRepository).save(reservaCaptor.capture());
         
