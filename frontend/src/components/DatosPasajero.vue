@@ -80,15 +80,27 @@ export default {
   },
   methods: {
     validaRut(rutCompleto) {
-      let limpio = rutCompleto.replace(/[^0-9kK]/gi, "").toLowerCase();
-      if(limpio.length < 7) return false;
+      // Limpiar: quitar puntos, guiones y espacios
+      let limpio = rutCompleto.replace(/[.\-\s]/g, '').toLowerCase();
+      if (limpio.length < 7 || limpio.length > 9) return false;
+
       let digv = limpio.slice(-1);
-      let rutSerie = limpio.slice(0, -1);
-      let M=0,S=1;
-      for(;rutSerie;rutSerie=Math.floor(rutSerie/10))
-        S=(S+rutSerie%10*(9-M++%6))%11;
-      let dVal = S ? S-1 : 'k';
-      return dVal.toString() === digv;
+      let cuerpo = limpio.slice(0, -1);
+
+      // Verificar que el cuerpo sean solo dígitos
+      if (!/^\d+$/.test(cuerpo)) return false;
+
+      // Calcular dígito verificador iterando el string
+      let suma = 0;
+      let multiplicador = 2;
+      for (let i = cuerpo.length - 1; i >= 0; i--) {
+        suma += parseInt(cuerpo[i]) * multiplicador;
+        multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
+      }
+
+      let resto = 11 - (suma % 11);
+      let dvEsperado = resto === 11 ? '0' : resto === 10 ? 'k' : resto.toString();
+      return dvEsperado === digv;
     },
     validaEmail(email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
