@@ -82,6 +82,25 @@
       </div>
     </div>
 
+    <!-- START BLOCKCHAIN VERIFICATION -->
+    <div class="info-blockchain" v-if="detallesReserva.ticketHash">
+      <i class="fas fa-shield-alt"></i>
+      <div class="text">
+        <h4>Verificación Blockchain <i class="fas fa-check-double" style="color: #28a745;"></i></h4>
+        <p>Tu boleto ha sido registrado de forma inmutable. Este hash es tu prueba digital de viaje.</p>
+        <div class="hash-container">
+          <code>{{ detallesReserva.ticketHash }}</code>
+          <button @click="copiarHash" class="btn-copy" title="Copiar Hash">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+        <a :href="'https://sepolia.etherscan.io/address/' + contractAddress" target="_blank" class="link-blockchain">
+          Ver Contrato en Explorer <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+    </div>
+    <!-- END BLOCKCHAIN VERIFICATION -->
+
     <button @click="descargarPDF" class="btn-pdf">
       <i class="fas fa-download"></i> Descargar Boleto PDF
     </button>
@@ -101,12 +120,21 @@ export default {
       required: true
     }
   },
+  computed: {
+    contractAddress() {
+      return "0x6f13b8CB0fb27291341972DcDfA22C07Ed32b7BE";
+    }
+  },
   data() {
     return {
       numReserva: this.detallesReserva?.idReserva || Math.floor(Math.random() * 1000000).toString().padStart(6, '0')
     }
   },
   methods: {
+    copiarHash() {
+      navigator.clipboard.writeText(this.detallesReserva.ticketHash);
+      alert("✅ Hash copiado al portapapeles");
+    },
     descargarPDF() {
       const d = this.detallesReserva;
       const doc = new jsPDF();
@@ -131,6 +159,21 @@ export default {
       doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
       doc.text('Detalles del Viaje', 15, 52);
+
+      // Sello Blockchain
+      if (d.ticketHash) {
+        doc.setFillColor(243, 229, 245); // Color lavanda/blockchain
+        doc.rect(pw - 95, 45, 80, 15, 'F');
+        doc.setTextColor(106, 27, 154);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'bold');
+        doc.text('🛡️ SELLO BLOCKCHAIN', pw - 90, 51);
+        doc.setFontSize(5.5);
+        doc.setFont('helvetica', 'normal');
+        // No truncamos, dejamos que jsPDF escriba el hash (aunque sea pequeño)
+        const displayHash = d.ticketHash.startsWith('0x') ? d.ticketHash : '0x' + d.ticketHash;
+        doc.text(displayHash, pw - 90, 56);
+      }
 
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
@@ -264,6 +307,24 @@ export default {
         doc.setFont('helvetica', 'normal');
         doc.text('Presentar este documento (impreso o digital) junto con su', 20, 140);
         doc.text('documento de identidad al momento de abordar el bus.', 20, 146);
+
+        // Hash en tarjeta
+        if (d.ticketHash) {
+          doc.setFillColor(248, 249, 250);
+          doc.rect(15, 155, pw - 30, 12, 'F');
+          doc.setFontSize(7);
+          doc.setTextColor(13, 40, 109);
+          doc.setFont('helvetica', 'bold');
+          doc.text('PRUEBA DIGITAL BLOCKCHAIN (HASH):', 20, 161);
+          doc.setFontSize(6);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(100, 100, 100);
+          const fullHash = d.ticketHash.startsWith('0x') ? d.ticketHash : '0x' + d.ticketHash;
+          doc.text(fullHash, 20, 164);
+          
+          doc.setTextColor(33, 150, 243);
+          doc.text('Verificar en: https://sepolia.etherscan.io/address/' + this.contractAddress, 20, 169);
+        }
       });
 
       doc.save('boletos_buses_venegas_' + this.numReserva + '.pdf');
@@ -439,6 +500,42 @@ h2 {
   margin: 0;
   font-size: 0.9rem;
   opacity: 0.9;
+}
+
+.info-blockchain {
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: #495057;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: left;
+  gap: 20px;
+}
+
+
+.info-blockchain h4 {
+  margin: 0 0 5px 0;
+  color: #343a40;
+}
+
+.info-blockchain p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.info-blockchain .hash-text {
+  margin-top: 5px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #6c757d;
+  background: #e9ecef;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .btn-pdf {

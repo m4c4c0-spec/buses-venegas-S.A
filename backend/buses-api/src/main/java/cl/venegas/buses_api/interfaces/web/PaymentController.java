@@ -52,8 +52,8 @@ public class PaymentController {
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmPayment(@RequestBody Map<String, Object> payload) {
         try {
-            String idReserva = paymentService.confirmPaymentAndSendEmail(payload);
-            return ResponseEntity.ok(java.util.Map.of("idReserva", idReserva != null ? idReserva : ""));
+            java.util.Map<String, String> result = paymentService.confirmPaymentAndSendEmail(payload);
+            return ResponseEntity.ok(result != null ? result : java.util.Map.of("idReserva", ""));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
