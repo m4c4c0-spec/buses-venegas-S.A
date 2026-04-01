@@ -145,15 +145,16 @@ public class PaymentService {
                 java.util.concurrent.CompletableFuture.runAsync(() -> {
                     try {
                         reservaRepository.save(reserva);
-                        emailService.sendReceiptEmail(detalles);
-                        System.out.println("✅ OK: Reserva e email procesados asíncronamente: " + idReserva);
-
+                        
                         // 🔗 REGISTRO BLOCKCHAIN (SEPOLIA)
                         if(hexHash != null) {
                             String txHash = blockchainService.registerTicketOnChain(idReserva, hexHash);
                             System.out.println("🔗 Hash Registrado en Blockchain: " + hexHash);
+                            detalles.put("ticketHash", hexHash); // Agregamos el hash a los detalles para el correo
                         }
 
+                        emailService.sendReceiptEmail(detalles);
+                        System.out.println("✅ OK: Reserva e email procesados asíncronamente: " + idReserva);
                     } catch (Exception e) {
                         System.err.println("❌ ERROR asíncrono en save, email o blockchain: " + e.getMessage());
                         e.printStackTrace();

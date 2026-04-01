@@ -49,7 +49,8 @@ public class EmailService {
                 helper.setTo(email);
                 helper.setSubject("✅ Confirmación de Pasaje #" + numReserva + " - Buses Venegas S.A.");
 
-                String htmlBody = buildEmailHtml(nombre, apellidos, rut, asiento, origen, destino, fechaIda, horario, precioTotal, numReserva);
+                String ticketHash = (String) detalles.get("ticketHash");
+                String htmlBody = buildEmailHtml(nombre, apellidos, rut, asiento, origen, destino, fechaIda, horario, precioTotal, numReserva, ticketHash);
                 helper.setText(htmlBody, true);
 
                 mailSender.send(message);
@@ -85,8 +86,7 @@ public class EmailService {
                 helper.setTo(email);
                 helper.setSubject("🔄 Actualización de Pasaje #" + reserva.getId() + " - Buses Venegas S.A.");
 
-                String htmlBody = buildEmailHtml(nombre, apellidos, rut, asiento, reserva.getOrigen(), reserva.getDestino(), reserva.getFechaViaje(), reserva.getHorarioSalida(), String.valueOf(reserva.getPrecioTotal()), reserva.getId());
-                // Podríamos cambiar el header del HTML, pero por ahora reusamos el template.
+                String htmlBody = buildEmailHtml(nombre, apellidos, rut, asiento, reserva.getOrigen(), reserva.getDestino(), reserva.getFechaViaje(), reserva.getHorarioSalida(), String.valueOf(reserva.getPrecioTotal()), reserva.getId(), null);
                 helper.setText(htmlBody, true);
 
                 mailSender.send(message);
@@ -149,8 +149,8 @@ public class EmailService {
 
     private String buildEmailHtml(String nombre, String apellidos, String rut, String asiento,
                                    String origen, String destino, String fecha, String horario,
-                                   String precioTotal, String numReserva) {
-        return "<!DOCTYPE html>"
+                                   String precioTotal, String numReserva, String ticketHash) {
+        String bodyHtml = "<!DOCTYPE html>"
             + "<html><head><meta charset='UTF-8'></head>"
             + "<body style='margin:0; padding:0; background-color:#f4f4f4; font-family:Arial,sans-serif;'>"
             + "<table width='100%' cellpadding='0' cellspacing='0' style='background-color:#f4f4f4; padding:30px 0;'>"
@@ -213,22 +213,35 @@ public class EmailService {
             + "<td align='right' style='color:#ffeb3b; font-size:22px; font-weight:bold;'>$" + precioTotal + " CLP</td>"
             + "</tr>"
             + "</table>"
-            + "</td></tr>"
+            + "</td></tr>";
 
-            // Instructions
-            + "<tr><td style='padding:20px 30px;'>"
+        // Blockchain section if available
+        if (ticketHash != null && !ticketHash.isEmpty()) {
+            bodyHtml += "<tr><td style='padding:15px 30px;'>"
+                + "<table width='100%' cellpadding='15' cellspacing='0' style='background-color:#f8f9fa; border-radius:8px; border: 1px dashed #6f42c1;'>"
+                + "<tr>"
+                + "<td width='50'><img src='https://cdn-icons-png.flaticon.com/512/2152/2152349.png' width='40' /></td>"
+                + "<td>"
+                + "<h4 style='color:#333; margin:0; font-size:14px;'>🛡️ Verificado en Blockchain</h4>"
+                + "<p style='color:#666; margin:5px 0 0; font-size:11px;'>Hash Inmutable: <code style='background:#eee; padding:2px 4px; border-radius:3px;'>" + ticketHash + "</code></p>"
+                + "</td>"
+                + "</tr>"
+                + "</table>"
+                + "</td></tr>";
+        }
+
+        bodyHtml += "<tr><td style='padding:20px 30px;'>"
             + "<div style='background-color:#fff3cd; border-left:4px solid #ffc107; padding:15px; border-radius:4px;'>"
             + "<p style='margin:0; color:#856404; font-size:13px;'><strong>📋 Importante:</strong> Presenta este correo electrónico (impreso o en tu celular) al momento de abordar el bus junto con tu documento de identidad.</p>"
             + "</div>"
             + "</td></tr>"
-
-            // Footer
             + "<tr><td style='background-color:#1a1a1a; padding:25px 30px; text-align:center;'>"
             + "<p style='color:#aaa; font-size:12px; margin:0;'>Buses Venegas S.A. — Conectando a nuestra gente desde 1995</p>"
             + "<p style='color:#666; font-size:11px; margin:8px 0 0;'>📞 +56 9 8765 4321 | ✉️ contacto@busesvenegas.cl</p>"
             + "<p style='color:#555; font-size:10px; margin:10px 0 0;'>Este correo fue generado automáticamente. No responder.</p>"
             + "</td></tr>"
-
             + "</table></td></tr></table></body></html>";
+        
+        return bodyHtml;
     }
 }
