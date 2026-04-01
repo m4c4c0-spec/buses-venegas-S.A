@@ -29,11 +29,13 @@ public class PaymentService {
     private final EmailService emailService;
     private final ReservaRepository reservaRepository;
     private final ObjectMapper objectMapper;
+    private final BlockchainService blockchainService;
 
-    public PaymentService(EmailService emailService, ReservaRepository reservaRepository, ObjectMapper objectMapper) {
+    public PaymentService(EmailService emailService, ReservaRepository reservaRepository, ObjectMapper objectMapper, BlockchainService blockchainService) {
         this.emailService = emailService;
         this.reservaRepository = reservaRepository;
         this.objectMapper = objectMapper;
+        this.blockchainService = blockchainService;
     }
 
     @PostConstruct
@@ -84,7 +86,7 @@ public class PaymentService {
     }
 
     @SuppressWarnings("unchecked")
-    public String confirmPaymentAndSendEmail(Map<String, Object> payload) {
+    public java.util.Map<String, String> confirmPaymentAndSendEmail(Map<String, Object> payload) {
         try {
             Map<String, Object> detalles = (Map<String, Object>) payload.get("detalles");
             if (detalles != null) {
@@ -118,11 +120,15 @@ public class PaymentService {
                     }
                 }
 
+                String origenVal = String.valueOf(detalles.getOrDefault("origen", ""));
+                String destinoVal = String.valueOf(detalles.getOrDefault("destino", ""));
+                String fechaIdaVal = String.valueOf(detalles.getOrDefault("fechaIda", ""));
+
                 final Reserva reserva = Reserva.builder()
                         .id(idReserva)
-                        .origen(String.valueOf(detalles.getOrDefault("origen", "")))
-                        .destino(String.valueOf(detalles.getOrDefault("destino", "")))
-                        .fechaViaje(String.valueOf(detalles.getOrDefault("fechaIda", "")))
+                        .origen(origenVal)
+                        .destino(destinoVal)
+                        .fechaViaje(fechaIdaVal)
                         .horarioSalida(horarioSalida)
                         .horarioLlegada(horarioLlegada)
                         .emailContacto(emailContacto)
@@ -132,6 +138,8 @@ public class PaymentService {
                         .pasajerosJson(pasajerosJson)
                         .build();
 
+                String hexHash = blockchainService.generateTicketHash(idReserva, origenVal, destinoVal, fechaIdaVal, pasajerosJson);
+
                 // ⚡ WORKAROUND: Disparo Asíncrono para que el Frontend regrese el OK en 0ms y no se congele la UI
                 // por culpa de la lentitud de SMTP/Gmail o si PostgreSQL Free-Tier está invernando.
                 java.util.concurrent.CompletableFuture.runAsync(() -> {
@@ -139,13 +147,23 @@ public class PaymentService {
                         reservaRepository.save(reserva);
                         emailService.sendReceiptEmail(detalles);
                         System.out.println("✅ OK: Reserva e email procesados asíncronamente: " + idReserva);
+
+                        // 🔗 REGISTRO BLOCKCHAIN (SEPOLIA)
+                        if(hexHash != null) {
+                            String txHash = blockchainService.registerTicketOnChain(idReserva, hexHash);
+                            System.out.println("🔗 Hash Registrado en Blockchain: " + hexHash);
+                        }
+
                     } catch (Exception e) {
-                        System.err.println("❌ ERROR asíncrono en save o email: " + e.getMessage());
+                        System.err.println("❌ ERROR asíncrono en save, email o blockchain: " + e.getMessage());
                         e.printStackTrace();
                     }
                 });
 
-                return idReserva;
+                java.util.Map<String, String> result = new java.util.HashMap<>();
+                result.put("idReserva", idReserva);
+                if (hexHash != null) result.put("ticketHash", hexHash);
+                return result;
             }
             return null;
         } catch (Exception e) {
