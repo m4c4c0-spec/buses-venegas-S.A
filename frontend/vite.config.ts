@@ -10,7 +10,8 @@ export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
-    vueDevTools(),
+    // DevTools solo en desarrollo, no en produccion
+    process.env.NODE_ENV === 'development' && vueDevTools(),
   ],
   resolve: {
     alias: {

@@ -2,6 +2,7 @@ package cl.venegas.buses_api.interfaces.web.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,13 +41,8 @@ public class UsersController {
     public ResponseEntity<UserResponse> registerUser(
             @RequestBody @Valid RegisterUserRequest request) {
 
-        // Mapear request DTO a comando de dominio
         var command = mapper.toRegisterCommand(request);
-
-        // Ejecutar caso de uso
         User user = registerUserUseCase.execute(command);
-
-        // Mapear entidad de dominio a response DTO
         UserResponse response = mapper.toResponse(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -55,11 +51,13 @@ public class UsersController {
     /**
      * GET /api/v1/users/{userId}
      * Se obtiene el usuario mediante el id
+     * Requiere autenticacion y solo el propio usuario o ADMIN puede acceder
      */
     @GetMapping("/{userId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> getUserById(
             @PathVariable String userId) {
-
+        // TODO: Implementar busqueda por ID y verificar que el usuario solo acceda a sus propios datos
         return ResponseEntity.status(501).build();
     }
 }

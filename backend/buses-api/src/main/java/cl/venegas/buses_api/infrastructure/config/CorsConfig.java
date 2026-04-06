@@ -12,9 +12,15 @@ public class CorsConfig implements WebMvcConfigurer {
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
+    // SEGURIDAD: Usar origenes especificos en lugar de wildcard "*"
+    // Nunca usar allowedOriginPatterns("*") con allowCredentials(true)
+    String[] origins = allowedOrigins.split(",");
     registry.addMapping("/**")
-        .allowedOriginPatterns("*")
+        .allowedOrigins(origins)
         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-        .allowCredentials(true);
+        .allowedHeaders("Content-Type", "Authorization", "X-Requested-With")
+        .exposedHeaders("X-Total-Count")
+        .allowCredentials(true)
+        .maxAge(3600); // Cache preflight por 1 hora
   }
-}
+}
