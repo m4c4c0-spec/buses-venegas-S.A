@@ -34,12 +34,17 @@ public class PaymentServiceTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    // BlockchainService debe estar mockeado para que @InjectMocks funcione
+    @Mock
+    private BlockchainService blockchainService;
+
     @InjectMocks
     private PaymentService paymentService;
 
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(paymentService, "mpAccessToken", "TEST_TOKEN");
+        ReflectionTestUtils.setField(paymentService, "frontendUrl", "http://localhost:5173");
     }
 
     @Test
@@ -53,8 +58,8 @@ public class PaymentServiceTest {
         detalles.put("fechaIda", "2024-12-10");
         detalles.put("idaYVuelta", true);
         detalles.put("fechaVuelta", "2024-12-15");
-        detalles.put("precioTotal", 15000); 
-        
+        detalles.put("precioTotal", 15000);
+
         Map<String, Object> horarioViaje = new HashMap<>();
         horarioViaje.put("salida", "08:00");
         horarioViaje.put("llegada", "14:00");
@@ -70,19 +75,24 @@ public class PaymentServiceTest {
         payload.put("detalles", detalles);
 
         when(objectMapper.writeValueAsString(any())).thenReturn("[{\"email\":\"test@test.com\",\"nombre\":\"Juan\"}]");
-        
-        // Act
-        java.util.Map<String, String> result = paymentService.confirmPaymentAndSendEmail(payload);
+        when(blockchainService.generateTicketHash(any(), any(), any(), any(), any())).thenReturn(null);
 
-        // Assert
+        // Act
+        Map<String, String> result = paymentService.confirmPaymentAndSendEmail(payload);
+
+        // Assert: el idReserva ahora tiene formato BB######
         assertNotNull(result);
-        assertEquals("RSV-12345", result.get("idReserva"));
-        verify(reservaRepository, times(1)).save(any(Reserva.class));
-        verify(emailService, times(1)).sendReceiptEmail(any());
+        assertNotNull(result.get("idReserva"));
+        assertTrue(result.get("idReserva").matches("^BB\\d{6}$"),
+                "El idReserva debe tener formato BB seguido de 6 digitos, fue: " + result.get("idReserva"));
+
+        // Las llamadas a save() y sendReceiptEmail() son asincronas (CompletableFuture.runAsync)
+        verify(reservaRepository, timeout(2000).times(1)).save(any(Reserva.class));
+        verify(emailService, timeout(2000).times(1)).sendReceiptEmail(any());
 
         ArgumentCaptor<Reserva> reservaCaptor = ArgumentCaptor.forClass(Reserva.class);
         verify(reservaRepository, times(1)).save(reservaCaptor.capture());
-        
+
         Reserva savedReserva = reservaCaptor.getValue();
         assertEquals("Santiago", savedReserva.getOrigen());
         assertEquals("Concepcion", savedReserva.getDestino());
@@ -100,23 +110,49 @@ public class PaymentServiceTest {
 
         detalles.put("origen", "Santiago");
         detalles.put("destino", "Valparaiso");
-        detalles.put("precioTotal", "15.000"); // Emulando formato chileno de precio
-        
+        detalles.put("precioTotal", "15.000"); // Formato chileno de precio
+
         payload.put("detalles", detalles);
 
+        when(blockchainService.generateTicketHash(any(), any(), any(), any(), any())).thenReturn(null);
+
         // Act
-        java.util.Map<String, String> result = paymentService.confirmPaymentAndSendEmail(payload);
+        Map<String, String> result = paymentService.confirmPaymentAndSendEmail(payload);
 
         // Assert
         assertNotNull(result);
-        assertTrue(result.get("idReserva").matches("^BB\\d{6}$"));
-        verify(reservaRepository, times(1)).save(any(Reserva.class));
-        verify(emailService, times(1)).sendReceiptEmail(any());
-        
+        assertTrue(result.get("idReserva").matches("^BB\\d{6}$"),
+                "El idReserva debe tener formato BB######, fue: " + result.get("idReserva"));
+
+        verify(reservaRepository, timeout(2000).times(1)).save(any(Reserva.class));
+        verify(emailService, timeout(2000).times(1)).sendReceiptEmail(any());
+
         ArgumentCaptor<Reserva> reservaCaptor = ArgumentCaptor.forClass(Reserva.class);
         verify(reservaRepository).save(reservaCaptor.capture());
-        
+
         Reserva savedReserva = reservaCaptor.getValue();
         assertEquals(15000, savedReserva.getPrecioTotal());
+    }
+
+    @Test
+    void confirmPaymentAndSendEmail_shouldRejectSimulacroPayments() {
+        // Arrange
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("paymentId", "SIMULACRO-12345");
+        payload.put("detalles", new HashMap<>());
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> paymentService.confirmPaymentAndSendEmail(payload));
+
+        // Verificar que el mensaje de error es el correcto
+        assertTrue(exception.getCause() instanceof IllegalArgumentException ||
+                   exception.getMessage().contains("simulacion") ||
+                   (exception.getCause() != null && exception.getCause().getMessage().contains("simulacion")),
+                "Debe lanzar excepcion para pagos de simulacion");
+
+        // Verificar que NO se guardo ninguna reserva ni se envio email
+        verify(reservaRepository, never()).save(any());
+        verify(emailService, never()).sendReceiptEmail(any());
     }
 }

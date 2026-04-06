@@ -1,70 +1,92 @@
 import axios, { type AxiosInstance, AxiosError } from 'axios';
+import { getAccessToken, refreshAccessToken, logout } from './authService';
 
 // Configuración base de Axios
 const api: AxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api/v1',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Interceptor de Request
-// Aquí se pueden agregar tokens de autenticación, headers personalizados, etc.
+// Interceptor de Request: inyecta el token JWT en cada petición
 api.interceptors.request.use(
     (config) => {
-        // Ejemplo: Agregar token de autenticación
-        // const token = localStorage.getItem('authToken');
-        // if (token) {
-        //   config.headers.Authorization = `Bearer ${token}`;
-        // }
-
-        console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
+        const token = getAccessToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        // Solo loguear en desarrollo
+        if (import.meta.env.DEV) {
+            console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
+        }
         return config;
     },
-    (error) => {
-        console.error('[API Request Error]', error);
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// Interceptor de Response
-// Manejo centralizado de errores
-api.interceptors.response.use(
-    (response) => {
-        console.log(`[API Response] ${response.status} ${response.config.url}`);
-        return response;
-    },
-    (error: AxiosError) => {
-        if (error.response) {
-            // El servidor respondió con un código de error (4xx, 5xx)
-            console.error(
-                `[API Error] ${error.response.status} ${error.config?.url}`,
-                error.response.data
-            );
+// Flag para evitar bucles infinitos de refresh
+let isRefreshing = false;
+let failedQueue: Array<{ resolve: (token: string) => void; reject: (error: unknown) => void }> = [];
 
-            // Manejo específico por código de error
-            switch (error.response.status) {
-                case 400:
-                    console.error('Solicitud incorrecta:', error.response.data);
-                    break;
-                case 401:
-                    console.error('No autorizado - redirigir a login');
-                    // Aquí se podría redirigir al login
-                    break;
-                case 404:
-                    console.error('Recurso no encontrado');
-                    break;
-                case 500:
-                    console.error('Error del servidor');
-                    break;
-            }
-        } else if (error.request) {
-            // La solicitud se hizo pero no hubo respuesta
-            console.error('[API Error] Sin respuesta del servidor', error.request);
+function processQueue(error: unknown, token: string | null = null) {
+    failedQueue.forEach(({ resolve, reject }) => {
+        if (error) {
+            reject(error);
         } else {
-            // Error en la configuración de la solicitud
-            console.error('[API Error] Error de configuración:', error.message);
+            resolve(token!);
+        }
+    });
+    failedQueue = [];
+}
+
+// Interceptor de Response: manejo de errores y auto-refresh del token
+api.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+        const originalRequest = error.config as typeof error.config & { _retry?: boolean };
+
+        // Si el access token expiró (401) y no es un retry, intentar refrescarlo
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                // Si ya hay un refresh en curso, encolar la petición
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                }).then((token) => {
+                    originalRequest!.headers!['Authorization'] = `Bearer ${token}`;
+                    return api(originalRequest!);
+                });
+            }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            try {
+                const newToken = await refreshAccessToken();
+                processQueue(null, newToken);
+                originalRequest!.headers!['Authorization'] = `Bearer ${newToken}`;
+                return api(originalRequest!);
+            } catch (refreshError) {
+                processQueue(refreshError, null);
+                // El refresh falló: el usuario debe volver a iniciar sesión
+                await logout();
+                if (import.meta.env.DEV) {
+                    console.warn('Sesión expirada. Redirigiendo al login...');
+                }
+                // Redirigir al inicio para que el usuario inicie sesión
+                window.dispatchEvent(new CustomEvent('auth:session-expired'));
+                return Promise.reject(refreshError);
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
+        // Manejo de errores no relacionados con autenticación
+        if (import.meta.env.DEV) {
+            const status = error.response?.status;
+            const url = error.config?.url;
+            console.error(`[API Error] ${status} ${url}`);
         }
 
         return Promise.reject(error);

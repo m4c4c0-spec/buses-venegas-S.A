@@ -7,10 +7,10 @@ import org.springframework.test.context.TestPropertySource;
 
 /**
  * Test de integración para verificar que el contexto de Spring Boot carga correctamente.
- * 
+ *
  * Este test se mantiene igual en la versión Onion ya que solo verifica la carga
  * del contexto de la aplicación sin depender de la estructura interna de paquetes.
- * 
+ *
  * Configuración:
  * - Usa H2 en memoria para evitar dependencia de PostgreSQL
  * - Perfil "test" activo
@@ -28,14 +28,19 @@ import org.springframework.test.context.TestPropertySource;
     "spring.data.redis.port=6379",
     "mercadopago.access-token=TEST_TOKEN",
     "spring.mail.username=test",
-    "spring.mail.password=test"
+    "spring.mail.password=test",
+    "jwt.secret=dGVzdC1zZWNyZXQtcGFyYS11bml0LXRlc3RzLW11eS1sYXJnby0x",
+    "app.frontend-url=http://localhost:5173",
+    "blockchain.rpc-url=",
+    "blockchain.private-key=",
+    "blockchain.contract-address="
 })
 class BusesApiApplicationTests {
 
     @Test
     void contextLoads() {
         // Este test verifica que el contexto de Spring Boot
-        // se carga correctamente sin errores de configuración
+        // se carga correctamente sin errores de configuracion
     }
 
 }
