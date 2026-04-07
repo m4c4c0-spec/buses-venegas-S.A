@@ -13,18 +13,28 @@ import cl.venegas.buses_api.application.dto.CreatePaymentIntentRequest;
 import cl.venegas.buses_api.application.dto.CreatePaymentIntentResponse;
 import cl.venegas.buses_api.application.usecase.email.EmailService;
 
+import java.security.SecureRandom;
 import java.util.Map;
 import jakarta.annotation.PostConstruct;
-import java.math.BigDecimal;
 import cl.venegas.buses_api.domain.model.entity.Reserva;
 import cl.venegas.buses_api.domain.model.entity.ReservaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class PaymentService {
 
+    private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
+    // SecureRandom para IDs de reserva criptograficamente seguros
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     @Value("${mercadopago.access-token}")
     private String mpAccessToken;
+
+    // URL del frontend para back_urls de MercadoPago (configurable por entorno)
+    @Value("${app.frontend-url:http://localhost:5173}")
+    private String frontendUrl;
 
     private final EmailService emailService;
     private final ReservaRepository reservaRepository;
@@ -50,6 +60,7 @@ public class PaymentService {
         headers.setBearerAuth(mpAccessToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        // back_urls ahora usa frontendUrl configurable (variable de entorno FRONTEND_URL)
         String jsonBody = "{"
             + "\"items\": [{"
             + "\"title\": \"Pasaje de Buses Venegas\","
@@ -58,15 +69,16 @@ public class PaymentService {
             + "\"currency_id\": \"CLP\""
             + "}],"
             + "\"back_urls\": {"
-            + "\"success\": \"http://localhost:5173\","
-            + "\"failure\": \"http://localhost:5173\","
-            + "\"pending\": \"http://localhost:5173\""
-            + "}"
+            + "\"success\": \"" + frontendUrl + "\","
+            + "\"failure\": \"" + frontendUrl + "\","
+            + "\"pending\": \"" + frontendUrl + "\""
+            + "},"
+            + "\"auto_return\": \"approved\""
             + "}";
 
         HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
         ResponseEntity<Map> response = restTemplate.postForEntity("https://api.mercadopago.com/checkout/preferences", entity, Map.class);
-        
+
         String preferenceId = (String) response.getBody().get("id");
         return new CreatePaymentIntentResponse(preferenceId);
     }
@@ -81,18 +93,25 @@ public class PaymentService {
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(paymentData, headers);
         ResponseEntity<Map> response = restTemplate.postForEntity("https://api.mercadopago.com/v1/payments", entity, Map.class);
-        
+
         return response.getBody();
     }
 
     @SuppressWarnings("unchecked")
     public java.util.Map<String, String> confirmPaymentAndSendEmail(Map<String, Object> payload) {
         try {
+            // SEGURIDAD: Rechazar paymentIds de simulacion en produccion
+            String paymentId = payload.get("paymentId") != null ? String.valueOf(payload.get("paymentId")) : "";
+            if (paymentId.startsWith("SIMULACRO-")) {
+                log.warn("Intento de pago simulado rechazado. PaymentId: {}", paymentId);
+                throw new IllegalArgumentException("Pagos de simulacion no estan permitidos.");
+            }
+
             Map<String, Object> detalles = (Map<String, Object>) payload.get("detalles");
             if (detalles != null) {
-                // Generate Booking ID
-                String idReserva = "BB" + (int)(Math.random() * 900000 + 100000);
-                detalles.put("idReserva", idReserva); // Pass it to the email service
+                // SEGURIDAD: Usar SecureRandom en lugar de Math.random() para IDs impredecibles
+                String idReserva = "BB" + (100000 + SECURE_RANDOM.nextInt(900000));
+                detalles.put("idReserva", idReserva);
 
                 String emailContacto = "";
                 java.util.List<Map<String,Object>> pasajeros = (java.util.List<Map<String,Object>>) detalles.get("pasajerosData");
@@ -140,24 +159,20 @@ public class PaymentService {
 
                 String hexHash = blockchainService.generateTicketHash(idReserva, origenVal, destinoVal, fechaIdaVal, pasajerosJson);
 
-                // ⚡ WORKAROUND: Disparo Asíncrono para que el Frontend regrese el OK en 0ms y no se congele la UI
-                // por culpa de la lentitud de SMTP/Gmail o si PostgreSQL Free-Tier está invernando.
                 java.util.concurrent.CompletableFuture.runAsync(() -> {
                     try {
                         reservaRepository.save(reserva);
-                        
-                        // 🔗 REGISTRO BLOCKCHAIN (SEPOLIA)
+
                         if(hexHash != null) {
-                            String txHash = blockchainService.registerTicketOnChain(idReserva, hexHash);
-                            System.out.println("🔗 Hash Registrado en Blockchain: " + hexHash);
-                            detalles.put("ticketHash", hexHash); // Agregamos el hash a los detalles para el correo
+                            blockchainService.registerTicketOnChain(idReserva, hexHash);
+                            log.info("Ticket registrado en blockchain. IdReserva: {}", idReserva);
+                            detalles.put("ticketHash", hexHash);
                         }
 
                         emailService.sendReceiptEmail(detalles);
-                        System.out.println("✅ OK: Reserva e email procesados asíncronamente: " + idReserva);
+                        log.info("Reserva e email procesados correctamente. IdReserva: {}", idReserva);
                     } catch (Exception e) {
-                        System.err.println("❌ ERROR asíncrono en save, email o blockchain: " + e.getMessage());
-                        e.printStackTrace();
+                        log.error("Error asincrono al procesar reserva o email. IdReserva: {}", e.getMessage(), e);
                     }
                 });
 

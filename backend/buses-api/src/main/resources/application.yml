@@ -1,5 +1,13 @@
 server:
   port: ${PORT:8081}
+  # HTTPS: En produccion (Render, Railway, etc.) el TLS lo maneja la plataforma (reverse proxy).
+  # Para desarrollo local con HTTPS, descomentar y configurar el keystore:
+  #ssl:
+  #  key-store: classpath:keystore/buses-local.p12
+  #  key-store-password: ${SSL_KEYSTORE_PASSWORD:changeme}
+  #  key-store-type: PKCS12
+  #  key-alias: buses-venegas
+  forward-headers-strategy: framework  # Necesario detras de reverse proxy (Render/Vercel)
 
 spring:
   mail:
@@ -16,20 +24,47 @@ spring:
           ssl:
             enable: true
   datasource:
+    # SEGURIDAD: Las credenciales DEBEN configurarse via variables de entorno en produccion.
+    # Los valores por defecto son SOLO para desarrollo local.
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/buses}
     username: ${SPRING_DATASOURCE_USERNAME:buses}
     password: ${SPRING_DATASOURCE_PASSWORD:buses}
     driver-class-name: org.postgresql.Driver
+    # Configuracion del pool de conexiones para seguridad
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
   jpa:
     hibernate:
-      ddl-auto: update
+      # SEGURIDAD: Usar 'validate' en produccion, NUNCA 'update' o 'create-drop'
+      ddl-auto: ${HIBERNATE_DDL_AUTO:validate}
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
       hibernate.format_sql: true
   flyway:
-    enabled: false
+    # Habilitar Flyway para control de migraciones en produccion.
+    enabled: ${FLYWAY_ENABLED:true}
 
 management.endpoints.web.exposure.include: health,info
+
+# =============================================
+# CONFIGURACION JWT
+# =============================================
+jwt:
+  # Secret para firmar tokens JWT.
+  # DEBE ser una cadena Base64 de al menos 256 bits (32 bytes).
+  # Generar con: openssl rand -base64 32
+  # OBLIGATORIO en produccion via variable de entorno JWT_SECRET
+  secret: ${JWT_SECRET:cGFzc3dvcmQtZGUtZGVzYXJyb2xsby1leHRyZW1hZGFtZW50ZS1sYXJnby0xMjM0NTY3ODk=}
+
+# =============================================
+# FRONTEND URL (para back_urls de MercadoPago)
+# =============================================
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
 
 mercadopago:
   access-token: ${MERCADOPAGO_ACCESS_TOKEN:}
