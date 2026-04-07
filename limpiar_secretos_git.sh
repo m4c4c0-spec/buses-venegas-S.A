@@ -50,7 +50,7 @@ echo ""
 # PASO 3: Lista de secretos a eliminar
 # ──────────────────────────────────────────────
 # El token de SonarQube expuesto que debe ser removido del historial
-SONAR_TOKEN="SONAR_TOKEN_REVOCADO"
+SONAR_TOKEN="sqp_00a1901f7fcc76e6c332aaa2230e5b4b6697bca5"
 
 echo "🔍 Secretos a eliminar del historial:"
 echo "   - Token SonarQube: sqp_00a1...(truncado)"
